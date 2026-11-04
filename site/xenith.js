@@ -1053,8 +1053,7 @@
     if (cover) setTimeout(() => { if (cover.isConnected) cover.remove(); document.documentElement.classList.remove("engine-pending"); }, 900);
 
     STORY.t0 = 0;
-    if (reduceMotion) STORY.t0 = performance.now();
-    else storyGlassMount();
+    STORY.t0 = performance.now();
     if (reduceMotion) {
       storyDraw(1e6);
       STORY.veil.style.opacity = ".45";
@@ -1087,6 +1086,40 @@
       setTimeout(wait, 300);
     };
     wait();
+  }
+
+  function glassPrelude(done) {
+    if (!window.GlassReveal) { done(); return; }
+    if (!document.querySelector("style[data-glass-page]")) {
+      const st = document.createElement("style");
+      st.setAttribute("data-glass-page", "");
+      st.textContent = GLASS_CSS + "\n\n#xp-glass{position:fixed;inset:0;z-index:2147483647;display:grid;place-items:center;background:#05040c;opacity:1;transition:opacity .45s ease}\n#xp-glass .lg-logo-reveal{width:min(62vw,400px);height:min(40vh,225px);border-radius:16px;background:#06050f;border:1px solid rgba(255,233,176,.14);box-shadow:0 40px 120px rgba(0,0,0,.8)}\n@media(max-width:720px){#xp-glass .lg-logo-reveal{width:78vw;height:190px}}";
+      document.head.appendChild(st);
+    }
+    const wrap = document.createElement("div");
+    wrap.id = "xp-glass";
+    const plate = document.createElement("div");
+    wrap.appendChild(plate);
+    document.body.appendChild(wrap);
+    try {
+      window.GlassReveal.mount(plate, {
+        markSrc: "../assets/brand/xenith-logo-amber.svg",
+        label: "Xenith",
+        duration: 2600,
+        play: "mount",
+        onComplete: () => {
+          setTimeout(() => {
+            wrap.style.opacity = "0";
+            setTimeout(() => { wrap.remove(); done(); }, 520);
+          }, 380);
+        }
+      });
+    } catch (e) { wrap.remove(); done(); }
+  }
+
+  function startSwarmWithPrelude() {
+    showHandoffCover();
+    glassPrelude(() => setTimeout(loadSwarmEngine, 160));
   }
 
   function loadSwarmEngine() {
@@ -1124,8 +1157,7 @@
     if (gate) gate.classList.add("done");
     finishUnlock();
     if (!skipBuild && !reduceMotion) {
-      showHandoffCover();
-      setTimeout(loadSwarmEngine, 950);
+      startSwarmWithPrelude();
     }
   }
 
@@ -1234,7 +1266,7 @@
   if (params.get("entered")) {
     setTimeout(() => {
       unlock(true);
-      if (params.get("engine")) setTimeout(loadSwarmEngine, 1100);
+      if (params.get("engine")) setTimeout(startSwarmWithPrelude, 500);
     }, 300);
   }
   if (params.get("gate") === "auto") {

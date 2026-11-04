@@ -133,16 +133,21 @@
       });
     }
     let voiceSrc = null;
+    let voiceBusy = false;
     const vbuf = {};
-    async function voice(name) {
+    const vq = [];
+    async function playVoice() {
+      if (voiceBusy || !vq.length) return;
       const c = on();
       if (!c) return;
+      voiceBusy = true;
+      const name = vq.shift();
+      if (window.__xenithAudio) window.__xenithAudio.voiceQueue = vq.length;
       try {
         if (!vbuf[name]) {
           vbuf[name] = fetch("voice/" + name + ".mp3").then((r) => r.arrayBuffer()).then((b) => c.decodeAudioData(b));
         }
         const buf = await vbuf[name];
-        if (voiceSrc) { try { voiceSrc.stop(); } catch (e) {} }
         const src = c.createBufferSource();
         src.buffer = buf;
         const g = c.createGain();
@@ -150,115 +155,18 @@
         src.connect(g);
         g.connect(master);
         voiceSrc = src;
+        src.onended = () => { voiceBusy = false; voiceSrc = null; playVoice(); };
         src.start();
         if (window.__xenithAudio) window.__xenithAudio.voice = name;
-      } catch (e) {}
-    }
-
-    let ambient = null;
-    function noiseBuffer(c) {
-      const len = Math.floor(c.sampleRate * 2);
-      const b = c.createBuffer(1, len, c.sampleRate);
-      const d = b.getChannelData(0);
-      let last = 0;
-      for (let i = 0; i < len; i++) {
-        const w = Math.random() * 2 - 1;
-        last = (last + 0.02 * w) / 1.02;
-        d[i] = last * 3.5;
-      }
-      return b;
-    }
-    function ambientStart() {
-      const c = on();
-      if (!c || ambient) return;
-      const src = c.createBufferSource();
-      src.buffer = noiseBuffer(c);
-      src.loop = true;
-      const lp = c.createBiquadFilter();
-      lp.type = "lowpass";
-      lp.frequency.value = 160;
-      lp.Q.value = 0.7;
-      const g = c.createGain();
-      g.gain.value = 0.0001;
-      g.gain.exponentialRampToValueAtTime(0.09, c.currentTime + 2.4);
-      src.connect(lp); lp.connect(g); g.connect(master);
-      const sub = c.createOscillator();
-      sub.type = "sine";
-      sub.frequency.value = 38;
-      const sg = c.createGain();
-      sg.gain.value = 0.0001;
-      sg.gain.exponentialRampToValueAtTime(0.045, c.currentTime + 2.4);
-      sub.connect(sg); sg.connect(master);
-      src.start(); sub.start();
-      ambient = { src, sub, g, sg };
-      if (window.__xenithAudio) window.__xenithAudio.ambient = true;
-    }
-    function ambientStop() {
-      if (!ambient) return;
-      const c = on();
-      const a = ambient;
-      ambient = null;
-      if (window.__xenithAudio) window.__xenithAudio.ambient = false;
-      try {
-        const t = c.currentTime;
-        a.g.gain.cancelScheduledValues(t);
-        a.sg.gain.cancelScheduledValues(t);
-        a.g.gain.setTargetAtTime(0.0001, t, 0.25);
-        a.sg.gain.setTargetAtTime(0.0001, t, 0.25);
-        setTimeout(() => { try { a.src.stop(); a.sub.stop(); } catch (e) {} }, 900);
-      } catch (e) {}
-    }
-    function servo(from, to, dur) {
-      const c = on();
-      if (!c) return;
-      const t = c.currentTime;
-      const o = c.createOscillator(), g = c.createGain(), f = c.createBiquadFilter();
-      o.type = "sawtooth";
-      o.frequency.setValueAtTime(from, t);
-      o.frequency.exponentialRampToValueAtTime(Math.max(40, to), t + dur);
-      f.type = "bandpass"; f.frequency.value = 900; f.Q.value = 1.1;
-      g.gain.setValueAtTime(0.0001, t);
-      g.gain.exponentialRampToValueAtTime(0.06, t + 0.03);
-      g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
-      o.connect(f); f.connect(g); g.connect(master);
-      o.start(t); o.stop(t + dur + 0.03);
-    }
-    function ratchet(steps) {
-      const c = on();
-      if (!c) return;
-      for (let i = 0; i < (steps || 3); i++) {
-        setTimeout(() => tone(1800 + Math.random() * 500, 0.018, "square", 0.02, -400), i * 55);
+      } catch (e) {
+        voiceBusy = false;
+        playVoice();
       }
     }
-    function clank(size) {
-      const c = on();
-      if (!c) return;
-      const t = c.currentTime, k = Math.max(0.4, Math.min(1.4, size || 1));
-      [820, 1340, 1970].forEach((f, i) => {
-        const o = c.createOscillator(), g = c.createGain();
-        o.type = "triangle";
-        o.frequency.setValueAtTime(f * (0.94 + Math.random() * 0.1), t);
-        g.gain.setValueAtTime(0.12 / (i + 1) * k, t);
-        g.gain.exponentialRampToValueAtTime(0.0001, t + 0.32 + i * 0.05);
-        o.connect(g); g.connect(master);
-        o.start(t); o.stop(t + 0.4);
-      });
-      tone(92, 0.26, "sine", 0.09 * k, -30);
-    }
-    function powerUp() {
-      const c = on();
-      if (!c) return;
-      const t = c.currentTime;
-      const o = c.createOscillator(), g = c.createGain();
-      o.type = "sawtooth";
-      o.frequency.setValueAtTime(70, t);
-      o.frequency.exponentialRampToValueAtTime(520, t + 0.7);
-      g.gain.setValueAtTime(0.0001, t);
-      g.gain.exponentialRampToValueAtTime(0.07, t + 0.1);
-      g.gain.exponentialRampToValueAtTime(0.0001, t + 0.85);
-      o.connect(g); g.connect(master);
-      o.start(t); o.stop(t + 0.9);
-      setTimeout(() => { tone(523.25, 0.22, "triangle", 0.035); tone(659.25, 0.22, "triangle", 0.03); }, 620);
+    function voice(name) {
+      vq.push(name);
+      if (window.__xenithAudio) window.__xenithAudio.voiceQueue = vq.length;
+      playVoice();
     }
     function close() {
       dead = true;
