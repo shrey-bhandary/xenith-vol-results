@@ -647,6 +647,7 @@
       STORY.revealed = true;
       const bg = STORY.root.querySelector(".bg");
       if (bg) { bg.style.transition = "opacity 1.1s ease"; bg.style.opacity = "0"; }
+      if (STORY.veil) { STORY.veil.style.opacity = "0"; }
       if (STORY.canvas) { STORY.canvas.style.transition = "opacity .6s ease"; STORY.canvas.style.opacity = "0"; }
     }
     const host = document.querySelector("swarm-rebuild");
@@ -968,7 +969,7 @@
     layer.style.cssText = "position:fixed;inset:0;z-index:2147483000;pointer-events:none;overflow:hidden;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;contain:layout style";
 
     const veil = document.createElement("div");
-    veil.style.cssText = "position:absolute;inset:0;background:#05040c;opacity:.88;transition:opacity .9s ease";
+    veil.style.cssText = "position:absolute;inset:0;background:#05040c;opacity:1;transition:opacity .9s ease";
     layer.appendChild(veil);
     STORY.veil = veil;
 
@@ -1019,11 +1020,11 @@
     if (!root.querySelector("style[data-glass]")) {
       const st = document.createElement("style");
       st.setAttribute("data-glass", "");
-      st.textContent = GLASS_CSS + "\n.lg-logo-reveal{width:min(92vw,1000px);height:min(78vh,560px);background:transparent}";
+      st.textContent = GLASS_CSS + "\n.lg-logo-reveal{width:min(62vw,440px);height:min(40vh,260px);background:#05040c;border-radius:14px;box-shadow:0 30px 80px rgba(0,0,0,.6)}@media(max-width:720px){.lg-logo-reveal{width:82vw;height:240px}}";
       root.appendChild(st);
     }
     const stage = document.createElement("div");
-    stage.style.cssText = "position:absolute;inset:0;display:grid;place-items:center;z-index:2;--lg-logo-reveal-size:120px;--lg-logo-reveal-stage:transparent";
+    stage.style.cssText = "position:absolute;inset:0;display:grid;place-items:center;z-index:2;--lg-logo-reveal-size:62px;--lg-logo-reveal-stage:#05040c";
     STORY.layer.appendChild(stage);
     try {
       STORY.glass = window.GlassReveal.mount(stage, {
@@ -1031,7 +1032,7 @@
         label: "Xenith",
         duration: 2600,
         play: "mount",
-        onComplete: () => { STORY.t0 = performance.now(); }
+        onComplete: () => { STORY.t0 = performance.now(); setTimeout(() => { stage.style.transition = "opacity .5s ease"; stage.style.opacity = "0"; setTimeout(() => stage.remove(), 650); }, 250); }
       });
     } catch (e) { STORY.t0 = performance.now(); }
   }
@@ -1068,7 +1069,6 @@
     STORY.raf = requestAnimationFrame(storyTick);
     storyLater(() => {
       STORY.fading = true;
-      STORY.veil.style.opacity = "0";
       if (STORY.label) STORY.label.style.opacity = "0";
     }, 2750);
     storyLater(() => { if (STORY.canvas) STORY.canvas.style.opacity = "0"; }, 3050);

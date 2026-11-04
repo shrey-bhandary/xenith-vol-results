@@ -75,8 +75,15 @@
         try {
           ctx = new AC();
           master = ctx.createGain();
-          master.gain.value = 0.5;
-          master.connect(ctx.destination);
+          master.gain.value = 0.9;
+          const comp = ctx.createDynamicsCompressor();
+          comp.threshold.value = -14;
+          comp.knee.value = 18;
+          comp.ratio.value = 6;
+          comp.attack.value = 0.004;
+          comp.release.value = 0.22;
+          master.connect(comp);
+          comp.connect(ctx.destination);
         } catch (e) { dead = true; return null; }
       }
       if (ctx.state === "suspended") { try { ctx.resume(); } catch (e) {} }
@@ -132,7 +139,7 @@
         const src = c.createBufferSource();
         src.buffer = buf;
         const g = c.createGain();
-        g.gain.value = 0.95;
+        g.gain.value = 1.35;
         src.connect(g);
         g.connect(master);
         voiceSrc = src;
@@ -166,14 +173,14 @@
       lp.Q.value = 0.7;
       const g = c.createGain();
       g.gain.value = 0.0001;
-      g.gain.exponentialRampToValueAtTime(0.045, c.currentTime + 2.4);
+      g.gain.exponentialRampToValueAtTime(0.09, c.currentTime + 2.4);
       src.connect(lp); lp.connect(g); g.connect(master);
       const sub = c.createOscillator();
       sub.type = "sine";
       sub.frequency.value = 38;
       const sg = c.createGain();
       sg.gain.value = 0.0001;
-      sg.gain.exponentialRampToValueAtTime(0.022, c.currentTime + 2.4);
+      sg.gain.exponentialRampToValueAtTime(0.045, c.currentTime + 2.4);
       sub.connect(sg); sg.connect(master);
       src.start(); sub.start();
       ambient = { src, sub, g, sg };
@@ -204,7 +211,7 @@
       o.frequency.exponentialRampToValueAtTime(Math.max(40, to), t + dur);
       f.type = "bandpass"; f.frequency.value = 900; f.Q.value = 1.1;
       g.gain.setValueAtTime(0.0001, t);
-      g.gain.exponentialRampToValueAtTime(0.028, t + 0.03);
+      g.gain.exponentialRampToValueAtTime(0.06, t + 0.03);
       g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
       o.connect(f); f.connect(g); g.connect(master);
       o.start(t); o.stop(t + dur + 0.03);
@@ -224,7 +231,7 @@
         const o = c.createOscillator(), g = c.createGain();
         o.type = "triangle";
         o.frequency.setValueAtTime(f * (0.94 + Math.random() * 0.1), t);
-        g.gain.setValueAtTime(0.05 / (i + 1) * k, t);
+        g.gain.setValueAtTime(0.12 / (i + 1) * k, t);
         g.gain.exponentialRampToValueAtTime(0.0001, t + 0.32 + i * 0.05);
         o.connect(g); g.connect(master);
         o.start(t); o.stop(t + 0.4);
@@ -240,7 +247,7 @@
       o.frequency.setValueAtTime(70, t);
       o.frequency.exponentialRampToValueAtTime(520, t + 0.7);
       g.gain.setValueAtTime(0.0001, t);
-      g.gain.exponentialRampToValueAtTime(0.03, t + 0.1);
+      g.gain.exponentialRampToValueAtTime(0.07, t + 0.1);
       g.gain.exponentialRampToValueAtTime(0.0001, t + 0.85);
       o.connect(g); g.connect(master);
       o.start(t); o.stop(t + 0.9);
@@ -1418,6 +1425,10 @@
   function choose(id) {
     if (pickLock || done) return;
     pickLock = true;
+    const rows = [...document.querySelectorAll("#menu button")];
+    rows.forEach((b) => { b.classList.remove("picked"); b.removeAttribute("aria-selected"); });
+    const picked = rows[id === "explore" ? 1 : 0];
+    if (picked) { picked.classList.add("picked"); picked.setAttribute("aria-selected", "true"); }
     document.body.classList.remove("menu-open");
     rig.leanT = 0;
     rig.nodAt = performance.now();
