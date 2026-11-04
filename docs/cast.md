@@ -6,7 +6,7 @@ Corrected from Ricco's message. Thirteen heads plus the builder.
 |---|---|---|---|---|
 | builder | **Ricco** | Sub-head, Events. Made the site. | the page frame and the `xenith` wordmark | "i built this one" |
 | events | **Aaditya** | Head of Events | the stage and the crowd | "we make the room full" |
-| talks | **Shreyash** | Talks & Panels head | the panel stage and the mic | "we bring the room to listen" |
+| talks | **Shreyas** | Talks & Panels head | the panel stage and the mic | "we bring the room to listen" |
 | assistance | **Glynnis** | Assistance & Hospitality | the guest desk and the water table | "we look after everyone" |
 | tech | **Ashley** | Tech & Venue | the server rack and the cable run | "we keep it standing" |
 | venue | **Harsh** | Tech & Venue | the floor plan and the power | "we keep the lights on" |

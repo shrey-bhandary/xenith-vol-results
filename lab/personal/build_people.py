@@ -45,6 +45,10 @@ DEPT_FALLBACKS = {
     "Design": (
         "Every poster gets approved three times. You're the third time."
     ),
+    "Talks and panel discussions": (
+        "Two mics, one running order, and a speaker who is always ten minutes "
+        "behind. You hold the clock."
+    ),
     "Marketing": (
         "Social is three posts a day and a group chat that never sleeps. "
         "You bring the snacks."

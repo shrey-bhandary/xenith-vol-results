@@ -111,7 +111,7 @@ because there is no fallback to reach for.
 | 11 | Vasu | Events | pitch | You want a repair cafe. Xenith has broken things. It's a yes. |
 | 12 | Bhavna | Content | placement, cure | You edit everything three times. The sponsor deck has been waiting its whole life for you. |
 
-Lines 1 to 3 are live and stay verbatim. Departments for the newer nine came
+The live lines are the ones in `site/data.js`. The table below is the drafting pass. Departments for the newer nine came
 from the copy deck and still need confirming against the crew sheet.
 
 ## Draft to final, one example

@@ -26,7 +26,7 @@ node --check people.js
 Expected result:
 
 ```
-people.js: 12 people + default, 2914 bytes, 0 warning(s)
+people.js: 12 people + default, 3302 bytes, 0 warning(s)
 ```
 
 The byte count moves when copy changes. Any warning goes to stderr and still

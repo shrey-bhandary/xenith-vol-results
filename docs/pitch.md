@@ -98,7 +98,7 @@ tag `ricco · built this`. He arrives first after the X, draws the page frame an
 the `xenith` wordmark alone, then the heads pour in. At the end he draws a tiny
 signature under the name, `built by ricco`, and parks next to Rusty.
 
-Confirmed heads: Aaditya (Events), Shreyash (Talks & Panels), Glynnis
+Confirmed heads: Aaditya (Events), Shreyas (Talks & Panels), Glynnis
 (Assistance & Hospitality), Ashley and Harsh (Tech & Venue), Omkar (Finance &
 Sponsorship), Mogithh (Publicity), Tejas (Admin), Nigel (Assistance & Hospitality
 sub-head), Naren (FnD). Shivam, Pratham and Sarvika still need roles.
@@ -109,7 +109,7 @@ The engine stays unmodified. We do not rename its cursors, because its names are
 hardcoded and its labels are drawn in shadow DOM. Instead:
 
 - A caption layer inside the engine's shadow root names each head as its section
-  builds: Aaditya, Shreyash, Glynnis, Ashley, Harsh, Omkar, Mogithh, Pratham,
+  builds: Aaditya, Shreyas, Glynnis, Ashley, Harsh, Omkar, Mogithh, Pratham,
   Sarvika, Shivam, Tejas, Nigel, Naren. One line each, two seconds, then gone.
 - The visitor's cursor is a single extra passenger in the shadow root, a mint tag
   with their name, following the real pointer. It places the last element.

@@ -598,7 +598,11 @@
     D: ["11110", "10001", "10001", "10001", "10001", "10001", "11110"]
   };
   const STAMP_CELL = 7;
-  let stampStarted = false;
+  const STAMP_WORD = "SELECTED";
+  const STAMP_COLS = 47;
+  let stampDims = null;
+  let stampRaf = 0;
+  let stampCtx = null;
 
   function stampBits(word) {
     const lit = [];
@@ -616,73 +620,56 @@
     return lit;
   }
 
-  // Run cb once nothing opaque is covering the page. The engine can take a
-  // while, so fall back after ~14s rather than hanging forever.
-  function opaque(el) {
-    if (!el) return false;
-    const cs = getComputedStyle(el);
-    if (cs.display === "none" || cs.visibility === "hidden") return false;
-    return Number(cs.opacity) >= 0.05;
+  // Size the canvas before the page is revealed. Doing it inside the print
+  // would change the row height mid-reveal and shift the whole centred block.
+  function sizeStamp() {
+    const cv = document.getElementById("selectStamp");
+    if (!cv) return;
+    const avail = (cv.parentElement && cv.parentElement.clientWidth) || 329;
+    const cell = Math.max(3, Math.min(STAMP_CELL, Math.floor((avail - 96) / STAMP_COLS)));
+    const W = STAMP_COLS * cell;
+    const H = 7 * cell;
+    const dpr = Math.min(2, window.devicePixelRatio || 1);
+    cv.style.width = W + "px";
+    cv.width = Math.round(W * dpr);
+    cv.height = Math.round(H * dpr);
+    stampDims = { cell, W, H, dpr };
+    stampCtx = cv.getContext("2d");
+    if (stampCtx) stampCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
   }
 
-  // The page can be hidden by up to four different layers over the life of a
-  // reveal: the boot cover, the glass prelude, the vendored engine's own opaque
-  // host, and the story veil inside that host's shadow root. Wait for all of
-  // them, not just the two we create ourselves.
+  // The engine mounts an opaque host over the whole page and keeps it until the
+  // visitor reveals the page. A mounted host counts as covering, so this only
+  // clears when the page is genuinely in front of the visitor.
   function covered() {
     if (document.getElementById("handoff-cover")) return true;
     if (document.getElementById("xp-glass")) return true;
-    const host = document.querySelector("swarm-rebuild");
-    if (host) {
-      const root = host.shadowRoot;
-      if (root) {
-        if (opaque(root.querySelector(".bg"))) return true;
-        if (opaque(root.querySelector("#xenith-story"))) return true;
-      }
-    }
+    if (document.querySelector("swarm-rebuild")) return true;
     return false;
   }
 
   function whenVisible(cb) {
     let tries = 0;
     const check = () => {
-      if (++tries > 300) { cb(); return; }
+      if (++tries > 600) { cb(); return; }
       if (covered()) { setTimeout(check, 100); return; }
-      // clear now, but confirm: a fade can dip and come back
-      setTimeout(() => {
-        if (!covered()) cb();
-        else setTimeout(check, 100);
-      }, 500);
+      setTimeout(() => { if (!covered()) cb(); else setTimeout(check, 100); }, 400);
     };
     setTimeout(check, 100);
   }
 
   function pixelStamp() {
     const cv = document.getElementById("selectStamp");
-    if (!cv) return;
-    // it may be asked to play again if an earlier attempt happened while the
-    // page was still behind a build layer
-    stampStarted = true;
-    const word = "SELECTED";
-    const lit = stampBits(word);
-    const cols = 47;
-    // Pick the largest integer cell size that fits. A fractional scale would
-    // make some dots wider than others and break the dot-matrix regularity.
-    const avail = (cv.parentElement && cv.parentElement.clientWidth) || 329;
-    const cell = Math.max(3, Math.min(STAMP_CELL, Math.floor((avail - 96) / cols)));
-    const W = cols * cell;
-    const H = 7 * cell;
-    cv.style.width = W + "px";
-    const dpr = Math.min(2, window.devicePixelRatio || 1);
-    cv.width = Math.round(W * dpr);
-    cv.height = Math.round(H * dpr);
-    const c = cv.getContext("2d");
+    if (!cv || !stampDims) return;
+    const { cell, W, H } = stampDims;
+    const c = stampCtx;
     if (!c) return;
-    c.setTransform(dpr, 0, 0, dpr, 0, 0);
+    const lit = stampBits(STAMP_WORD);
+    if (stampRaf) { cancelAnimationFrame(stampRaf); stampRaf = 0; }
 
     function settle() {
       c.clearRect(0, 0, W, H);
-      c.fillStyle = "rgba(255,177,92,.8)";
+      c.fillStyle = "rgba(255,177,92,.72)";
       for (const [x, y] of lit) c.fillRect(x * cell + 1, y * cell + 1, cell - 2, cell - 2);
     }
 
@@ -692,28 +679,25 @@
         if (x > head) continue;
         const age = head - x;
         const heat = Math.max(0, 1 - age / 6);
-        const a = 0.5 + 0.36 * Math.min(1, age / 12);
+        const a = 0.46 + 0.3 * Math.min(1, age / 12);
         c.fillStyle = heat > 0
-          ? `rgba(255,240,208,${(a + heat * 0.35).toFixed(3)})`
+          ? `rgba(255,240,208,${(a + heat * 0.32).toFixed(3)})`
           : `rgba(255,177,92,${a.toFixed(3)})`;
         c.fillRect(x * cell + 1, y * cell + 1, cell - 2, cell - 2);
       }
     }
 
     if (reduceMotion) { settle(); return; }
-
     print(-1);
     const t0 = performance.now();
-    let raf = 0;
     const run = (now) => {
       const p = Math.min(1, (now - t0) / 820);
-      print(-1 + p * (cols + 6));
-      if (p < 1) { raf = requestAnimationFrame(run); return; }
-      raf = 0;
+      print(-1 + p * (STAMP_COLS + 6));
+      if (p < 1) { stampRaf = requestAnimationFrame(run); return; }
+      stampRaf = 0;
       settle();
     };
-    raf = requestAnimationFrame(run);
-    cv.__stampStop = () => { if (raf) cancelAnimationFrame(raf); settle(); };
+    stampRaf = requestAnimationFrame(run);
   }
 
   function finishUnlock() {
@@ -725,32 +709,19 @@
     if (!reduceMotion) fireConfetti();
     startRusty();
     stillFrame();
+    // size first so the reveal never shifts when the print begins
+    sizeStamp();
     let stampSeen = false;
-    const playStamp = (force) => {
-      if (stampSeen && !force) return;
+    const playStamp = () => {
+      if (stampSeen) return;
       stampSeen = true;
       pixelStamp();
     };
-    // once nothing is covering the page
-    whenVisible(() => setTimeout(() => playStamp(false), reduceMotion ? 0 : STAMP_DELAY));
-    // never leave a blank canvas, even if a layer never clears
-    setTimeout(() => playStamp(false), reduceMotion ? 0 : 9000);
-    // the engine keeps its own veil up until the visitor reveals the page, so
-    // replay the print on the gesture that does it. This is the moment the
-    // stamp is meant to land.
-    let replayed = false;
-    const onFirstLook = () => {
-      if (replayed) return;
-      replayed = true;
-      window.removeEventListener("pointerdown", onFirstLook);
-      window.removeEventListener("keydown", onFirstLook);
-      // The engine only gives the page back on the visitor's own gesture, and
-      // its fade takes about half a second. Print on that beat regardless of
-      // what the layers report, because a gesture means they are looking.
-      setTimeout(() => playStamp(true), 700);
-    };
-    window.addEventListener("pointerdown", onFirstLook, { passive: true });
-    window.addEventListener("keydown", onFirstLook);
+    // prints once the page is actually in front of the visitor; on the engine
+    // route that is after the build is dismissed
+    whenVisible(() => setTimeout(playStamp, reduceMotion ? 0 : STAMP_DELAY));
+    // and a backstop so the canvas is never blank
+    setTimeout(playStamp, reduceMotion ? 0 : 9000);
     const live = $("#live");
     if (live) {
       const who = String(person.name || "").trim();

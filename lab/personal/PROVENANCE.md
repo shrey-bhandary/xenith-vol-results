@@ -1,8 +1,14 @@
 # Where each line came from
 
-Every line in `site/data.js` was written from something the person actually
-supplied. This file records which field, so a reviewer can check the copy
-without needing the form export.
+Each line in `site/data.js` was written from the form answer named in the table
+below, then rewritten to the house voice. Two records (shreyas, shivam) were
+appointed rather than selected, so there is no answer to lean on and their lines
+describe the role only.
+
+This file records which field each line leans on, so a reviewer can check the
+copy without the export. It is an index, not proof: it is written by the author,
+and the export is the only thing that can confirm a paraphrase. Tags are
+inferred from the same material and are marked as such below.
 
 The form export itself is **not** in this repository and must never be. It
 contains phone numbers, emails, UIDs and people's unfiltered answers. Only
@@ -11,20 +17,20 @@ contains phone numbers, emails, UIDs and people's unfiltered answers. Only
 Anchors below are paraphrases. They are not quotes, and nothing that a person
 would mind seeing on a postcard appears here.
 
-| slug | department | source | what the line leans on |
+| slug | department | source | line leans on | tag leans on |
 |---|---|---|---|
-| shreyas | Talks and panel discussions | appointed head, no form entry | the role only: he holds the mic and the running order |
-| shivam | Talks and panel discussions | appointed sub-head, no form entry | the role only: second desk, owns the calendar |
-| suhani | Talks and panel discussions | Talks questions, coordination answer | coordinated speakers and judges at school fests; pitched a fintech panel |
-| joann | Talks and panel discussions | Talks questions, session pitch | hosts and scripts a podcast; pitched the "not getting replaced" panel |
-| katherine | Talks and panel discussions | Talks questions, session pitch | three research-inspired panel pitches, one on programmable textiles |
-| arijeet | Talks and panel discussions | Talks questions, experience + idea | ran Fitoor production; asked for cybersecurity |
-| nandini | Talks and panel discussions | Talks questions, idea + contacts | wants environment and education sessions; has pharma and screen contacts |
-| devang | Talks and panel discussions | Talks questions, experience + idea | anchored college and commercial events; asked for the brief first |
-| ryan | Talks and panel discussions | Talks questions, session pitch | pitched "BEYOND EARTH" with an ISRO chairman and a Chandrayaan director |
-| trinity | Events & Admin | earlier build | ran admin at Volantus |
-| adwitiya | Events & Admin | earlier build | split a registration desk into three queues |
-| ricco | Events | builder | built the site |
+| shreyas | Talks and panel discussions | appointed head, no form entry | the role only: mic, running order | **inferred** closing duty |
+| shivam | Talks and panel discussions | appointed sub-head, no form entry | the role only: sub-head on a two-seat desk | **inferred** position label |
+| suhani | Talks and panel discussions | Talks questions, coordination answer | speakers and judges at school fests | **inferred** from her fintech pitch |
+| joann | Talks and panel discussions | Talks questions, session pitch | hosts and scripts a podcast | **inferred** from her AI panel pitch |
+| katherine | Talks and panel discussions | Talks questions, session pitch | three research panels, one on textiles | her two other panel titles (sourced) |
+| arijeet | Talks and panel discussions | Talks questions, experience + idea | Fitoor production, cybersecurity | his answer that he never attended a bad talk |
+| nandini | Talks and panel discussions | Talks questions, idea + contacts | environment and education sessions | her pharma and screen contacts (sourced) |
+| devang | Talks and panel discussions | Talks questions, experience + idea | anchored college and commercial events | his line about planned audience engagement |
+| ryan | Talks and panel discussions | Talks questions, session pitch | ISRO chairman and Chandrayaan director | his own session title, BEYOND EARTH |
+| trinity | Events & Admin | earlier build | ran admin at Volantus | earlier build |
+| adwitiya | Events & Admin | earlier build | split a registration desk into three | earlier build |
+| ricco | Events | builder | built the site | builder |
 
 ## Rules the copy follows
 
@@ -42,3 +48,12 @@ Shreyas and Shivam were appointed, not selected from the form, so no application
 answers exist for them. Their lines describe the job and claim nothing about
 them. If either of them gets copy with a personal detail in it, that detail has
 to come from a conversation, not from this file.
+
+## What is still unverifiable
+
+- that a paraphrase matches the answer it names
+- the preferred spelling of the talks head's name (Bhandary or Shreyash)
+- any role detail beyond the position itself
+
+Record the export date and an answer reference next to this file when the real
+export is used.

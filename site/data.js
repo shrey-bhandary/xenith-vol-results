@@ -11,8 +11,8 @@ window.XENITH_PEOPLE = {
     name: "Shivam Chakroborty",
     dept: "Talks and panel discussions",
     role: "Sub-head",
-    line: "You hold the second desk on talks, which is the one that owns the calendar.",
-    tag: "the calendar, not the glory"
+    line: "You're sub-head on talks. Second seat on a two-seat desk, and the desk is yours.",
+    tag: "appointed, not interviewed"
   },
   "suhani": {
     name: "Suhani Minocha",
@@ -33,14 +33,14 @@ window.XENITH_PEOPLE = {
     dept: "Talks and panel discussions",
     role: "Volunteer",
     line: "You pitched three panels, one about clothes running software. Start with that one.",
-    tag: "memory corrupted, game over, outfits"
+    tag: "memory corrupted, then game over"
   },
   "arijeet": {
     name: "Arijeet Ray",
     dept: "Talks and panel discussions",
     role: "Volunteer",
     line: "You asked for cybersecurity and you ran Fitoor production. The security panel is yours to build.",
-    tag: "wants a security panel that is actually scary"
+    tag: "has never seen a bad panel"
   },
   "nandini": {
     name: "Nandini Thakur",
@@ -54,14 +54,14 @@ window.XENITH_PEOPLE = {
     dept: "Talks and panel discussions",
     role: "Volunteer",
     line: "You anchored college and commercial events, then asked what Xenith actually is. Here it is.",
-    tag: "anchors commercial events too"
+    tag: "plans the engagement on purpose"
   },
   "ryan": {
     name: "Ryan Joseph Johnson",
     dept: "Talks and panel discussions",
     role: "Volunteer",
     line: "You want ISRO's Somanath and a Chandrayaan director on one stage. That pitch goes to the ideas meeting.",
-    tag: "BEYOND EARTH, still on the sheet"
+    tag: "beyond earth, still on the sheet"
   },
   "trinity": {
     name: "Trinity Fernandes",

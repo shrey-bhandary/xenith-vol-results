@@ -119,7 +119,7 @@ body.entered #content{
 .save[disabled]{opacity:.4;cursor:wait}
 #line{
   margin:18px 0 0;max-width:38ch;
-  font-size:14px;line-height:1.85;color:rgba(255,233,176,.62);
+  font-size:14px;line-height:1.85;color:rgba(255,233,176,.8);
 }
 
 /* ---------- rusty ---------- */
@@ -267,7 +267,7 @@ body.building .sound,body.entered .sound{opacity:1;pointer-events:auto}
 body.engine #swarm,body.engine .sound,body.engine #confetti{display:none!important}
 
 @media (max-width:720px){
-  #line{font-size:12.5px;max-width:100%;overflow-wrap:anywhere}
+  #line{font-size:13.5px;max-width:100%;overflow-wrap:anywhere}
 }
 
 body.engine #content{opacity:1!important;visibility:visible!important;transition:none!important}

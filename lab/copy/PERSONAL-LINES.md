@@ -147,12 +147,13 @@ nothing.
 The answer text under each name is a stand-in. Replace it from the real form
 export, and if the answer differs, rewrite from the same family and keep the
 shape. Departments for the nine new names are placeholders too; take the real
-allocation from the crew sheet. The first three lines are live in
-`site/data.js` and are kept verbatim for continuity.
+allocation from the crew sheet. The live lines are the ones in `site/data.js`;
+this deck is the drafting tool, and where the two differ `site/data.js` wins.
+Katherine's entry below is her old Events line and is no longer what ships.
 
 **1. Katherine Augustine**, Events & Admin, WEAK (carve-out)
 Answer: "I'm dead by 7 PM. Evening classes are my nemesis."
-> You said evening classes are your nemesis. We put the chaos at 12 PM.
+> [superseded] You said evening classes are your nemesis. We put the chaos at 12 PM.
 
 Schedule claim, so it must match the final run sheet.
 
