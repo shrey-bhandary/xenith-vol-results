@@ -310,14 +310,15 @@
 
   let lastFrame = 0;
   let frameRaf = 0;
-  let ambientStopped = false;
+  // The ambient art pauses while the engine owns the screen and resumes when it
+  // hands the page back. It must not stop for good: the rain, the slab X and
+  // Rusty are the life of the page after the build.
+  let ambientPaused = false;
   function frame(t) {
     frameRaf = 0;
-    if (ambientStopped) return;
-    // The engine paints an opaque full-screen host over #stage, and a hidden or
-    // collapsed canvas is not worth 50k text draws a second either. Bail for
-    // good instead of rescheduling.
-    if (document.body.classList.contains("engine") || !cv.clientWidth) return;
+    // Paused (engine owns the screen) or the canvas has no layout box: keep the
+    // tick alive but draw nothing. Resuming is then immediate.
+    if (ambientPaused || !cv.clientWidth) { frameRaf = requestAnimationFrame(frame); return; }
     // Reduced motion paints a single settled frame and never self-schedules.
     if (!reduceMotion) frameRaf = requestAnimationFrame(frame);
     if (!reduceMotion && (document.hidden || t - lastFrame < 33)) return;
@@ -348,7 +349,7 @@
   }
   // Reduced motion gets one paint per state change instead of a loop.
   function stillFrame() {
-    if (reduceMotion && !ambientStopped) frameRaf = requestAnimationFrame(frame);
+    if (reduceMotion && !ambientPaused) frameRaf = requestAnimationFrame(frame);
   }
   frameRaf = requestAnimationFrame(frame);
 
@@ -832,13 +833,22 @@
 
   // The engine paints its own opaque full-screen host, so the page's ambient
   // loops have nothing left to show. Called from loadSwarmEngine.
-  function stopAmbient() {
-    ambientStopped = true;
-    if (frameRaf) { cancelAnimationFrame(frameRaf); frameRaf = 0; }
-    if (STORY.poll) { clearInterval(STORY.poll); STORY.poll = 0; }
-    if (STORY.hostObs) { STORY.hostObs.disconnect(); STORY.hostObs = null; }
+  function pauseAmbient() {
+    if (ambientPaused) return;
+    ambientPaused = true;
     // the ambient cursor crew draws into a canvas the engine has hidden
     try { if (window.XenithSwarm && window.XenithSwarm.stop) window.XenithSwarm.stop(); } catch (e) {}
+  }
+
+  // Give the page its life back once the build is dismissed.
+  function resumeAmbient() {
+    if (!ambientPaused) return;
+    ambientPaused = false;
+    try { if (window.XenithSwarm && window.XenithSwarm.start) window.XenithSwarm.start(); } catch (e) {}
+    startRusty();
+    if (!frameRaf) frameRaf = requestAnimationFrame(frame);
+    stillFrame();
+    if (!xpts.length) buildX();
   }
 
   // The engine swaps its host on Replay. Keep the layer in whichever shadow
@@ -1006,27 +1016,35 @@
     const g = storyGeom();
     const wg = storyWordGeom(ctx, g);
     const frameP = storyEase(storyClamp(el / 1500));
-    const writeP = storyClamp((el - 1620) / 900);
+    // The border hands over to the wordmark instead of sitting on top of it:
+    // it eases away once the trace finishes, and the cursor takes its time
+    // travelling to the mark rather than snapping across the screen.
+    const frameFade = el < 1500 ? 1 : Math.max(0, 1 - (el - 1500) / 600);
+    const handoff = 1500;
+    const handoffMs = 500;
+    const writeP = storyClamp((el - (handoff + handoffMs)) / 900);
 
     ctx.save();
     ctx.lineCap = "round";
     ctx.lineJoin = "round";
     ctx.strokeStyle = "rgba(255,233,176,.92)";
     ctx.shadowColor = "rgba(255,177,92,.85)";
-    ctx.shadowBlur = 12;
+    ctx.shadowBlur = 12 * frameFade;
     ctx.lineWidth = 1.2;
+    ctx.globalAlpha = frameFade;
     storyFrame(ctx, g, frameP);
     ctx.restore();
 
     if (writeP > 0) storyWord(ctx, wg, writeP);
 
     let px, py;
-    if (el < 1500) {
+    if (el < handoff) {
       const p = storyFramePoint(g, frameP);
       px = p[0]; py = p[1];
-    } else if (el < 1620) {
+    } else if (el < handoff + handoffMs) {
+      // eased, so the cursor glides from the last frame corner to the mark
       const a = storyFramePoint(g, 1);
-      const t = (el - 1500) / 120;
+      const t = storyEase((el - handoff) / handoffMs);
       px = a[0] + (wg.x - a[0]) * t;
       py = a[1] + (wg.y - 4 - a[1]) * t;
     } else {
@@ -1292,7 +1310,7 @@
     enteredMix = 1;
     try { drawX(performance.now()); } catch (e) {}
     showHandoffCover();
-    stopAmbient();
+    pauseAmbient();
 
     let settled = false;
     const settle = () => {
@@ -1326,6 +1344,8 @@
         if (!host) {
           clearInterval(t);
           document.body.classList.remove("swarm-build");
+          // the page is the visitor's again: rain, slab X and Rusty come back
+          resumeAmbient();
           return;
         }
         const o = bgOpacity();
@@ -1511,10 +1531,8 @@
 
   function rustyLoop(t) {
     if (!rustStarted) return;
-    // The engine's host is opaque, so nothing Rusty draws can be seen. Stop
-    // re-arming instead of keeping a 60fps callback alive for the session.
-    if (document.body.classList.contains("engine") || ambientStopped) { rustStarted = false; return; }
     requestAnimationFrame(rustyLoop);
+    if (ambientPaused) return;
     // rAF runs at the display's rate; draw at ~30fps, ~10fps under reduced motion.
     if (t - lastRust < (reduceMotion ? 100 : 33)) return;
     lastRust = t;
