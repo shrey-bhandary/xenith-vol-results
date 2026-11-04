@@ -1,0 +1,394 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<title>Xenith intro / prototype</title>
+<style>
+@font-face{
+  font-family:"PS2P";
+  src:url("../../assets/fonts/PressStart2P.ttf") format("truetype");
+  font-display:swap;
+}
+:root{
+  --void:#05040c;
+  --amber:#ffb15c;
+  --cream:#ffe9b0;
+  --violet:#7b5cff;
+  --mint:#9ef0c0;
+  --red:#ff5c3b;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --ps:"PS2P",ui-monospace,monospace;
+  --edge:rgba(255,233,176,.16);
+  --dim:rgba(255,233,176,.5);
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--void);color:var(--cream)}
+body{
+  font-family:var(--mono);overflow:hidden;overscroll-behavior:none;
+  -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
+}
+::selection{background:rgba(255,177,92,.24);color:var(--cream)}
+[hidden]{display:none!important}
+.sr{
+  position:absolute;width:1px;height:1px;padding:0;margin:-1px;
+  overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0;
+}
+a{color:var(--cream)}
+
+#stage{position:fixed;inset:0;overflow:hidden;transition:opacity .9s ease}
+body.ended #stage{opacity:0;pointer-events:none}
+
+/* ---------- void ---------- */
+canvas{display:block}
+#voidCv,#rigCv{position:absolute;inset:0;width:100%;height:100%}
+#voidCv{z-index:0}
+#rigCv{z-index:5;animation:drift 21s ease-in-out infinite alternate}
+@keyframes drift{
+  from{transform:translate3d(-.22%,.16%,0)}
+  to{transform:translate3d(.22%,-.16%,0)}
+}
+.tint{
+  position:absolute;inset:0;z-index:1;pointer-events:none;opacity:.9;
+  background:
+    radial-gradient(70% 52% at 50% 46%, rgba(255,177,92,.055), transparent 68%),
+    radial-gradient(60% 46% at 78% 18%, rgba(123,92,255,.075), transparent 70%);
+}
+.grain{
+  position:absolute;inset:0;z-index:2;pointer-events:none;opacity:.04;mix-blend-mode:overlay;
+  background-image:
+    repeating-linear-gradient(0deg, rgba(255,255,255,.7) 0 1px, transparent 1px 2px),
+    repeating-linear-gradient(90deg, rgba(255,255,255,.45) 0 1px, transparent 1px 2px);
+}
+.scan{
+  position:absolute;inset:0;z-index:3;pointer-events:none;opacity:.5;
+  background:repeating-linear-gradient(to bottom, rgba(0,0,0,0) 0 2px, rgba(0,0,0,.17) 2px 3px);
+}
+.vig{
+  position:absolute;inset:0;z-index:4;pointer-events:none;
+  background:
+    radial-gradient(122% 92% at 50% 44%, transparent 34%, rgba(2,1,7,.72) 100%),
+    linear-gradient(to bottom, rgba(2,1,7,.34), transparent 18%, transparent 82%, rgba(2,1,7,.5));
+}
+
+/* ---------- hud ---------- */
+.hud{
+  position:absolute;top:0;left:0;right:0;z-index:10;
+  display:flex;justify-content:space-between;align-items:center;
+  padding:18px clamp(18px,3.2vw,38px);
+  font-size:9px;letter-spacing:.28em;text-transform:lowercase;
+  color:var(--dim);pointer-events:none;
+  transition:opacity .5s ease;
+}
+.hud-l{display:flex;align-items:center;gap:10px}
+.hud-l .slash{opacity:.32}
+#phase{color:var(--amber);transition:color .4s ease}
+.hud-r{display:flex;align-items:center;gap:12px;font-variant-numeric:tabular-nums}
+#meter{min-width:4.2em;text-align:right;color:rgba(255,233,176,.44)}
+.tick{position:relative;width:9px;height:9px;display:inline-block;opacity:.4;transition:opacity .4s}
+.tick::before,.tick::after{
+  content:"";position:absolute;left:50%;top:50%;width:1px;height:9px;
+  background:var(--cream);transform-origin:center;
+  transition:transform .55s cubic-bezier(.2,.9,.2,1);
+}
+.tick::before{transform:translate(-50%,-50%) rotate(45deg) scaleY(0)}
+.tick::after{transform:translate(-50%,-50%) rotate(-45deg) scaleY(0)}
+body.awake .tick{opacity:1;filter:drop-shadow(0 0 6px rgba(255,177,92,.55))}
+body.awake .tick::before{transform:translate(-50%,-50%) rotate(45deg) scaleY(1)}
+body.awake .tick::after{transform:translate(-50%,-50%) rotate(-45deg) scaleY(1)}
+body[data-state="gate"] #phase{color:var(--mint)}
+
+/* ---------- console: log and dialogue share one box ---------- */
+.console{
+  position:absolute;left:clamp(20px,6.4vw,92px);bottom:clamp(26px,5vh,52px);z-index:12;
+  width:min(460px,82vw);pointer-events:none;transition:opacity .45s ease;
+}
+.log{
+  list-style:none;margin:0;padding:0 0 0 14px;border-left:1px solid rgba(255,177,92,.22);
+  font-size:10px;line-height:2.05;letter-spacing:.04em;
+  color:rgba(255,233,176,.42);
+}
+.log li{opacity:0;transform:translateY(5px);animation:lineIn .34s ease forwards;white-space:pre}
+.log li:last-child{color:rgba(255,233,176,.72)}
+@keyframes lineIn{to{opacity:1;transform:none}}
+.log.fade{opacity:0;transition:opacity .4s ease}
+.say{
+  padding-left:14px;border-left:1px solid rgba(255,177,92,.34);
+  opacity:0;transform:translateY(4px);transition:opacity .5s ease,transform .5s ease;
+}
+.say.on{opacity:1;transform:none}
+.who{
+  display:block;font-family:var(--ps);font-size:8px;line-height:1;
+  letter-spacing:.2em;text-transform:lowercase;color:rgba(255,177,92,.7);
+  margin-bottom:11px;
+}
+#line{
+  margin:0;max-width:36ch;min-height:2.9em;
+  font-size:clamp(13px,1.24vw,15px);line-height:1.78;letter-spacing:.01em;
+  color:rgba(255,233,176,.88);
+}
+#line.typing::after{
+  content:"";display:inline-block;width:7px;height:1.02em;margin-left:4px;
+  vertical-align:-.16em;background:var(--amber);
+  animation:caret 1s steps(1) infinite;
+}
+@keyframes caret{50%{opacity:0}}
+
+/* ---------- wake: the one action ---------- */
+.wake{
+  position:absolute;left:50%;bottom:6px;z-index:13;
+  display:flex;align-items:center;gap:13px;
+  transform:translateX(-50%);
+  background:none;border:0;padding:16px 20px;min-height:44px;
+  font:inherit;font-size:10px;letter-spacing:.3em;text-transform:lowercase;
+  color:rgba(255,233,176,.8);cursor:pointer;
+  -webkit-tap-highlight-color:transparent;
+}
+.wake:hover{color:var(--cream)}
+.wake:focus-visible{outline:1px solid var(--mint);outline-offset:6px}
+.wake .caret{
+  width:5px;height:5px;background:var(--amber);
+  box-shadow:0 0 10px rgba(255,177,92,.8);
+  animation:caret 1.15s steps(1) infinite;
+}
+.wake[data-wait="1"]{color:rgba(255,233,176,.38)}
+.wake[data-wait="1"] .caret{animation:none;opacity:.3}
+
+/* ---------- choices, only when IntroMenu is absent ---------- */
+.menu{
+  position:absolute;left:clamp(20px,6.4vw,92px);bottom:clamp(88px,16vh,156px);z-index:14;
+  width:min(540px,44vw);display:grid;gap:2px;
+  opacity:0;transform:translateY(8px);transition:opacity .5s ease,transform .5s ease;
+}
+.menu.in{opacity:1;transform:none}
+.menu.out{opacity:0;transform:translateY(-6px)}
+.opt{
+  --i:0;
+  position:relative;display:grid;grid-template-columns:32px minmax(0,1fr) 12px;gap:12px;
+  align-items:start;width:100%;margin:0;padding:15px 12px 16px;
+  background:transparent;border:0;border-top:1px solid var(--edge);
+  color:inherit;font:inherit;text-align:left;cursor:pointer;
+  transition:background .3s ease,border-color .3s ease,transform .3s ease;
+  -webkit-tap-highlight-color:transparent;
+}
+.opt:last-child{border-bottom:1px solid var(--edge)}
+.opt::before{
+  content:"";position:absolute;left:0;top:0;bottom:0;width:1px;
+  background:var(--amber);transform:scaleY(0);transform-origin:top;
+  transition:transform .3s ease;
+}
+.menu.in .opt{animation:optIn .5s cubic-bezier(.2,.9,.2,1) both;animation-delay:calc(var(--i) * 90ms)}
+@keyframes optIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.opt:hover,.opt:focus-visible{
+  background:linear-gradient(90deg, rgba(255,177,92,.075), transparent 78%);
+  border-color:rgba(255,177,92,.5);outline:none;transform:translateX(6px);
+}
+.opt:hover::before,.opt:focus-visible::before{transform:scaleY(1)}
+.opt:focus-visible{box-shadow:inset 0 0 0 1px rgba(158,240,192,.35)}
+.idx{
+  font-size:10px;line-height:1.6;letter-spacing:.06em;
+  color:rgba(255,177,92,.62);padding-top:3px;
+}
+.mid{min-width:0}
+.opt-label{
+  display:block;font-family:var(--ps);font-size:clamp(9px,1.05vw,11.5px);
+  line-height:1.85;letter-spacing:.02em;color:rgba(255,233,176,.92);
+  transition:color .3s ease;
+}
+.opt:hover .opt-label,.opt:focus-visible .opt-label{color:var(--cream)}
+.opt-sub{
+  display:block;margin-top:9px;font-size:10px;line-height:1.6;
+  letter-spacing:.05em;color:rgba(255,233,176,.4);
+}
+.opt-x{
+  font-size:10px;line-height:1.6;color:var(--amber);
+  opacity:0;transform:rotate(-8deg) scale(.7);
+  transition:opacity .3s ease,transform .3s ease;padding-top:3px;text-align:right;
+}
+.opt:hover .opt-x,.opt:focus-visible .opt-x{opacity:.9;transform:none}
+@media (max-width:760px){
+  .menu{left:18px;right:18px;width:auto;bottom:76px}
+  .opt{grid-template-columns:26px minmax(0,1fr) 10px;gap:10px;padding:13px 8px 14px}
+  .opt-label{font-size:9.5px;line-height:1.9}
+  .opt-sub{font-size:9.5px;margin-top:7px}
+  body.menu-open .console{display:none}
+}
+
+/* ---------- gate placeholder ---------- */
+.gate{position:fixed;inset:0;z-index:30}
+#xpad{
+  position:absolute;inset:0;width:100%;height:100%;
+  touch-action:none;cursor:crosshair;
+}
+.gate-note{
+  position:absolute;left:50%;top:74%;transform:translateX(-50%);
+  width:min(88vw,540px);margin:0;text-align:center;pointer-events:none;
+  font-size:11px;line-height:1.8;letter-spacing:.04em;
+  color:rgba(255,233,176,.76);
+}
+.gate-meta{
+  position:absolute;left:50%;top:calc(74% + 44px);transform:translateX(-50%);
+  margin:0;pointer-events:none;font-size:9px;letter-spacing:.26em;
+  text-transform:lowercase;color:rgba(255,233,176,.44);
+  font-variant-numeric:tabular-nums;
+}
+.gate-tag{
+  position:absolute;left:clamp(18px,3.2vw,38px);bottom:clamp(16px,3.6vh,32px);
+  margin:0;pointer-events:none;font-size:8px;letter-spacing:.28em;
+  text-transform:lowercase;color:rgba(255,233,176,.34);
+}
+body[data-state="gate"] .console,
+body[data-state="gate"] .menu{opacity:0;pointer-events:none}
+body[data-state="gate"] .hud{opacity:.55}
+body[data-state="gate"] .vig{background:radial-gradient(120% 92% at 48% 54%, transparent 28%, rgba(2,1,7,.82) 100%)}
+
+/* ---------- skip ---------- */
+.skip{
+  position:absolute;right:clamp(14px,3.2vw,38px);bottom:clamp(12px,3.4vh,30px);z-index:16;
+  background:none;border:0;margin:0;padding:12px 14px;min-height:44px;
+  font:inherit;font-size:9px;letter-spacing:.26em;text-transform:lowercase;
+  color:rgba(255,233,176,.52);cursor:pointer;
+  -webkit-tap-highlight-color:transparent;
+  transition:color .3s ease;
+}
+.skip:hover{color:rgba(255,233,176,.95)}
+.skip:focus-visible{outline:1px solid var(--mint);outline-offset:3px}
+.gate .skip{position:absolute}
+
+/* ---------- flash ---------- */
+.flash{
+  position:fixed;inset:0;z-index:40;pointer-events:none;background:var(--cream);
+  opacity:0;mix-blend-mode:screen;
+}
+.flash.fire{animation:flashOut .3s ease-out}
+@keyframes flashOut{0%{opacity:0}14%{opacity:.92}100%{opacity:0}}
+
+/* ---------- handoff card, standalone only ---------- */
+#handoff{
+  position:fixed;inset:0;z-index:50;display:grid;place-items:center;padding:24px;
+  background:radial-gradient(80% 70% at 50% 40%, rgba(123,92,255,.08), transparent 70%), var(--void);
+}
+.card{
+  width:min(540px,92vw);padding:clamp(22px,4.4vw,42px);
+  border:1px solid var(--edge);background:rgba(5,4,12,.92);
+  box-shadow:0 0 90px rgba(123,92,255,.14), inset 0 1px 0 rgba(255,233,176,.06);
+}
+.card .k{
+  margin:0 0 22px;font-size:9px;letter-spacing:.3em;text-transform:lowercase;
+  color:var(--amber);
+}
+.card h1{
+  margin:0;font-size:clamp(20px,3.4vw,30px);font-weight:400;line-height:1.3;
+  letter-spacing:-.01em;color:var(--cream);
+}
+.card p{margin:16px 0 0;font-size:12.5px;line-height:1.9;color:rgba(255,233,176,.66)}
+.card code{font-family:var(--mono);font-size:11.5px;color:var(--mint)}
+.card .go{
+  display:inline-block;margin-top:28px;padding:9px 0;
+  border-bottom:1px solid rgba(255,177,92,.5);text-decoration:none;
+  font-size:10px;letter-spacing:.3em;text-transform:lowercase;color:var(--cream);
+  transition:border-color .3s ease,color .3s ease;
+}
+.card .go:hover{border-color:var(--cream);color:#fff6de}
+.card .go:focus-visible{outline:1px solid var(--mint);outline-offset:5px}
+.xmark{
+  position:relative;display:inline-block;width:30px;height:30px;
+  margin-right:14px;vertical-align:-4px;
+}
+.xmark::before,.xmark::after{
+  content:"";position:absolute;left:50%;top:50%;width:1.5px;height:31px;
+  background:var(--amber);box-shadow:0 0 9px rgba(255,177,92,.6);
+  transform-origin:center;
+}
+.xmark::before{transform:translate(-50%,-50%) rotate(45deg)}
+.xmark::after{transform:translate(-50%,-50%) rotate(-45deg)}
+
+@media (max-width:760px){
+  .hud{font-size:8px;padding:15px 18px}
+  .console{left:18px;right:18px;bottom:20px;width:auto}
+  .log{font-size:9.5px;line-height:2.1}
+  #line{font-size:13px;max-width:none}
+  .wake{bottom:24vh;font-size:9.5px;letter-spacing:.24em}
+  .gate-note{top:70%;font-size:10.5px}
+  .gate-meta{top:calc(70% + 40px);font-size:8.5px}
+  .skip{font-size:8.5px}
+}
+@media (max-height:520px){
+  .wake{bottom:16vh}
+  .gate-note{top:66%}
+  .gate-meta{top:calc(66% + 36px)}
+  .menu{bottom:56px}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{
+    animation-duration:.01ms!important;animation-iteration-count:1!important;
+    transition-duration:.01ms!important;scroll-behavior:auto!important;
+  }
+  #rigCv{animation:none}
+}
+</style>
+</head>
+<body data-state="void">
+<div id="stage">
+  <canvas id="voidCv" aria-hidden="true"></canvas>
+  <canvas id="rigCv" aria-hidden="true"></canvas>
+  <div class="tint" aria-hidden="true"></div>
+  <div class="grain" aria-hidden="true"></div>
+  <div class="scan" aria-hidden="true"></div>
+  <div class="vig" aria-hidden="true"></div>
+
+  <header class="hud">
+    <div class="hud-l"><span>xenith</span><span class="slash">/</span><span id="phase">void</span></div>
+    <div class="hud-r"><span class="tick" aria-hidden="true"></span><span id="meter">00.0</span></div>
+  </header>
+
+  <div class="console" id="console">
+    <ol class="log" id="log" aria-label="intro status"></ol>
+    <div class="say" id="say" hidden>
+      <span class="who">rusty</span>
+      <p id="line"></p>
+      <p class="sr" id="lineSr" aria-live="polite"></p>
+    </div>
+  </div>
+
+  <button class="wake" id="wake" type="button" hidden>
+    <span class="caret" aria-hidden="true"></span>
+    <span id="wakeText">loading</span>
+  </button>
+
+  <nav class="menu" id="menu" aria-label="How can Rusty help" hidden></nav>
+
+  <div class="gate" id="gate" hidden>
+    <canvas id="xpad" aria-label="Draw an X to open the void"></canvas>
+    <p class="gate-note">two lines. trace the dashes. i will watch.</p>
+    <p class="gate-meta" id="gateMeta">0 / 2 lines   0%</p>
+    <p class="gate-tag">gate / placeholder</p>
+    <button class="skip" id="gateSkip" type="button">skip the x</button>
+  </div>
+
+  <button class="skip" id="skip" type="button" hidden>skip intro</button>
+  <div class="flash" id="flash" aria-hidden="true"></div>
+</div>
+
+<section id="handoff" hidden aria-labelledby="handoffTitle">
+  <div class="card">
+    <p class="k">handoff / x</p>
+    <h1 id="handoffTitle"><span class="xmark" aria-hidden="true"></span>the void is open.</h1>
+    <p>This prototype was opened on its own, so it dispatched the handoff event instead of calling a host hook.</p>
+    <p><code>window.XenithIntroDone(detail)</code> is where the existing page and the vendored swarm engine take over.</p>
+    <a class="go" href="../../site/index.html?entered=1&amp;engine=1">open the page</a>
+  </div>
+</section>
+
+<noscript>
+  <p style="padding:24px;font:12px/1.8 ui-monospace,monospace;color:#ffe9b0">
+    The intro needs JavaScript. <a href="../../site/index.html?entered=1&amp;engine=1">Open the page</a>.
+  </p>
+</noscript>
+
+<script src="rusty.js"></script>
+<script src="void.js"></script>
+<script src="intro.js"></script>
+</body>
+</html>

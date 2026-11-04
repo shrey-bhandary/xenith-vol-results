@@ -1,0 +1,150 @@
+/* Prototype styling only. Lifted from site/style.css so the beat can be
+   dropped into the real page without a redesign. New rules are marked. */
+@font-face{
+  font-family:"PS2P";
+  src:url("../../assets/fonts/PressStart2P.ttf") format("truetype");
+  font-display:swap;
+}
+:root{
+  --ink:#06050f;
+  --amber:#ffb15c;
+  --cream:#ffe9b0;
+  --violet:#7b5cff;
+  --red:#ff5c3b;
+  --mint:#9ef0c0;
+  --dim:#8a83a6;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--ink);color:var(--cream)}
+body{
+  font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  overflow:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+#stage{position:fixed;inset:0;overflow:hidden}
+
+#scene{
+  position:absolute;left:0;top:0;width:100%;height:100%;
+  display:block;
+  transform-origin:62% 50%;
+  will-change:transform;
+  filter:brightness(.85) saturate(.95);
+  transition:filter 1.2s ease;
+}
+body.entered #scene{filter:brightness(1) saturate(1)}
+#monument{
+  position:absolute;inset:0;width:100%;height:100%;
+  z-index:2;pointer-events:none;
+}
+#scrim{
+  position:absolute;inset:0;z-index:3;pointer-events:none;
+  background:linear-gradient(100deg, rgba(6,5,15,.98) 0%, rgba(6,5,15,.92) 26%, rgba(6,5,15,.45) 46%, transparent 62%);
+}
+#vignette{
+  position:absolute;inset:0;pointer-events:none;
+  background:
+    radial-gradient(120% 90% at 50% 44%, transparent 38%, rgba(3,2,10,.66) 100%),
+    linear-gradient(to bottom, rgba(3,2,10,.3), transparent 20%, transparent 80%, rgba(3,2,10,.5));
+}
+#scanlines{
+  position:absolute;inset:0;pointer-events:none;opacity:.55;
+  background:repeating-linear-gradient(to bottom, rgba(0,0,0,0) 0 2px, rgba(0,0,0,.16) 2px 3px);
+  mix-blend-mode:multiply;
+}
+
+.hud{
+  position:absolute;top:0;left:0;right:0;z-index:4;
+  display:flex;justify-content:space-between;
+  padding:20px clamp(18px,3.4vw,42px);
+  font-size:9px;letter-spacing:.3em;text-transform:lowercase;color:rgba(255,233,176,.4);
+  pointer-events:none;
+}
+
+#content{
+  position:absolute;z-index:4;
+  left:clamp(22px,7vw,110px);top:50%;transform:translateY(-50%);
+  max-width:min(640px,72vw);
+  opacity:0;visibility:hidden;
+  transition:opacity 1.2s ease .3s, transform 1.2s cubic-bezier(.2,.8,.2,1) .3s;
+  transform:translateY(calc(-50% + 10px));
+}
+body.entered #content{
+  opacity:1;visibility:visible;transform:translateY(-50%);
+}
+#name{
+  font-family:"PS2P",ui-monospace,monospace;
+  font-size:clamp(28px,4.8vw,58px);
+  line-height:1.28;margin:0;letter-spacing:0;
+  color:var(--cream);
+  text-shadow:2px 0 0 rgba(123,92,255,.38), -1px 0 0 rgba(255,92,59,.25);
+}
+#role{
+  margin:20px 0 0;font-size:9.5px;letter-spacing:.36em;text-transform:uppercase;
+  color:var(--amber);
+}
+#line{
+  margin:18px 0 0;max-width:38ch;
+  font-size:14px;line-height:1.85;color:rgba(255,233,176,.62);
+}
+
+#gate{
+  position:fixed;inset:0;z-index:10;
+  transition:opacity .42s ease, visibility .42s ease;
+}
+#gate::before{
+  content:"";position:absolute;inset:0;z-index:0;pointer-events:none;
+  background:radial-gradient(circle at 50% 50%, rgba(6,5,15,.78) 0%, rgba(6,5,15,.5) 26%, transparent 56%);
+}
+body.entered #gate{opacity:0;visibility:hidden}
+#xpad{
+  position:absolute;inset:0;width:100%;height:100%;z-index:1;
+  touch-action:none;cursor:crosshair;
+}
+.prompt{
+  position:absolute;left:50%;top:76%;transform:translate(-50%,-50%);
+  text-align:center;pointer-events:none;z-index:2;
+  transition:opacity .6s ease;
+}
+.prompt.fade{opacity:.12}
+.prompt .p1{
+  display:block;font-size:12px;letter-spacing:.5em;text-transform:lowercase;
+  color:rgba(255,238,200,.92);text-indent:.5em;
+}
+.prompt .p2{
+  display:block;margin-top:12px;font-size:9px;letter-spacing:.34em;text-transform:lowercase;
+  color:rgba(255,233,176,.42);text-indent:.34em;
+}
+#skip{
+  position:absolute;left:50%;bottom:26px;transform:translateX(-50%);z-index:2;
+  background:none;border:0;font:inherit;font-size:9px;letter-spacing:.3em;
+  text-transform:lowercase;color:rgba(255,233,176,.3);cursor:pointer;padding:8px;
+}
+#skip:hover,#skip:focus-visible{color:rgba(255,233,176,.8);outline:none}
+
+/* NEW: the unlock flash. Above the gate so it masks the swap and the fade. */
+#flash{
+  position:fixed;inset:0;z-index:11;pointer-events:none;opacity:0;
+  background:radial-gradient(circle at 50% 48%, rgba(255,233,176,.5), rgba(255,177,92,.12) 24%, transparent 58%);
+}
+#flash.on{animation:xf .55s ease-out both}
+@keyframes xf{
+  0%{opacity:0}
+  10%{opacity:.85}
+  32%{opacity:.45}
+  100%{opacity:0}
+}
+
+body.locked #content{opacity:0;visibility:hidden}
+
+@media (max-width:720px){
+  #content{left:22px;right:22px;max-width:none}
+  #name{font-size:clamp(24px,7.6vw,34px)}
+  #line{font-size:13px;max-width:none}
+  #role{font-size:8.5px;letter-spacing:.3em}
+  .hud{font-size:8px;padding:16px 18px}
+  .prompt .p1{font-size:10px;letter-spacing:.44em;text-indent:.44em}
+  .prompt .p2{font-size:8px}
+}
+@media (prefers-reduced-motion:reduce){
+  *{transition-duration:.01ms!important;animation:none!important}
+}

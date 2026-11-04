@@ -1,0 +1,17 @@
+/* Xenith selected: personal line reveal. Add after the #line rule in style.css. */
+#line{position:relative;text-wrap:pretty}
+#line .ln-w{transition:opacity .12s linear}
+#line .ln-caret{
+  position:absolute;
+  width:.55ch;height:1.06em;
+  background:var(--amber);
+  box-shadow:0 0 6px rgba(255,177,92,.75);
+  opacity:0;
+  pointer-events:none;
+}
+#line .ln-caret-live{opacity:.85}
+#line .ln-caret-out{opacity:0;transition:opacity .42s ease}
+@media (prefers-reduced-motion:reduce){
+  #line .ln-w{transition:none}
+  #line .ln-caret{display:none}
+}

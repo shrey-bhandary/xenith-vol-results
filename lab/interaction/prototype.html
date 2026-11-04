@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Xenith, the X remembers your hand</title>
+<link rel="stylesheet" href="prototype.css">
+</head>
+<body class="locked">
+<div id="stage">
+  <canvas id="scene" aria-hidden="true"></canvas>
+  <canvas id="monument" aria-hidden="true"></canvas>
+  <div id="scrim"></div>
+  <div id="vignette"></div>
+  <div id="scanlines"></div>
+
+  <header class="hud">
+    <span>xenith</span>
+    <span>2026</span>
+  </header>
+
+  <main id="content">
+    <h1 id="name">Katherine Augustine</h1>
+    <p id="role">Events &amp; Admin</p>
+    <p id="line">You said evening classes are your nemesis. We put the chaos at 12 PM.</p>
+  </main>
+
+  <div id="gate">
+    <canvas id="xpad" aria-label="Draw an X to enter"></canvas>
+    <div class="prompt" id="prompt">
+      <span class="p1">draw x</span>
+      <span class="p2">to enter</span>
+    </div>
+    <button id="skip" type="button">skip</button>
+  </div>
+
+  <div id="flash" aria-hidden="true"></div>
+</div>
+
+<script src="trace.js"></script>
+<script src="prototype.js"></script>
+</body>
+</html>

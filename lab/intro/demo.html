@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<title>Rusty face / expression sheet</title>
+<style>
+:root{
+  --cream:#ffe9b0;
+  --amber:#ffb15c;
+  --edge:rgba(255,233,176,.12);
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:#000;color:var(--cream)}
+body{
+  font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  min-height:100svh;display:grid;place-items:start center;
+  padding:clamp(20px,5vw,48px) 16px 44px;
+  -webkit-font-smoothing:antialiased;
+}
+main{width:min(540px,100%)}
+.hud{
+  display:flex;justify-content:space-between;align-items:baseline;gap:16px;
+  font-size:8px;letter-spacing:.34em;text-transform:lowercase;
+  color:rgba(255,233,176,.4);
+}
+.hud .r{color:var(--amber)}
+.sheet{
+  display:grid;grid-template-columns:repeat(5,minmax(0,1fr));
+  gap:18px 8px;margin:26px 0 0;padding:0;
+}
+figure{margin:0;display:flex;flex-direction:column;align-items:center;gap:7px;min-width:0}
+canvas.face{
+  display:block;width:61px;height:40px;
+  image-rendering:pixelated;
+  outline:1px solid rgba(255,233,176,.055);outline-offset:3px;
+}
+figcaption{
+  font-size:8px;line-height:1.4;letter-spacing:.16em;text-transform:lowercase;
+  color:rgba(255,233,176,.5);white-space:nowrap;
+}
+.strip{margin-top:30px;padding-top:13px;border-top:1px solid var(--edge)}
+.strip h2{
+  margin:0 0 12px;font-weight:400;font-size:8px;letter-spacing:.28em;
+  text-transform:lowercase;color:rgba(255,233,176,.4);
+}
+.strip h2 b{font-weight:400;color:rgba(255,177,92,.72)}
+.row{display:flex;flex-wrap:wrap;gap:8px}
+.row canvas.face{outline-color:rgba(255,233,176,.035)}
+footer{
+  margin-top:26px;display:flex;justify-content:space-between;gap:16px;
+  font-size:8px;letter-spacing:.24em;text-transform:lowercase;
+  color:rgba(255,233,176,.28);
+}
+.err{margin:32px 0;font-size:11px;line-height:1.8;color:var(--amber)}
+@media (max-width:430px){
+  .sheet{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+</style>
+</head>
+<body>
+<main>
+  <header class="hud">
+    <span>rusty / face</span>
+    <span class="r">15 expressions / 4&times;</span>
+  </header>
+
+  <section class="sheet" id="sheet" aria-label="Rusty expression sheet, drawn on black at four times"></section>
+
+  <section class="strip" aria-label="Talk cycle samples">
+    <h2>talk cycle <b>t 0 to 420ms / intensity 1</b></h2>
+    <div class="row" id="talk"></div>
+  </section>
+
+  <section class="strip" aria-label="Blend samples">
+    <h2>blend <b>listening to proud / 0 to 1</b></h2>
+    <div class="row" id="blend"></div>
+  </section>
+
+  <footer>
+    <span>black / 4&times; / screen 15.2 &times; 10</span>
+    <span>face.js</span>
+  </footer>
+</main>
+
+<script src="face.js"></script>
+<script>
+(function () {
+  "use strict";
+
+  var F = window.RustyFace;
+  var sheet = document.getElementById("sheet");
+  var talkRow = document.getElementById("talk");
+  var blendRow = document.getElementById("blend");
+
+  if (!F) {
+    var err = document.createElement("p");
+    err.className = "err";
+    err.textContent = "face.js did not load. keep demo.html beside it.";
+    sheet.parentNode.insertBefore(err, sheet);
+    return;
+  }
+
+  var S = 4;
+  var SW = 15.2 * S;
+  var SH = 10 * S;
+  var CW = Math.ceil(SW);
+  var CH = Math.ceil(SH);
+  var EYE_X = 3.5;
+  var EYE_Y = -6.2;
+  var MOUTH_Y = -2.2;
+
+  function paint(ctx, rects, ox, oy) {
+    for (var i = 0; i < rects.length; i++) {
+      var r = rects[i];
+      var x0 = Math.round((ox + r.x) * S);
+      var x1 = Math.round((ox + r.x + r.w) * S);
+      var y0 = Math.round((oy + r.y) * S);
+      var y1 = Math.round((oy + r.y + r.h) * S);
+      ctx.fillStyle = r.c;
+      ctx.fillRect(x0, y0, Math.max(1, x1 - x0), Math.max(1, y1 - y0));
+    }
+  }
+
+  function face(shape, mouth) {
+    var cv = document.createElement("canvas");
+    cv.className = "face";
+    cv.width = CW;
+    cv.height = CH;
+    cv.setAttribute("aria-hidden", "true");
+    var ctx = cv.getContext("2d");
+    if (!ctx) return cv;
+
+    ctx.fillStyle = "#000";
+    ctx.fillRect(0, 0, CW, CH);
+
+    /* the screen rim, nothing else. the rects are the whole face. */
+    ctx.fillStyle = "rgba(123,92,255,.16)";
+    ctx.fillRect(0, 0, CW, 1);
+    ctx.fillRect(0, CH - 1, CW, 1);
+
+    paint(ctx, shape.eyes.l, 7.6 - EYE_X, 10 + EYE_Y);
+    paint(ctx, shape.eyes.r, 7.6 + EYE_X, 10 + EYE_Y);
+    paint(ctx, mouth || shape.mouth, 7.6, 10 + MOUTH_Y);
+    return cv;
+  }
+
+  function cell(shape, label) {
+    var fig = document.createElement("figure");
+    fig.appendChild(face(shape));
+    var cap = document.createElement("figcaption");
+    cap.textContent = label;
+    fig.appendChild(cap);
+    return fig;
+  }
+
+  /* fifteen expressions, in the order he meets them */
+  for (var i = 0; i < F.names.length; i++) {
+    var name = F.names[i];
+    sheet.appendChild(cell(F.shapes(name), name));
+  }
+
+  /* the mouth is the only thing that changes while he speaks */
+  var eyes = F.shapes("listening");
+  for (var n = 0; n < 7; n++) {
+    var cycle = F.talkCycle(n * .07, 1);
+    talkRow.appendChild(face(eyes, cycle.rects));
+  }
+
+  /* two faces and five weights, the way expression combos resolve */
+  for (var k = 0; k <= 1; k += .25) {
+    blendRow.appendChild(face(F.blend("listening", "proud", k)));
+  }
+})();
+</script>
+</body>
+</html>

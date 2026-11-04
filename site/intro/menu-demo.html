@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<title>Xenith intro / menu</title>
+<style>
+@font-face{
+  font-family:"Press Start 2P";
+  src:url("../../assets/fonts/PressStart2P.ttf") format("truetype");
+  font-display:swap;
+}
+:root{
+  --void:#05040c;
+  --amber:#ffb15c;
+  --cream:#ffe9b0;
+  --violet:#7b5cff;
+  --mint:#9ef0c0;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;overflow:hidden;background:var(--void);color:var(--cream);
+  font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  -webkit-font-smoothing:antialiased;
+}
+::selection{background:rgba(255,177,92,.25);color:var(--cream)}
+
+.hud{
+  position:fixed;top:0;left:0;right:0;z-index:70;
+  display:flex;justify-content:space-between;
+  padding:20px clamp(18px,3.4vw,42px);
+  font-size:9px;letter-spacing:.3em;text-transform:lowercase;
+  color:rgba(255,233,176,.5);pointer-events:none;
+}
+.hud span{display:block}
+
+.deck{
+  position:fixed;left:clamp(18px,3.4vw,42px);right:clamp(18px,3.4vw,42px);
+  bottom:calc(12px + env(safe-area-inset-bottom));z-index:70;
+  display:flex;align-items:center;justify-content:space-between;gap:18px;
+  font-size:8px;letter-spacing:.24em;text-transform:lowercase;
+  color:rgba(255,233,176,.44);
+}
+#status{
+  flex:1 1 auto;min-width:0;margin:0;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+#status[data-on]{color:var(--mint)}
+.deck .ctl{display:flex;align-items:center;gap:20px;flex:0 0 auto}
+.deck button{
+  appearance:none;-webkit-appearance:none;background:none;border:0;
+  border-bottom:1px solid rgba(255,233,176,.18);
+  margin:0;padding:8px 0;font:inherit;font-size:8px;
+  letter-spacing:.24em;text-transform:lowercase;color:inherit;
+  cursor:pointer;-webkit-tap-highlight-color:transparent;
+}
+.deck button:hover{color:var(--cream)}
+.deck button:focus-visible{outline:2px solid var(--mint);outline-offset:4px}
+
+/* lift the menu clear of the lab controls */
+body .xmenu{padding-bottom:84px}
+
+@media (max-width:520px){
+  .hud{font-size:8px;padding:16px 18px}
+  .deck{gap:12px}
+  .deck .ctl{gap:14px}
+  #status{font-size:7px;letter-spacing:.16em}
+}
+</style>
+</head>
+<body>
+<header class="hud">
+  <span>xenith</span>
+  <span>2026</span>
+</header>
+
+<footer class="deck">
+  <p id="status" role="status" aria-live="polite">keys 1 / 2 / arrows / enter</p>
+  <div class="ctl">
+    <button id="sound" type="button" aria-pressed="true">sound : on</button>
+    <button id="replay" type="button">replay</button>
+  </div>
+</footer>
+
+<script src="menu.js"></script>
+<script>
+(() => {
+  "use strict";
+  const say = "oh. hello. can i help you with something?";
+  const choices = [
+    { id: "result", label: "check my vols application result" },
+    { id: "explore", label: "explore xenith" }
+  ];
+  const hint = "keys 1 / 2 / arrows / enter";
+  const status = document.getElementById("status");
+  const sound = document.getElementById("sound");
+  const menu = window.IntroMenu;
+
+  function start() {
+    status.textContent = hint;
+    status.removeAttribute("data-on");
+    menu.show(say, choices, (i, choice) => {
+      status.textContent = "picked " + choice.label + " / index " + i;
+      status.setAttribute("data-on", "");
+    });
+  }
+
+  document.getElementById("replay").addEventListener("click", start);
+
+  sound.addEventListener("click", () => {
+    menu.blips = !menu.blips;
+    sound.textContent = "sound : " + (menu.blips ? "on" : "off");
+    sound.setAttribute("aria-pressed", String(menu.blips));
+  });
+
+  start();
+})();
+</script>
+</body>
+</html>

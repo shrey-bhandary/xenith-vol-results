@@ -1,0 +1,367 @@
+/* buttons.css, the two rows as objects.
+   A 54px pixel slab with a 2px wire, four corner ticks, and a veil that
+   rises from the floor as the cursor gets close. Nothing here is chrome
+   for its own sake: at rest the fill stays near 3% and the wire at 16%.
+   Namespaced .xchoice, so it can sit beside menu.js's .xmenu without
+   collisions. Pair with buttons.js (window.IntroChoices.mount). */
+
+.xchoice,
+.xchoice *,
+.xchoice *::before,
+.xchoice *::after { box-sizing: border-box; }
+
+.xchoice {
+  --x-amber: #ffb15c;
+  --x-cream: #ffe9b0;
+  --x-mint: #9ef0c0;
+  --x-violet: rgba(158, 138, 255, .82);
+  --x-wire: rgba(255, 233, 176, .16);
+  --x-wire-hi: rgba(255, 177, 92, .78);
+  --x-paper: rgba(255, 177, 92, .105);
+  --x-font: "PS2P", "Press Start 2P", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --x-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --x-cut: 6px;
+  --x-inset: 6px;
+  --x-arm: 8px;
+  position: relative;
+  display: block;
+  width: 100%;
+  max-width: 540px;
+  font-family: var(--x-mono);
+  color: var(--x-cream);
+  transition: opacity .3s ease, transform .3s ease;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+.xchoice__opts {
+  --gx: 0px;
+  --gy: 0px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity .42s ease, transform .42s cubic-bezier(.2, .9, .2, 1);
+}
+.xchoice.is-in .xchoice__opts { opacity: 1; transform: none; }
+
+/* ---------- the row ---------- */
+.xchoice__row {
+  --near: 0;
+  --mx: 0px;
+  --my: 0px;
+  --press: 0px;
+  --veil-dur: .3s;
+  position: relative;
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr) 12px;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 54px;
+  margin: 0;
+  padding: 14px 14px 14px 12px;
+  background: none;
+  border: 0;
+  border-radius: 0;
+  font-family: var(--x-font);
+  font-size: 10px;
+  font-weight: 400;
+  font-style: normal;
+  line-height: 1.9;
+  letter-spacing: 0;
+  text-transform: none;
+  color: rgba(255, 233, 176, .64);
+  text-align: left;
+  cursor: pointer;
+  overflow: visible;
+  appearance: none;
+  -webkit-appearance: none;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  touch-action: manipulation;
+  transform: translate3d(
+    calc(var(--mx) + var(--gx)),
+    calc(var(--my) + var(--gy) + var(--press)),
+    0
+  );
+  transition: transform .14s cubic-bezier(.2, .8, .2, 1), color .25s ease, opacity .3s ease;
+}
+.xchoice.is-measuring .xchoice__row,
+.xchoice.is-measuring .xchoice__opts {
+  transform: none !important;
+  transition: none !important;
+}
+
+.xchoice__row > .xchoice__idx,
+.xchoice__row > .xchoice__label,
+.xchoice__row > .xchoice__mark { position: relative; z-index: 2; }
+
+/* veil, bottom up, never past the chamfer */
+.xchoice__row::after {
+  content: "";
+  position: absolute;
+  inset: var(--x-inset);
+  z-index: 0;
+  pointer-events: none;
+  background:
+    repeating-linear-gradient(0deg, rgba(255, 233, 176, .05) 0 1px, rgba(0, 0, 0, 0) 1px 3px),
+    linear-gradient(to top, var(--x-paper), rgba(255, 177, 92, 0) 82%);
+  transform: scaleY(var(--near));
+  transform-origin: 50% 100%;
+  transition: transform var(--veil-dur) cubic-bezier(.2, .8, .2, 1);
+  will-change: transform;
+}
+
+/* chassis, a 2px wire with a three step chamfer */
+.xchoice__row::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  border: 2px solid var(--x-wire);
+  clip-path: polygon(
+    0 var(--x-cut), 2px var(--x-cut),
+    2px calc(var(--x-cut) - 2px), calc(var(--x-cut) - 2px) calc(var(--x-cut) - 2px),
+    calc(var(--x-cut) - 2px) 2px, var(--x-cut) 2px, var(--x-cut) 0,
+    calc(100% - var(--x-cut)) 0,
+    calc(100% - var(--x-cut)) 2px, calc(100% - var(--x-cut) + 2px) 2px,
+    calc(100% - var(--x-cut) + 2px) calc(var(--x-cut) - 2px),
+    calc(100% - 2px) calc(var(--x-cut) - 2px),
+    calc(100% - 2px) var(--x-cut), 100% var(--x-cut),
+    100% calc(100% - var(--x-cut)),
+    calc(100% - 2px) calc(100% - var(--x-cut)),
+    calc(100% - 2px) calc(100% - var(--x-cut) + 2px),
+    calc(100% - var(--x-cut) + 2px) calc(100% - var(--x-cut) + 2px),
+    calc(100% - var(--x-cut) + 2px) calc(100% - 2px),
+    calc(100% - var(--x-cut)) calc(100% - 2px),
+    calc(100% - var(--x-cut)) 100%, var(--x-cut) 100%,
+    var(--x-cut) calc(100% - 2px), calc(var(--x-cut) - 2px) calc(100% - 2px),
+    calc(var(--x-cut) - 2px) calc(100% - var(--x-cut) + 2px),
+    2px calc(100% - var(--x-cut) + 2px),
+    2px calc(100% - var(--x-cut)), 0 calc(100% - var(--x-cut))
+  );
+  transition: border-color .3s ease, background-color .3s ease;
+}
+
+/* four L ticks, just inside the chamfer */
+.xchoice__br {
+  --brk: rgba(255, 177, 92, .46);
+  position: absolute;
+  inset: var(--x-inset);
+  z-index: 3;
+  pointer-events: none;
+  opacity: calc(.22 + var(--near) * .78);
+  transition: opacity .2s ease;
+  background:
+    linear-gradient(var(--brk), var(--brk)) 0 0 / var(--x-arm) 2px no-repeat,
+    linear-gradient(var(--brk), var(--brk)) 0 0 / 2px var(--x-arm) no-repeat,
+    linear-gradient(var(--brk), var(--brk)) 100% 0 / var(--x-arm) 2px no-repeat,
+    linear-gradient(var(--brk), var(--brk)) 100% 0 / 2px var(--x-arm) no-repeat,
+    linear-gradient(var(--brk), var(--brk)) 0 100% / var(--x-arm) 2px no-repeat,
+    linear-gradient(var(--brk), var(--brk)) 0 100% / 2px var(--x-arm) no-repeat,
+    linear-gradient(var(--brk), var(--brk)) 100% 100% / var(--x-arm) 2px no-repeat,
+    linear-gradient(var(--brk), var(--brk)) 100% 100% / 2px var(--x-arm) no-repeat;
+}
+
+/* ---------- content ---------- */
+.xchoice__idx {
+  font-size: 9px;
+  line-height: 1;
+  letter-spacing: .14em;
+  color: var(--x-violet);
+  font-variant-numeric: tabular-nums;
+  transition: color .3s ease, background-color .25s ease;
+}
+.xchoice__label {
+  min-width: 0;
+  overflow-wrap: break-word;
+}
+.xchoice__sub {
+  display: block;
+  margin-top: 6px;
+  font-family: var(--x-mono);
+  font-size: 9.5px;
+  line-height: 1.6;
+  letter-spacing: .05em;
+  color: rgba(255, 233, 176, .4);
+}
+.xchoice__mark {
+  justify-self: end;
+  width: 10px;
+  height: 10px;
+  border: 2px solid rgba(255, 177, 92, .42);
+  background: transparent;
+  transition: background-color .3s ease, border-color .3s ease;
+}
+
+/* ---------- near / hover ---------- */
+.xchoice__row.is-lit { color: var(--x-cream); }
+.xchoice__row.is-lit::before {
+  border-color: var(--x-wire-hi);
+  background-color: rgba(255, 177, 92, .03);
+}
+.xchoice__row.is-lit .xchoice__br { --brk: rgba(255, 177, 92, .9); opacity: 1; }
+.xchoice__row.is-lit .xchoice__idx { color: var(--x-amber); }
+.xchoice__row.is-lit .xchoice__mark {
+  background: var(--x-amber);
+  border-color: var(--x-amber);
+  box-shadow: 0 0 0 2px rgba(255, 177, 92, .16);
+}
+
+/* ---------- keyboard ---------- */
+.xchoice__row:focus { outline: none; }
+.xchoice__row:focus-visible {
+  outline: 1px dashed var(--x-mint);
+  outline-offset: 4px;
+}
+.xchoice__row:focus-visible::before { border-color: rgba(158, 240, 192, .55); }
+.xchoice__row:focus-visible .xchoice__br { --brk: var(--x-mint); opacity: 1; }
+.xchoice__row:focus-visible .xchoice__idx { color: var(--x-mint); }
+.xchoice__row:focus-visible .xchoice__mark {
+  background: var(--x-mint);
+  border-color: var(--x-mint);
+  box-shadow: none;
+}
+
+/* ---------- press, a 2px sink ---------- */
+.xchoice__row.is-press {
+  --press: 2px;
+  transition: transform .09s cubic-bezier(.2, .8, .2, 1), color .25s ease;
+}
+.xchoice__row.is-press::before {
+  border-color: var(--x-amber);
+  background-color: rgba(255, 177, 92, .06);
+}
+.xchoice__row.is-press .xchoice__idx {
+  padding: 2px 3px;
+  margin-left: -3px;
+  background: var(--x-amber);
+  color: #120c20;
+}
+
+/* ---------- selected ---------- */
+.xchoice__row.is-picked { color: var(--x-cream); }
+.xchoice__row.is-picked::before {
+  border-color: var(--x-amber);
+  background-color: rgba(255, 177, 92, .07);
+  box-shadow: inset 0 0 0 1px rgba(255, 177, 92, .32);
+}
+.xchoice__row.is-picked::after { transform: scaleY(1); }
+.xchoice__row.is-picked .xchoice__br { --brk: rgba(255, 177, 92, .9); opacity: 1; }
+.xchoice__row.is-picked .xchoice__idx { color: var(--x-amber); }
+.xchoice__row.is-picked .xchoice__mark {
+  border-color: rgba(255, 177, 92, .28);
+  box-shadow: none;
+  background:
+    linear-gradient(45deg, transparent calc(50% - 1px), var(--x-amber) calc(50% - 1px) calc(50% + 1px), transparent calc(50% + 1px)),
+    linear-gradient(-45deg, transparent calc(50% - 1px), var(--x-amber) calc(50% - 1px) calc(50% + 1px), transparent calc(50% + 1px));
+}
+
+/* ---------- disabled, four dots and no light ---------- */
+.xchoice__row[aria-disabled="true"] {
+  color: rgba(255, 233, 176, .32);
+  cursor: default;
+}
+.xchoice__row[aria-disabled="true"]::before { border-color: rgba(255, 233, 176, .08); }
+.xchoice__row[aria-disabled="true"]::after { transform: scaleY(0); }
+.xchoice__row[aria-disabled="true"] .xchoice__idx { color: rgba(158, 138, 255, .32); }
+.xchoice__row[aria-disabled="true"] .xchoice__mark {
+  border-color: rgba(255, 177, 92, .2);
+  background: transparent;
+  box-shadow: none;
+}
+.xchoice__row[aria-disabled="true"] .xchoice__br {
+  opacity: .3;
+  background:
+    linear-gradient(var(--brk), var(--brk)) 0 0 / 2px 2px no-repeat,
+    linear-gradient(var(--brk), var(--brk)) 100% 0 / 2px 2px no-repeat,
+    linear-gradient(var(--brk), var(--brk)) 0 100% / 2px 2px no-repeat,
+    linear-gradient(var(--brk), var(--brk)) 100% 100% / 2px 2px no-repeat;
+}
+
+/* ---------- nudge, the room asking twice ---------- */
+@keyframes xchoiceNudge {
+  0%, 100% { border-color: var(--x-wire); }
+  50% { border-color: var(--x-amber); }
+}
+.xchoice__row.is-nudge::before { animation: xchoiceNudge .6s steps(1, end) 2; }
+
+/* ---------- fold ---------- */
+.xchoice__row.is-gone { opacity: .16; }
+.xchoice.is-out {
+  opacity: 0;
+  transform: translateY(-4px);
+  pointer-events: none;
+}
+.xchoice.is-done { visibility: hidden; }
+
+/* entry, a slide of the block and a short stagger of the rows */
+.xchoice__opts { will-change: opacity, transform; }
+@keyframes xchoiceRowIn { from { opacity: 0; } to { opacity: 1; } }
+.xchoice.is-in .xchoice__row {
+  animation: xchoiceRowIn .5s ease backwards;
+  animation-delay: calc(var(--i, 0) * 70ms);
+}
+
+/* ---------- responsive ---------- */
+@media (max-width: 760px) {
+  .xchoice { --x-cut: 4px; --x-inset: 4px; --x-arm: 5px; }
+  .xchoice__opts { gap: 12px; }
+  .xchoice__row {
+    grid-template-columns: 24px minmax(0, 1fr) 10px;
+    gap: 10px;
+    min-height: 52px;
+    padding: 12px 12px 12px 10px;
+    font-size: 8.5px;
+    line-height: 1.95;
+  }
+  .xchoice__idx { font-size: 8px; }
+  .xchoice__sub { font-size: 8.5px; }
+  .xchoice__mark { width: 9px; height: 9px; border-width: 2px; }
+  .xchoice__row.is-press { --press: 1px; }
+  .xchoice__row:focus-visible { outline-offset: 3px; }
+}
+
+@media (max-width: 420px) {
+  .xchoice__sub { display: none; }
+}
+
+@media (max-width: 380px) {
+  .xchoice__row {
+    grid-template-columns: 22px minmax(0, 1fr) 10px;
+    gap: 8px;
+    padding: 11px 10px 10px 9px;
+    font-size: 8px;
+    line-height: 2;
+  }
+  .xchoice__idx { font-size: 8px; }
+}
+
+@media (max-height: 520px) {
+  .xchoice__row {
+    min-height: 44px;
+    padding: 9px 10px;
+  }
+  .xchoice { --x-inset: 4px; --x-arm: 5px; --x-cut: 4px; }
+  .xchoice__sub { display: none; }
+  .xchoice__opts { gap: 6px; }
+}
+
+/* ---------- reduced motion ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .xchoice,
+  .xchoice__row,
+  .xchoice__row::after,
+  .xchoice__row::before,
+  .xchoice__br,
+  .xchoice__opts,
+  .xchoice__mark { transition-duration: .01ms !important; }
+  .xchoice__row { --mx: 0px; --my: 0px; }
+  .xchoice__opts { --gx: 0px; --gy: 0px; opacity: 1; transform: none; }
+  .xchoice__row.is-press { --press: 1px; }
+  .xchoice__row.is-nudge::before { animation: none; border-color: var(--x-amber); }
+  .xchoice.is-in .xchoice__row { animation: none; }
+}

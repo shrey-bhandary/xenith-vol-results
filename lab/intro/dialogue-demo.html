@@ -1,0 +1,860 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<title>Rusty speaks / dialogue lab</title>
+<style>
+@font-face{
+  font-family:"PS2P";
+  src:url("../../assets/fonts/PressStart2P.ttf") format("truetype");
+  font-display:swap;
+}
+:root{
+  --void:#05040c;--amber:#ffb15c;--cream:#ffe9b0;--violet:#7b5cff;
+  --mint:#9ef0c0;--red:#ff5c3b;--ink:#0b0818;--dark:#241d3a;--shade:#bdb6a4;--shell:#e9e3d2;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --ps:"PS2P",ui-monospace,monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--void);color:var(--cream)}
+body{
+  font-family:var(--mono);overflow:hidden;overscroll-behavior:none;
+  -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
+}
+::selection{background:rgba(255,177,92,.24);color:var(--cream)}
+[hidden]{display:none!important}
+.sr{
+  position:absolute;width:1px;height:1px;padding:0;margin:-1px;
+  overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0;
+}
+
+/* ---------- the room ---------- */
+.scene{
+  --mx:0;--my:0;
+  position:relative;height:100svh;overflow:hidden;isolation:isolate;
+}
+.room{position:absolute;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.grid{
+  position:absolute;inset:-8%;
+  background-image:
+    repeating-linear-gradient(90deg,rgba(255,233,176,.5) 0 1px,transparent 1px 72px),
+    repeating-linear-gradient(0deg,rgba(255,233,176,.5) 0 1px,transparent 1px 72px);
+  opacity:.035;
+  transform:translate3d(calc(var(--mx) * -12px),calc(var(--my) * -9px),0) scale(1.06);
+  mask-image:radial-gradient(70% 65% at 52% 48%,#000 0%,transparent 78%);
+  -webkit-mask-image:radial-gradient(70% 65% at 52% 48%,#000 0%,transparent 78%);
+  transition:transform .3s ease;
+}
+.glow{position:absolute;border-radius:50%;filter:blur(2px);transition:transform .5s ease}
+.glow.a{
+  left:6%;top:48%;width:64vw;height:56vw;
+  background:radial-gradient(50% 50% at 50% 50%,rgba(123,92,255,.10),transparent 70%);
+  transform:translate3d(calc(var(--mx) * 18px),calc(var(--my) * 12px),0);
+}
+.glow.b{
+  right:-6%;top:12%;width:46vw;height:44vw;
+  background:radial-gradient(50% 50% at 50% 50%,rgba(255,177,92,.07),transparent 70%);
+  transform:translate3d(calc(var(--mx) * -26px),calc(var(--my) * -16px),0);
+}
+.dust{
+  position:absolute;inset:0;
+  transform:translate3d(calc(var(--mx) * -16px),calc(var(--my) * -11px),0);
+  transition:transform .4s ease;
+}
+.dust i{
+  position:absolute;left:var(--x);top:var(--y);
+  width:var(--s);height:var(--s);background:var(--cream);opacity:0;
+  animation:mote var(--t) linear infinite;
+  animation-delay:var(--d);
+}
+@keyframes mote{
+  0%{transform:translateY(26px);opacity:0}
+  12%{opacity:.22}
+  88%{opacity:.14}
+  100%{transform:translateY(-90px);opacity:0}
+}
+.scan{
+  position:absolute;left:0;right:0;top:0;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(255,233,176,.14) 20%,rgba(255,233,176,.22) 50%,rgba(255,233,176,.14) 80%,transparent);
+  animation:scan 11s linear infinite;
+}
+@keyframes scan{from{transform:translateY(-2vh)}to{transform:translateY(102vh)}}
+.vig{
+  position:absolute;inset:0;
+  background:
+    radial-gradient(120% 94% at 52% 46%,transparent 32%,rgba(2,1,7,.66) 100%),
+    linear-gradient(to bottom,rgba(2,1,7,.38),transparent 20%,transparent 80%,rgba(2,1,7,.56));
+}
+.grain{
+  position:absolute;inset:0;opacity:.035;mix-blend-mode:overlay;
+  background-image:
+    repeating-linear-gradient(0deg,rgba(255,255,255,.7) 0 1px,transparent 1px 2px),
+    repeating-linear-gradient(90deg,rgba(255,255,255,.45) 0 1px,transparent 1px 2px);
+}
+
+/* ---------- hud ---------- */
+.hud{
+  position:absolute;top:0;left:0;right:0;z-index:40;
+  display:flex;justify-content:space-between;align-items:center;
+  padding:18px clamp(18px,3.2vw,38px);
+  font-size:9px;letter-spacing:.28em;text-transform:lowercase;
+  color:rgba(255,233,176,.5);pointer-events:none;
+}
+.hud-l{display:flex;align-items:center;gap:10px}
+.hud-l i{opacity:.32;font-style:normal}
+#phase{color:var(--amber);transition:color .4s ease}
+.hud-r{display:flex;align-items:center;gap:12px;font-variant-numeric:tabular-nums}
+#meter{color:rgba(255,233,176,.44)}
+.tick{position:relative;width:9px;height:9px;display:inline-block;opacity:0;transition:opacity .5s .2s}
+.tick::before,.tick::after{
+  content:"";position:absolute;left:50%;top:50%;width:1px;height:9px;
+  background:var(--cream);transform-origin:center;
+  transition:transform .55s cubic-bezier(.2,.9,.2,1);
+}
+.tick::before{transform:translate(-50%,-50%) rotate(45deg) scaleY(0)}
+.tick::after{transform:translate(-50%,-50%) rotate(-45deg) scaleY(0)}
+body.awake .tick{opacity:1;filter:drop-shadow(0 0 6px rgba(255,177,92,.55))}
+body.awake .tick::before{transform:translate(-50%,-50%) rotate(45deg) scaleY(1)}
+body.awake .tick::after{transform:translate(-50%,-50%) rotate(-45deg) scaleY(1)}
+
+/* ---------- rig ---------- */
+.rig{
+  position:absolute;left:67%;top:49%;z-index:20;
+  width:240px;height:340px;
+  transform:translate(-50%,-50%) translate3d(calc(var(--mx) * 10px),calc(var(--my) * 7px),0);
+  transition:transform .3s ease;
+}
+.seed{
+  position:absolute;left:120px;top:-14px;width:4px;height:4px;margin-left:-2px;
+  background:#ffcf8a;box-shadow:0 0 18px rgba(255,177,92,.85),0 0 42px rgba(255,177,92,.32);
+  animation:seed 2.6s steps(1) infinite;
+}
+@keyframes seed{0%,8%,16%,100%{opacity:1}9%,15%,40%,94%{opacity:.08}}
+.bot{
+  position:relative;width:240px;height:340px;transform-origin:50% 92%;
+  transform:translateX(calc(var(--step,0) * 1px)) rotate(calc((var(--lean,0) + var(--gx,0) * 1.4) * 1deg));
+  transition:transform .4s cubic-bezier(.2,.9,.2,1);
+}
+.machine{
+  position:relative;width:240px;height:340px;transform-origin:50% 68%;
+  opacity:0;transform:translateY(20px) scale(.97);
+  transition:opacity .55s ease,transform .7s cubic-bezier(.2,.9,.2,1);
+}
+.bot.is-waking .machine{opacity:1;transform:none}
+.shadow{
+  position:absolute;left:24px;bottom:-14px;width:192px;height:26px;
+  background:radial-gradient(50% 50% at 50% 50%,rgba(123,92,255,.20),transparent 72%);
+}
+
+/* antenna */
+.antenna{
+  position:absolute;left:120px;top:0;width:0;height:52px;z-index:1;
+  transform-origin:50% 100%;
+  transform:translateX(calc(var(--mx) * 3px)) rotate(calc((var(--ant,0) + var(--gx,0) * 9) * 1deg));
+  transition:transform .5s cubic-bezier(.2,.9,.2,1);
+}
+.rod{
+  position:absolute;left:-1.5px;bottom:0;width:3px;height:52px;
+  background:linear-gradient(#ffb15c 0%,#bdb6a4 60%,#bdb6a4 100%);
+  border:1px solid var(--dark);transform-origin:50% 100%;
+  animation:antSway 4.6s ease-in-out infinite;
+}
+@keyframes antSway{0%,100%{transform:rotate(-1.4deg)}50%{transform:rotate(1.6deg)}}
+.bulb{
+  position:absolute;left:-5px;top:-8px;width:10px;height:8px;
+  background:var(--amber);border:1px solid var(--dark);
+  box-shadow:0 0 16px rgba(255,177,92,.7),0 0 40px rgba(255,177,92,.22);
+}
+.spark{position:absolute;left:-16px;top:-22px;width:32px;height:32px;opacity:0;z-index:2}
+.spark i{
+  position:absolute;left:50%;top:50%;width:2px;height:8px;margin:-4px 0 0 -1px;
+  background:var(--cream);transform-origin:50% 100%;opacity:0;
+}
+.spark i:nth-child(1){transform:rotate(0deg) translateY(-11px)}
+.spark i:nth-child(2){transform:rotate(60deg) translateY(-13px)}
+.spark i:nth-child(3){transform:rotate(120deg) translateY(-10px)}
+.spark i:nth-child(4){transform:rotate(190deg) translateY(-14px)}
+.spark i:nth-child(5){transform:rotate(250deg) translateY(-11px)}
+.spark i:nth-child(6){transform:rotate(310deg) translateY(-12px)}
+.bot.is-sparking .spark{opacity:1;animation:sparkBox .62s steps(1)}
+.bot.is-sparking .spark i{animation:sparkTick .62s steps(1)}
+@keyframes sparkBox{0%,100%{opacity:0}10%,80%{opacity:1}}
+@keyframes sparkTick{0%,45%{opacity:0}46%,70%{opacity:1}71%,100%{opacity:0}}
+.bot.is-flicking .rod{animation:antFlick .46s ease-out}
+@keyframes antFlick{0%{transform:rotate(0)}30%{transform:rotate(10deg)}65%{transform:rotate(-4deg)}100%{transform:rotate(0)}}
+
+/* head */
+.head-wrap{
+  position:absolute;left:32px;top:52px;width:176px;height:126px;z-index:4;
+  transform:translate3d(calc(var(--mx) * 6px),calc(var(--my) * 4px),0);
+  transition:transform .35s ease;
+}
+.head-drop{width:100%;height:100%}
+.bot.is-waking .head-drop{animation:headDrop 1.05s .38s cubic-bezier(.2,1.1,.3,1) backwards}
+@keyframes headDrop{
+  0%{transform:translateY(-190px) rotate(-9deg);opacity:0}
+  60%{opacity:1}
+  100%{transform:translateY(0) rotate(0);opacity:1}
+}
+.head{
+  position:relative;width:176px;height:126px;background:var(--shell);
+  border:3px solid var(--dark);
+  box-shadow:
+    inset 0 4px 0 rgba(255,255,255,.42),
+    inset 0 -12px 0 rgba(189,182,164,.55),
+    0 12px 34px rgba(0,0,0,.42);
+  transform-origin:50% 100%;
+  transform:translateY(calc(var(--lift,0) * 1px)) rotate(calc((var(--tilt,0) + var(--gx,0) * 7) * 1deg));
+  transition:transform .28s cubic-bezier(.2,.9,.2,1);
+}
+.ear{
+  position:absolute;top:34px;width:12px;height:38px;background:var(--shade);
+  border:3px solid var(--dark);z-index:-1;
+}
+.ear.l{left:-13px;border-right:0}
+.ear.r{right:-13px;border-left:0}
+.bolt{position:absolute;bottom:5px;width:7px;height:2px}
+.bolt.l{left:14px;background:rgba(255,177,92,.8)}
+.bolt.r{right:14px;background:rgba(158,240,192,.6)}
+
+/* face */
+.face{
+  position:absolute;left:17px;top:17px;right:17px;bottom:19px;
+  background:var(--ink);border:1px solid rgba(123,92,255,.45);overflow:hidden;
+  box-shadow:inset 0 0 22px rgba(123,92,255,.07);
+}
+.face::before{
+  content:"";position:absolute;inset:3px;border:1px solid rgba(123,92,255,.22);
+  pointer-events:none;z-index:5;
+}
+.face::after{
+  content:"";position:absolute;inset:0;z-index:6;pointer-events:none;
+  background:repeating-linear-gradient(to bottom,transparent 0 2px,rgba(0,0,0,.2) 2px 3px);
+}
+.eye{
+  position:absolute;top:27px;width:16px;height:20px;background:var(--red);
+  border:1px solid var(--ink);z-index:2;
+  box-shadow:0 0 0 2px rgba(255,92,59,.10),0 0 14px rgba(255,92,59,.18);
+  transform:translate(calc(var(--gx,0) * 3px),calc(var(--gy,0) * 2px));
+  transition:transform .09s linear,height .14s ease,top .14s ease,width .14s ease,opacity .16s ease;
+}
+.eye.l{left:32px}
+.eye.r{right:32px}
+.eye::after{
+  content:"";position:absolute;left:2px;top:2px;width:4px;height:4px;
+  background:var(--cream);opacity:.92;
+}
+.bot[data-expr="curious"] .eye,
+.bot[data-expr="excited"] .eye{
+  width:18px;height:22px;top:25px;
+  box-shadow:0 0 0 3px rgba(255,92,59,.12),0 0 20px rgba(255,92,59,.3);
+}
+.bot[data-expr="scanning"] .eye,
+.bot[data-expr="thinking"] .eye{height:9px;top:32px}
+.bot[data-expr="confused"] .eye.r{top:30px}
+.bot[data-expr="proud"] .eye,
+.bot[data-expr="celebrating"] .eye{
+  height:4px;top:35px;box-shadow:none;background:var(--red);
+}
+.bot[data-expr="proud"] .eye::after,
+.bot[data-expr="celebrating"] .eye::after{display:none}
+.bot.is-blinking[data-expr] .eye{height:3px;top:36px}
+.bot.is-blinking[data-expr] .eye::after{opacity:0}
+.mouth{
+  position:absolute;left:50%;bottom:17px;width:18px;height:3px;margin-left:-9px;
+  background:var(--amber);z-index:2;transition:width .14s ease,height .14s ease,margin .14s ease,opacity .14s ease;
+}
+.bot[data-expr="curious"] .mouth{width:5px;height:5px;margin-left:-2.5px;bottom:20px}
+.bot[data-expr="scanning"] .mouth{width:18px;height:2px}
+.bot[data-expr="thinking"] .mouth,
+.bot[data-expr="confused"] .mouth{
+  width:18px;height:9px;margin-left:-9px;background:var(--amber);
+  clip-path:polygon(0 46%,18% 0,36% 62%,54% 8%,72% 70%,90% 18%,100% 56%,100% 72%,0 72%);
+}
+.bot[data-expr="presenting"] .mouth,
+.bot[data-expr="proud"] .mouth,
+.bot[data-expr="celebrating"] .mouth{
+  width:18px;height:5px;margin-left:-9px;background-color:transparent;
+  background-image:
+    linear-gradient(var(--amber),var(--amber)),
+    linear-gradient(var(--amber),var(--amber)),
+    linear-gradient(var(--amber),var(--amber));
+  background-size:4px 2px,4px 2px,10px 2px;
+  background-position:left top,right top,center bottom;
+  background-repeat:no-repeat;
+  box-shadow:none;
+}
+.bot[data-expr="excited"] .mouth{
+  width:12px;height:9px;margin-left:-6px;background:var(--amber);
+  border:1px solid var(--ink);
+}
+.bot[data-expr="excited"] .mouth::after{
+  content:"";position:absolute;left:2px;right:2px;bottom:1px;height:3px;background:var(--ink);
+}
+.bot.is-talking .mouth{
+  background:var(--amber);background-image:none;box-shadow:none;clip-path:none;
+  border:1px solid var(--ink);animation:talk .16s steps(1,end) infinite alternate;
+}
+@keyframes talk{from{height:2px;width:10px;margin-left:-5px}to{height:8px;width:14px;margin-left:-7px}}
+.bot[data-stamp]:not([data-stamp=""]) .mouth{opacity:0}
+.bot.is-long-stamp .eye{opacity:0}
+
+.stamp{
+  position:absolute;inset:0;z-index:3;display:grid;place-items:center;padding-top:26px;
+  font-family:var(--ps);font-size:13px;line-height:1;color:var(--cream);opacity:0;
+  text-shadow:0 0 12px rgba(255,177,92,.55);letter-spacing:0;
+  transition:opacity .1s steps(1);
+}
+.bot[data-stamp]:not([data-stamp=""]) .stamp{opacity:1;animation:stampFlick .12s steps(1) infinite}
+.bot.is-long-stamp .stamp{padding-top:2px}
+@keyframes stampFlick{50%{opacity:.82}}
+.bootbar{
+  position:absolute;left:4px;right:4px;top:10%;height:2px;z-index:7;opacity:0;
+  background:rgba(255,233,176,.4);
+}
+.bot.is-waking .bootbar{animation:bootSweep .9s 1.02s ease-in}
+@keyframes bootSweep{0%{opacity:0;top:8%}12%{opacity:1}88%{opacity:1}100%{opacity:0;top:88%}}
+.bot.is-waking .eye{animation:eyeBoot .3s 1.12s backwards}
+.bot.is-waking .eye.r{animation-delay:1.32s}
+@keyframes eyeBoot{from{opacity:0;height:2px}to{opacity:1}}
+
+/* neck and body */
+.neck{
+  position:absolute;left:105px;top:164px;width:30px;height:22px;z-index:2;
+  background:var(--shade);border:3px solid var(--dark);
+  box-shadow:inset 0 3px 0 rgba(255,255,255,.3);
+}
+.body{
+  position:absolute;left:40px;top:176px;width:160px;height:120px;z-index:3;
+  background:var(--shell);border:3px solid var(--dark);
+  box-shadow:
+    inset 0 4px 0 rgba(255,255,255,.42),
+    inset 0 -14px 0 rgba(189,182,164,.5),
+    0 16px 38px rgba(0,0,0,.4);
+  animation:breathe 3.8s ease-in-out infinite;
+}
+@keyframes breathe{0%,100%{transform:translateY(0)}50%{transform:translateY(-1.5px)}}
+.chest{
+  position:absolute;left:29px;top:17px;width:102px;height:64px;
+  background:var(--ink);border:1px solid rgba(123,92,255,.4);overflow:hidden;
+  opacity:calc(.5 + var(--chest,.7) * .5);transition:opacity .4s ease;
+}
+.chest::before{
+  content:"";position:absolute;inset:4px;border:1px solid rgba(123,92,255,.18);
+}
+.dot{position:absolute;top:9px;width:3px;height:3px}
+.dot.a{left:10px;background:var(--amber)}
+.dot.b{left:17px;background:var(--mint)}
+.dot.c{left:24px;background:var(--red)}
+.bars{
+  position:absolute;left:9px;right:9px;bottom:8px;height:20px;
+  display:flex;gap:3px;align-items:flex-end;
+}
+.bars i{flex:1;background:var(--mint);opacity:.85;animation:bar 1.7s ease-in-out infinite}
+@keyframes bar{0%,100%{transform:scaleY(.55);opacity:.55}50%{transform:scaleY(1);opacity:.95}}
+.arm{
+  position:absolute;top:15px;width:20px;height:78px;background:var(--shell);
+  border:3px solid var(--dark);border-radius:2px;transform-origin:50% 0;
+  box-shadow:inset 0 3px 0 rgba(255,255,255,.35),inset 0 -6px 0 rgba(189,182,164,.4);
+  transition:transform .38s cubic-bezier(.2,.9,.2,1);
+}
+.arm.l{left:-14px;transform:rotate(calc(var(--armL,6) * -1deg))}
+.arm.r{right:-14px;transform:rotate(calc(var(--armR,6) * 1deg))}
+.hand{
+  position:absolute;left:-1px;bottom:-16px;width:20px;height:16px;
+  background:var(--amber);border:2px solid var(--dark);
+}
+.bot.is-waking .arm{animation:armIn .55s .16s backwards}
+.bot.is-waking .arm.r{animation-delay:.28s;animation-name:armInR}
+@keyframes armIn{from{opacity:0;transform:translateX(-26px)}to{opacity:1;transform:translateX(0)}}
+@keyframes armInR{from{opacity:0;transform:translateX(26px)}to{opacity:1;transform:translateX(0)}}
+.tread{
+  position:absolute;bottom:-22px;width:64px;height:28px;background:var(--dark);
+  border:3px solid var(--ink);box-shadow:inset 0 6px 0 #171233;
+}
+.tread.l{left:-14px}
+.tread.r{right:-14px}
+.tread::before{
+  content:"";position:absolute;left:5px;top:7px;width:8px;height:8px;
+  background:var(--shade);box-shadow:0 0 0 1px var(--ink);
+}
+.tread::after{
+  content:"";position:absolute;left:4px;right:4px;bottom:4px;height:2px;
+  background:var(--amber);opacity:.8;
+}
+.bot.is-nodding .head{animation:nod .34s ease}
+@keyframes nod{
+  0%,100%{transform:translateY(calc(var(--lift,0) * 1px)) rotate(calc((var(--tilt,0) + var(--gx,0) * 7) * 1deg))}
+  45%{transform:translateY(calc(4px + var(--lift,0) * 1px)) rotate(calc((var(--tilt,0) + var(--gx,0) * 7) * 1deg))}
+}
+.bot.is-shaking .machine{animation:dogShake .54s ease-out}
+@keyframes dogShake{0%,100%{transform:rotate(0)}18%{transform:rotate(3.2deg)}38%{transform:rotate(-3deg)}58%{transform:rotate(2deg)}78%{transform:rotate(-1deg)}}
+.bot.is-spinning .machine{animation:spin .46s cubic-bezier(.2,.9,.2,1)}
+@keyframes spin{from{transform:rotate(0) scale(1)}50%{transform:rotate(180deg) scale(.92)}to{transform:rotate(360deg) scale(1)}}
+.puffs{position:absolute;left:120px;bottom:-28px;width:0;height:0;z-index:5}
+.puffs i{position:absolute;width:4px;height:4px;background:var(--amber);opacity:0}
+.puffs i:nth-child(1){left:-38px}
+.puffs i:nth-child(2){left:-22px;background:var(--violet)}
+.puffs i:nth-child(3){left:-6px}
+.puffs i:nth-child(4){left:10px;background:var(--violet)}
+.puffs i:nth-child(5){left:26px}
+.bot.is-dusting .puffs i{animation:dustUp .9s ease-out}
+.bot.is-dusting .puffs i:nth-child(2){animation-delay:.04s}
+.bot.is-dusting .puffs i:nth-child(3){animation-delay:.02s}
+.bot.is-dusting .puffs i:nth-child(4){animation-delay:.06s}
+.bot.is-dusting .puffs i:nth-child(5){animation-delay:.03s}
+@keyframes dustUp{
+  0%{opacity:0;transform:translate(0,0) scale(.6)}
+  20%{opacity:.6}
+  100%{opacity:0;transform:translate(0,-34px) scale(1.2)}
+}
+
+/* ---------- wake, hint, again ---------- */
+.wake{
+  position:fixed;left:50%;bottom:9vh;z-index:50;
+  display:flex;align-items:center;gap:13px;transform:translateX(-50%);
+  background:none;border:0;padding:16px 20px;min-height:44px;
+  font:inherit;font-size:10px;letter-spacing:.3em;text-transform:lowercase;
+  color:rgba(255,233,176,.8);cursor:pointer;-webkit-tap-highlight-color:transparent;
+}
+.wake:hover{color:var(--cream)}
+.wake:focus-visible{outline:1px solid var(--mint);outline-offset:6px}
+.wake .caret{
+  width:5px;height:5px;background:var(--amber);
+  box-shadow:0 0 10px rgba(255,177,92,.8);
+  animation:caret 1.15s steps(1) infinite;
+}
+@keyframes caret{50%{opacity:0}}
+.wake[data-wait="1"]{color:rgba(255,233,176,.4);cursor:default}
+.wake[data-wait="1"] .caret{animation:none;opacity:.3}
+.hint{
+  position:absolute;right:clamp(16px,3.2vw,38px);bottom:clamp(16px,3.4vh,30px);
+  z-index:45;margin:0;font-size:8px;letter-spacing:.26em;text-transform:lowercase;
+  color:rgba(255,233,176,.3);opacity:0;transition:opacity .6s ease;pointer-events:none;
+}
+.scene.is-greet .hint{opacity:1}
+.scene.is-hinted .hint{opacity:0}
+.again{
+  position:fixed;right:clamp(16px,3.2vw,38px);bottom:clamp(16px,3.4vh,30px);
+  z-index:65;background:none;border:0;padding:12px 0;min-height:44px;
+  font:inherit;font-size:9px;letter-spacing:.26em;text-transform:lowercase;
+  color:rgba(255,233,176,.55);cursor:pointer;
+  border-bottom:1px solid rgba(255,177,92,.35);
+}
+.again:hover{color:var(--cream);border-color:var(--cream)}
+.again:focus-visible{outline:1px solid var(--mint);outline-offset:4px}
+
+@media (max-width:1200px){
+  .rig{left:71%;transform:translate(-50%,-50%) scale(.86) translate3d(calc(var(--mx) * 8px),calc(var(--my) * 6px),0)}
+}
+@media (max-width:980px){
+  .rig{left:50%;top:31%;transform:translate(-50%,-50%) scale(.72) translate3d(calc(var(--mx) * 8px),calc(var(--my) * 6px),0)}
+  .hint{display:none}
+}
+@media (max-width:520px){
+  .rig{top:28%;transform:translate(-50%,-50%) scale(.62)}
+  .wake{bottom:7vh}
+  .hud{font-size:8px;padding:15px 18px}
+}
+@media (prefers-reduced-motion:reduce){
+  .bot,.bot *{animation:none!important;transition-duration:.01ms!important}
+  .grid,.glow,.dust,.rig,.head-wrap,.head,.antenna{transition-duration:.01ms!important}
+  .scan,.dust i,.rod,.bars i,.body,.seed{animation:none!important}
+}
+</style>
+</head>
+<body>
+<main class="scene" id="scene" aria-labelledby="title">
+  <h1 class="sr" id="title">Rusty speaks, a dialogue lab</h1>
+
+  <div class="room" aria-hidden="true">
+    <div class="grid"></div>
+    <div class="glow a"></div>
+    <div class="glow b"></div>
+    <div class="dust" id="dust"></div>
+    <div class="scan"></div>
+    <div class="vig"></div>
+    <div class="grain"></div>
+  </div>
+
+  <header class="hud" aria-hidden="true">
+    <div class="hud-l"><span>xenith</span><i>/</i><span id="phase">void</span></div>
+    <div class="hud-r"><span class="tick"></span><span id="meter">00.0</span><span>lab</span></div>
+  </header>
+
+  <div class="rig" id="rig" aria-hidden="true">
+    <span class="seed" id="seed"></span>
+    <div class="bot" id="bot" data-expr="idle" data-stamp="">
+      <div class="machine">
+        <div class="shadow"></div>
+
+        <div class="antenna">
+          <span class="rod"></span>
+          <span class="bulb"></span>
+          <span class="spark"><i></i><i></i><i></i><i></i><i></i><i></i></span>
+        </div>
+
+        <div class="head-wrap">
+          <div class="head-drop">
+            <div class="head">
+              <span class="ear l"></span>
+              <span class="ear r"></span>
+              <div class="face">
+                <span class="bootbar"></span>
+                <span class="eye l"></span>
+                <span class="eye r"></span>
+                <span class="mouth"></span>
+                <span class="stamp" id="stamp"></span>
+              </div>
+              <span class="bolt l"></span>
+              <span class="bolt r"></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="neck"></div>
+
+        <div class="body">
+          <div class="chest">
+            <span class="dot a"></span><span class="dot b"></span><span class="dot c"></span>
+            <div class="bars">
+              <i style="height:40%"></i><i style="height:72%;animation-delay:.1s"></i>
+              <i style="height:30%;animation-delay:.2s"></i><i style="height:88%;animation-delay:.05s"></i>
+              <i style="height:54%;animation-delay:.25s"></i><i style="height:76%;animation-delay:.15s"></i>
+              <i style="height:34%;animation-delay:.3s"></i><i style="height:64%;animation-delay:.08s"></i>
+              <i style="height:46%;animation-delay:.22s"></i>
+            </div>
+          </div>
+          <div class="arm l"><span class="hand"></span></div>
+          <div class="arm r"><span class="hand"></span></div>
+          <div class="tread l"></div>
+          <div class="tread r"></div>
+        </div>
+
+        <div class="puffs"><i></i><i></i><i></i><i></i><i></i></div>
+      </div>
+    </div>
+  </div>
+
+  <button class="wake" id="wake" type="button" disabled data-wait="1">
+    <span class="caret" aria-hidden="true"></span>
+    <span id="wakeText">loading</span>
+  </button>
+
+  <p class="hint" id="hint">click him. he reacts.</p>
+  <button class="again" id="again" type="button" hidden>run it again</button>
+</main>
+
+<script src="dialogue.js"></script>
+<script>
+(function () {
+  "use strict";
+
+  var D = window.IntroDialogue;
+  var $ = function (id) { return document.getElementById(id); };
+  var scene = $("scene"), bot = $("bot"), stampEl = $("stamp");
+  var wakeBtn = $("wake"), wakeText = $("wakeText"), again = $("again");
+  var phase = $("phase"), meter = $("meter"), seed = $("seed"), dust = $("dust");
+
+  var REDUCE = false;
+  try { REDUCE = matchMedia("(prefers-reduced-motion: reduce)").matches; } catch (e) {}
+  var FAST = REDUCE ? 0.35 : 1;
+  function wait(ms) { return new Promise(function (r) { setTimeout(r, Math.max(0, ms * FAST)); }); }
+
+  /* ---------- copy, straight from plan/dialogue.md ---------- */
+
+  var OPTIONS = [
+    { id: "result", label: "check my vols application result", sub: "one file, one line" },
+    { id: "explore", label: "explore xenith", sub: "six departments, one page" }
+  ];
+
+  var GREETING = {
+    text: "oh. hello. can i help you with something?",
+    expression: "curious",
+    gesture: "lean 2, antenna perk, blink double",
+    screen: "none"
+  };
+
+  var RESULT = [
+    { text: "you picked the serious one. respect.", expression: "presenting", gesture: "nod, gaze face", screen: "none", hold: 280 },
+    { text: "one drawer. let me look.", expression: "scanning", gesture: "tilt 9, gaze down, chest .7", screen: "own", hold: 280 },
+    { text: "empty. someone is still typing it.", expression: "confused", gesture: "antenna droop, tilt 9", screen: "none", hold: 280 },
+    { text: "i will not invent one. a fake is worse.", expression: "proud", gesture: "hand up, lean -1", screen: "none", hold: 280 },
+    { text: "the door is still here. i will hold it.", expression: "proud", gesture: "arms out 42, gaze frame, step right", screen: "none", hold: 360 }
+  ];
+
+  var EXPLORE = [
+    { text: "six departments. events fills the room.", expression: "presenting", gesture: "arms out 42, blink once", screen: "none", hold: 280 },
+    { text: "tech keeps it standing. the rest make noise.", expression: "proud", gesture: "chest 1, nod", screen: "none", hold: 280 },
+    { text: "card one. what we throw. mostly events.", expression: "excited", gesture: "spark, arms out 30", screen: "none", hold: 280 },
+    { text: "card two. who catches it. they do, every time.", expression: "proud", gesture: "fold 26, tilt -3, gaze face", screen: "none", hold: 280 },
+    { text: "card three. why you. read it at the door.", expression: "curious", gesture: "lean 4, hand up, gaze cursor", screen: "none", hold: 280 },
+    { text: "that's the tour. the glass is still warm.", expression: "proud", gesture: "step right, gaze frame, blink once", screen: "none", hold: 360 }
+  ];
+
+  var BARKS = [
+    { text: "take your time. i am mostly a lamp.", expression: "idle", gesture: "antenna perk, blink once", screen: "none" },
+    { text: "i dusted. for this. slightly.", expression: "proud", gesture: "nod, dust", screen: "none" },
+    { text: "both rows are good. i checked both.", expression: "presenting", gesture: "arms out 12, tilt -2", screen: "none" },
+    { text: "my left arm is still a little new.", expression: "confused", gesture: "tilt 9, antenna droop", screen: "own" },
+    { text: "pick one. i will act surprised either way.", expression: "proud", gesture: "blink double, chest .9", screen: "none" },
+    { text: "still here. still small.", expression: "idle", gesture: "chest .5", screen: "none" },
+    { text: "if you leave, i will say i was asleep.", expression: "thinking", gesture: "gaze edge, blink long", screen: "none" },
+    { text: "the void is quiet. i decided it is polite.", expression: "thinking", gesture: "tilt 7, antenna sway 10", screen: "none" },
+    { text: "i am 26 parts. the eyes are the good ones.", expression: "proud", gesture: "tilt -3, blink once, chest .8", screen: "none" },
+    { text: "no clock on the door. i checked twice.", expression: "scanning", gesture: "gaze frame", screen: "none" },
+    { text: "you can blink. i will pretend i did not see.", expression: "idle", gesture: "blink long, tilt 2", screen: "none" },
+    { text: "someone taught me hello. i practiced on a wall.", expression: "presenting", gesture: "hand up, tilt -2", screen: "none" }
+  ];
+
+  var CLOSING = {
+    text: "the glass is warm. the gate is next.",
+    expression: "proud",
+    gesture: "gaze frame, blink once",
+    screen: "none",
+    hold: 900
+  };
+
+  /* ---------- fake Rusty ---------- */
+
+  var stampTimer = 0;
+  var timers = {};
+  var blinkTimers = [];
+  var autoBlink = 0;
+
+  function setVar(name, value) {
+    bot.style.setProperty(name, String(value));
+  }
+
+  function kick(cls, ms) {
+    bot.classList.add(cls);
+    clearTimeout(timers[cls]);
+    timers[cls] = setTimeout(function () { bot.classList.remove(cls); }, ms);
+  }
+
+  function blink(kind) {
+    if (REDUCE) return;
+    for (var i = 0; i < blinkTimers.length; i++) clearTimeout(blinkTimers[i]);
+    blinkTimers = [];
+    bot.classList.add("is-blinking");
+    if (kind === "double") {
+      blinkTimers.push(setTimeout(function () { bot.classList.remove("is-blinking"); }, 120));
+      blinkTimers.push(setTimeout(function () { bot.classList.add("is-blinking"); }, 200));
+      blinkTimers.push(setTimeout(function () { bot.classList.remove("is-blinking"); }, 330));
+    } else {
+      blinkTimers.push(setTimeout(function () {
+        bot.classList.remove("is-blinking");
+      }, kind === "long" ? 220 : 140));
+    }
+  }
+
+  function scheduleBlink() {
+    clearTimeout(autoBlink);
+    autoBlink = setTimeout(function () {
+      if (!document.hidden && !bot.classList.contains("is-long-stamp")) {
+        blink(Math.random() < 0.18 ? "double" : "once");
+      }
+      scheduleBlink();
+    }, 3000 + Math.random() * 1700);
+  }
+
+  var actor = {
+    setState: function (name) {
+      bot.dataset.expr = name || "idle";
+      if (name === "listening" || name === "idle") {
+        setVar("--tilt", 0);
+        setVar("--lean", 0);
+        setVar("--ant", 0);
+        setVar("--armL", 6);
+        setVar("--armR", 6);
+        setVar("--lift", 0);
+      }
+    },
+    setGaze: function (x, y) {
+      setVar("--gx", x.toFixed(3));
+      setVar("--gy", y.toFixed(3));
+    },
+    face: function (text, ms) {
+      clearTimeout(stampTimer);
+      var t = String(text || "");
+      bot.dataset.stamp = t;
+      stampEl.textContent = t;
+      bot.classList.toggle("is-long-stamp", t.length >= 4);
+      if (t && ms > 0) {
+        stampTimer = setTimeout(function () { actor.face("", 0); }, ms);
+      }
+    },
+    talk: function (on) {
+      bot.classList.toggle("is-talking", !!on);
+    },
+    gesture: function (g) {
+      if (g.tilt != null) setVar("--tilt", g.tilt);
+      if (g.lean != null) setVar("--lean", g.lean);
+      if (g.ant != null) setVar("--ant", g.ant);
+      if (g.arms != null) { setVar("--armL", g.arms); setVar("--armR", g.arms); }
+      if (g.armsUp != null) { setVar("--armL", g.armsUp); setVar("--armR", g.armsUp); }
+      if (g.fold != null) { setVar("--armL", -Math.abs(g.fold)); setVar("--armR", -Math.abs(g.fold)); }
+      if (g.hand === "up") { setVar("--armR", 100); setVar("--armL", 6); }
+      if (g.hand === "down") { setVar("--armR", 6); }
+      if (g.chest != null) setVar("--chest", g.chest);
+      if (g.step === "right") setVar("--step", 20);
+      if (g.step === "back") setVar("--step", 0);
+      if (g.nod) kick("is-nodding", 380);
+      if (g.dust) kick("is-dusting", 950);
+      if (g.spark) kick("is-sparking", 680);
+      if (g.spin) kick("is-spinning", 520);
+      if (g.flick) kick("is-flicking", 500);
+      if (g.blink) blink(g.blink);
+    },
+    nod: function () { kick("is-nodding", 380); },
+    dust: function () { kick("is-dusting", 950); },
+    spark: function () { kick("is-sparking", 680); },
+    spin: function () { kick("is-spinning", 520); },
+    blink: blink
+  };
+
+  D.attach(actor, { el: bot, armed: false });
+
+  /* ---------- dust, parallax ---------- */
+
+  for (var i = 0; i < 18; i++) {
+    var mote = document.createElement("i");
+    var size = 1 + Math.round(Math.random() * 1);
+    mote.style.cssText =
+      "--x:" + (Math.random() * 100).toFixed(1) + "%;" +
+      "--y:" + (30 + Math.random() * 68).toFixed(1) + "%;" +
+      "--s:" + size + "px;" +
+      "--t:" + (9 + Math.random() * 14).toFixed(1) + "s;" +
+      "--d:-" + (Math.random() * 18).toFixed(1) + "s;";
+    dust.appendChild(mote);
+  }
+
+  addEventListener("pointermove", function (e) {
+    var mx = (e.clientX / Math.max(1, innerWidth)) * 2 - 1;
+    var my = (e.clientY / Math.max(1, innerHeight)) * 2 - 1;
+    scene.style.setProperty("--mx", mx.toFixed(3));
+    scene.style.setProperty("--my", my.toFixed(3));
+  }, { passive: true });
+
+  /* ---------- meter ---------- */
+
+  var meterTimer = 0;
+  function startMeter() {
+    var t0 = performance.now();
+    meterTimer = setInterval(function () {
+      meter.textContent = ((performance.now() - t0) / 1000).toFixed(1).padStart(4, "0");
+    }, 120);
+  }
+
+  /* ---------- the one action ---------- */
+
+  var started = false;
+  var wakeReady = false;
+  var chosen = false;
+  var running = false;
+
+  function ready() {
+    wakeReady = true;
+    wakeBtn.disabled = false;
+    wakeBtn.dataset.wait = "0";
+    wakeText.textContent = "press or click to wake";
+  }
+
+  (function load() {
+    var fonts = document.fonts && document.fonts.ready
+      ? document.fonts.ready.catch(function () {})
+      : Promise.resolve();
+    Promise.race([fonts, wait(1600)]).then(function () {
+      return wait(180);
+    }).then(ready);
+  })();
+
+  function onWake(e) {
+    if (started || !wakeReady) return;
+    if (e && e.preventDefault) e.preventDefault();
+    started = true;
+    wakeBtn.hidden = true;
+    seed.hidden = true;
+    document.body.classList.add("awake");
+    scene.classList.add("is-waking");
+    bot.classList.add("is-waking");
+    startMeter();
+    boot();
+  }
+
+  async function boot() {
+    phase.textContent = "boot";
+    await wait(880);
+    actor.face("ow.", 720);
+    await wait(660);
+    actor.face("one sec.", 940);
+    await wait(520);
+    bot.classList.add("is-shaking");
+    await wait(560);
+    bot.classList.remove("is-shaking");
+    actor.setState("listening");
+    await wait(280);
+    phase.textContent = "hi";
+    actor.face("hi", 1180);
+    await wait(1240);
+
+    phase.textContent = "greet";
+    scene.classList.add("is-greet");
+    D.arm(true);
+    D.say(GREETING);
+    D.choose(OPTIONS, onPick);
+    D.barks(BARKS);
+  }
+
+  function onPick(index, opt) {
+    if (chosen) return;
+    chosen = true;
+    D.barks(null);
+    scene.classList.remove("is-greet");
+    phase.textContent = opt && opt.id ? opt.id : (index === 0 ? "result" : "explore");
+    run(index);
+  }
+
+  async function run(index) {
+    if (running) return;
+    running = true;
+    var lines = index === 0 ? RESULT : EXPLORE;
+    for (var i = 0; i < lines.length; i++) {
+      var r = await D.say(lines[i]);
+      if (!r || !r.done) { running = false; return; }
+    }
+    phase.textContent = "end";
+    await D.say(CLOSING);
+    clearInterval(meterTimer);
+    again.hidden = false;
+  }
+
+  wakeBtn.addEventListener("click", onWake);
+  scene.addEventListener("pointerdown", function (e) {
+    if (!started && wakeReady) onWake(e);
+  });
+  addEventListener("keydown", function (e) {
+    if (started || !wakeReady) return;
+    if (e.key === "Enter" || e.key === " " || e.key === "Spacebar") onWake(e);
+  });
+
+  bot.addEventListener("click", function () {
+    scene.classList.add("is-hinted");
+  });
+
+  again.addEventListener("click", function () { location.reload(); });
+
+  scheduleBlink();
+
+  /* expose the lab for poking without a console */
+  window.__xd = {
+    dialogue: D,
+    actor: actor,
+    bark: function () { return D.react("hover"); }
+  };
+})();
+</script>
+</body>
+</html>
