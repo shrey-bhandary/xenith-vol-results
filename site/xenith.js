@@ -876,6 +876,10 @@
       if (bg) { bg.style.transition = "opacity 1.1s ease"; bg.style.opacity = "0"; }
       if (STORY.veil) { STORY.veil.style.opacity = "0"; }
       if (STORY.canvas) { STORY.canvas.style.transition = "opacity .6s ease"; STORY.canvas.style.opacity = "0"; }
+      // Hand the page over by itself. Waiting for someone to find "Go live"
+      // meant visitors sat on the engine's static rebuild, which has no stamp
+      // and no ambient art, and reasonably concluded the page was broken.
+      revealWhenBuilt();
     }
     const host = document.querySelector("swarm-rebuild");
     const root = host && host.shadowRoot;
@@ -888,6 +892,25 @@
       STORY.misses++;
       if (STORY.misses > 8) storyStop();
     }
+  }
+
+  // Dismiss the build once it has finished, so the real page (with the stamp,
+  // the rain, the slab X and Rusty) is what the visitor is left looking at.
+  let revealTried = 0;
+  function revealWhenBuilt() {
+    if (revealTried > 40) return;
+    const host = document.querySelector("swarm-rebuild");
+    if (!host) { revealTried = 0; return; }
+    revealTried++;
+    const root = host.shadowRoot;
+    const liveBtn = root && root.querySelector('[data-a="live"]');
+    if (revealTried > 6 && liveBtn) {
+      try { liveBtn.click(); return; } catch (e) {}
+    }
+    if (revealTried > 6 && window.__swarmRebuild && typeof window.__swarmRebuild.stop === "function") {
+      try { window.__swarmRebuild.stop(true); return; } catch (e) {}
+    }
+    setTimeout(revealWhenBuilt, 250);
   }
 
   function storySize() {
@@ -1376,7 +1399,7 @@
     // A real script element, not new Function(src): that keeps the page CSP-safe.
     const s = document.createElement("script");
     s.id = "swarm-engine";
-    s.src = "vendor/swarm.js?v=9";
+    s.src = "vendor/swarm.js?v=10";
     s.onload = () => setTimeout(startSwarmStory, 600);
     s.onerror = () => {
       console.error("[xenith] engine boot failed: vendor/swarm.js did not load");
