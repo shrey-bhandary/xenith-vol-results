@@ -21,7 +21,7 @@
    and catches stacks, not single voices. Every peak is -1 dBFS or lower.
 
      voice            linear   dBFS   where
-     servoUp          0.028    -31    B04 arms, B10 stretch
+     servoUp          0.028    -31    B04 arms, B06 wind-up, B10 stretch
      servoDown        0.026    -32    B06 false start, B11 settle
      ratchet tick     0.020    -34    B02 rod segments
      clank partials   0.050/0.025/0.0167   -26/-32/-36   B04, B06, B07, B11
@@ -39,13 +39,13 @@
      B02  0.70   ratchet(4)              30ms apart, 1.4k / 1.5k / 1.6k / 1.7k
      B03  1.60   ambientStart()          noise bed up over 2.4s, sub from zero
      B04  3.02   clank(1.0)              68Hz body, the tread thump
-     B04  3.10   servoUp(0.07) x2        arms unfold, left leads by 60ms
+     B04  3.10   servoUp(0.07) x2        3.10 left, 3.16 right, the 60ms stagger
      B05  3.30   (nothing)               bed holds. No duck is implemented.
      B06  4.10   servoUp(0.08)           the wind-up that gets cut
      B06  4.24   clank(0.6)              94Hz body, the arm hits its stop
      B07  4.45   clank(1.2) + tickMetal()  55Hz body plus the 2.4k contact tick
      B08  5.05   powerUp()               screen takes power, eyes follow
-     B09  5.68   tickMetal(0.7)          blink one. 5.94 the same, four dB down
+     B09  5.68   tickMetal(0.6)          blink one. 5.94 the same, four dB down
      B10  6.10   servoUp(0.30)           120 -> 260, the only full-body beat
      B11  6.70   servoDown(0.28)         arms drop to rest
      B11  6.94   clank(1.1)              61Hz, the treads take the weight
@@ -61,8 +61,8 @@
      lands on 55Hz for B07, which is what those beats ask for.
    - B04 wants a 240Hz square for the arms; this module only has the saw
      servo. The 2ms attack still reads as a mechanism, not a note.
-   - B09 wants 1.1k ticks. tickMetal sits at 2.4k and is dropped 3dB instead.
-     Cheaper than a second voice that only fires twice.
+   - B09 wants 1.1k ticks and B13 a 1.9k click. tickMetal sits at 2.4k and is
+     dropped in level instead. Cheaper than a voice that fires three times.
    - No duck, no speech, no note sequences. B14's three character blips belong
      to whatever paints the face, not to the rig's motor bed.
 */
