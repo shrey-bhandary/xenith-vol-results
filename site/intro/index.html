@@ -332,6 +332,9 @@ body[data-state="gate"] .gate-tag{opacity:.45}
 
 #menu button.picked{border-color:#9ef0c0!important;box-shadow:inset 0 0 0 1px rgba(158,240,192,.45)!important}
 #menu button.picked::after{content:"selected";position:absolute;right:10px;top:6px;font-size:8px;letter-spacing:.16em;color:#9ef0c0}
+
+#pick{position:absolute;left:clamp(20px,6.4vw,92px);top:54px;z-index:11;font-size:9px;letter-spacing:.22em;text-transform:lowercase;color:#9ef0c0;opacity:0;transition:opacity .25s ease}
+#pick.on{opacity:.85}
 </style>
 <link rel="stylesheet" href="buttons.css">
 </head>
@@ -344,6 +347,7 @@ body[data-state="gate"] .gate-tag{opacity:.45}
   <div class="scan" aria-hidden="true"></div>
   <div class="vig" aria-hidden="true"></div>
 
+  <div id="pick" role="status" aria-live="polite"></div>
   <header class="hud">
     <div class="hud-l"><span>xenith</span><span class="slash">/</span><span id="phase">void</span></div>
     <div class="hud-r"><span class="tick" aria-hidden="true"></span><span id="meter">00.0</span></div>

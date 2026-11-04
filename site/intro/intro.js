@@ -75,15 +75,22 @@
         try {
           ctx = new AC();
           master = ctx.createGain();
-          master.gain.value = 0.9;
+          master.gain.value = 0.8;
           const comp = ctx.createDynamicsCompressor();
           comp.threshold.value = -14;
           comp.knee.value = 18;
           comp.ratio.value = 6;
           comp.attack.value = 0.004;
           comp.release.value = 0.22;
+          const lim = ctx.createDynamicsCompressor();
+          lim.threshold.value = -2;
+          lim.knee.value = 0;
+          lim.ratio.value = 20;
+          lim.attack.value = 0.002;
+          lim.release.value = 0.08;
           master.connect(comp);
-          comp.connect(ctx.destination);
+          comp.connect(lim);
+          lim.connect(ctx.destination);
         } catch (e) { dead = true; return null; }
       }
       if (ctx.state === "suspended") { try { ctx.resume(); } catch (e) {} }
@@ -947,6 +954,12 @@
       ];
       let near = Infinity;
       for (const st of gate.strokes) {
+        if (st.length > 1) {
+          const sx = st[st.length - 1][0] - st[0][0], sy = st[st.length - 1][1] - st[0][1];
+          const gx = gd[1][0] - gd[0][0], gy = gd[1][1] - gd[0][1];
+          const sl = Math.hypot(sx, sy), gl = Math.hypot(gx, gy);
+          if (sl < 24 || !gl || Math.abs((sx * gx + sy * gy) / (sl * gl)) < 0.72) continue;
+        }
         if (st.length === 1) near = Math.min(near, Math.hypot(p[0] - st[0][0], p[1] - st[0][1]));
         for (let j = 1; j < st.length; j++) {
           const d = distSeg(p, st[j - 1], st[j]);
@@ -1178,6 +1191,8 @@
     gate.success = false;
     rigFace("draw x", 1800);
     audio.voice("drawx");
+    const gt = document.querySelector(".gate-tag");
+    if (gt) gt.textContent = "verification / " + (lastPick || "x");
     gate.strokes = [];
     gate.cur = null;
     gate.r1 = gate.r2 = false;
@@ -1292,6 +1307,7 @@
   }
 
   let menuBuilt = false;
+  let lastPick = "";
 
   function buildLocalMenu() {
     if (menuBuilt) return;
@@ -1429,6 +1445,9 @@
     rows.forEach((b) => { b.classList.remove("picked"); b.removeAttribute("aria-selected"); });
     const picked = rows[id === "explore" ? 1 : 0];
     if (picked) { picked.classList.add("picked"); picked.setAttribute("aria-selected", "true"); }
+    lastPick = id === "explore" ? "explore xenith" : "vols result";
+    const receipt = document.getElementById("pick");
+    if (receipt) { receipt.textContent = "selected / " + lastPick; receipt.classList.add("on"); }
     document.body.classList.remove("menu-open");
     rig.leanT = 0;
     rig.nodAt = performance.now();

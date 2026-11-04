@@ -797,7 +797,6 @@
     const ctx = STORY.ctx;
     if (!ctx || !STORY.W || !STORY.H) return;
     ctx.clearRect(0, 0, STORY.W, STORY.H);
-    storyLogoDraw(1);
     const g = storyGeom();
     const wg = storyWordGeom(ctx, g);
     const frameP = storyEase(storyClamp(el / 1500));
@@ -931,7 +930,7 @@
       STORY.raf = requestAnimationFrame(storyTick);
     } else {
       STORY.raf = 0;
-      if (STORY.ctx) { STORY.ctx.clearRect(0, 0, STORY.W, STORY.H); storyLogoDraw(1); }
+      if (STORY.ctx) { STORY.ctx.clearRect(0, 0, STORY.W, STORY.H); }
     }
   }
 
@@ -1020,11 +1019,11 @@
     if (!root.querySelector("style[data-glass]")) {
       const st = document.createElement("style");
       st.setAttribute("data-glass", "");
-      st.textContent = GLASS_CSS + "\n.lg-logo-reveal{width:min(62vw,440px);height:min(40vh,260px);background:#05040c;border-radius:14px;box-shadow:0 30px 80px rgba(0,0,0,.6)}@media(max-width:720px){.lg-logo-reveal{width:82vw;height:240px}}";
+      st.textContent = GLASS_CSS + "\n.lg-logo-reveal{width:min(62vw,400px);height:min(40vh,225px);background:#06050f;border-radius:14px;box-shadow:0 30px 80px rgba(0,0,0,.6)}@media(max-width:720px){.lg-logo-reveal{width:78vw;height:190px}}";
       root.appendChild(st);
     }
     const stage = document.createElement("div");
-    stage.style.cssText = "position:absolute;inset:0;display:grid;place-items:center;z-index:2;--lg-logo-reveal-size:62px;--lg-logo-reveal-stage:#05040c";
+    stage.style.cssText = "position:absolute;inset:0;display:grid;place-items:center;z-index:2;--lg-logo-reveal-size:36px;--lg-logo-reveal-stage:#06050f";
     STORY.layer.appendChild(stage);
     try {
       STORY.glass = window.GlassReveal.mount(stage, {
