@@ -4,174 +4,256 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="color-scheme" content="dark">
-<title>Rusty face / expression sheet</title>
+<title>Xenith intro / buttons</title>
+<link rel="stylesheet" href="buttons.css">
 <style>
+@font-face{
+  font-family:"PS2P";
+  src:url("../../assets/fonts/PressStart2P.ttf") format("truetype");
+  font-display:swap;
+}
 :root{
-  --cream:#ffe9b0;
+  --void:#000;
   --amber:#ffb15c;
-  --edge:rgba(255,233,176,.12);
+  --cream:#ffe9b0;
+  --mint:#9ef0c0;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
 }
 *{box-sizing:border-box}
-html,body{margin:0;background:#000;color:var(--cream)}
+html,body{height:100%;margin:0;background:var(--void)}
 body{
-  font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
-  min-height:100svh;display:grid;place-items:start center;
-  padding:clamp(20px,5vw,48px) 16px 44px;
-  -webkit-font-smoothing:antialiased;
+  overflow:hidden;color:var(--cream);
+  font-family:var(--mono);font-size:10px;
+  -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
 }
-main{width:min(540px,100%)}
+::selection{background:rgba(255,177,92,.24);color:var(--cream)}
+
+/* the room, cursor lit */
+.air{
+  position:fixed;left:0;top:0;z-index:0;pointer-events:none;
+  width:74vmax;height:74vmax;border-radius:50%;
+  background:radial-gradient(closest-side, rgba(255,177,92,.055), rgba(255,177,92,.014) 46%, transparent 72%);
+  transform:translate3d(50vw,54vh,0) translate(-50%,-50%);
+  will-change:transform;
+}
+.vig{
+  position:fixed;inset:0;z-index:1;pointer-events:none;
+  background:
+    radial-gradient(120% 90% at 50% 46%, transparent 30%, rgba(0,0,0,.72) 100%),
+    linear-gradient(to bottom, rgba(0,0,0,.5), transparent 16%, transparent 84%, rgba(0,0,0,.62));
+}
+.scan{
+  position:fixed;inset:0;z-index:1;pointer-events:none;opacity:.28;
+  background:repeating-linear-gradient(to bottom, rgba(0,0,0,0) 0 2px, rgba(0,0,0,.28) 2px 3px);
+}
+
 .hud{
-  display:flex;justify-content:space-between;align-items:baseline;gap:16px;
-  font-size:8px;letter-spacing:.34em;text-transform:lowercase;
-  color:rgba(255,233,176,.4);
+  position:fixed;top:0;left:0;right:0;z-index:5;
+  display:flex;justify-content:space-between;align-items:center;
+  padding:20px clamp(18px,3.4vw,42px);
+  font-size:9px;letter-spacing:.3em;text-transform:lowercase;
+  color:rgba(255,233,176,.48);pointer-events:none;
 }
-.hud .r{color:var(--amber)}
-.sheet{
-  display:grid;grid-template-columns:repeat(5,minmax(0,1fr));
-  gap:18px 8px;margin:26px 0 0;padding:0;
+.hud .dim{color:rgba(255,233,176,.28)}
+
+.stage{
+  position:fixed;z-index:4;
+  left:clamp(20px,6.4vw,92px);
+  bottom:clamp(84px,15vh,144px);
+  width:min(540px,calc(100vw - 40px));
 }
-figure{margin:0;display:flex;flex-direction:column;align-items:center;gap:7px;min-width:0}
-canvas.face{
-  display:block;width:61px;height:40px;
-  image-rendering:pixelated;
-  outline:1px solid rgba(255,233,176,.055);outline-offset:3px;
+.kicker{
+  margin:0 0 20px;padding-left:2px;
+  font-size:9px;line-height:1.8;letter-spacing:.24em;text-transform:lowercase;
+  color:rgba(255,233,176,.38);
 }
-figcaption{
-  font-size:8px;line-height:1.4;letter-spacing:.16em;text-transform:lowercase;
-  color:rgba(255,233,176,.5);white-space:nowrap;
+.status{
+  margin:18px 0 0;min-height:1.8em;
+  font-size:10px;line-height:1.8;letter-spacing:.04em;
+  color:rgba(255,233,176,.44);
 }
-.strip{margin-top:30px;padding-top:13px;border-top:1px solid var(--edge)}
-.strip h2{
-  margin:0 0 12px;font-weight:400;font-size:8px;letter-spacing:.28em;
-  text-transform:lowercase;color:rgba(255,233,176,.4);
+.status[data-on]{color:var(--mint)}
+
+.deck{
+  position:fixed;left:0;right:0;bottom:0;z-index:5;
+  display:flex;align-items:center;justify-content:space-between;gap:20px;
+  padding:0 clamp(18px,3.4vw,42px) calc(14px + env(safe-area-inset-bottom));
+  font-size:8px;letter-spacing:.22em;text-transform:lowercase;
+  color:rgba(255,233,176,.42);
 }
-.strip h2 b{font-weight:400;color:rgba(255,177,92,.72)}
-.row{display:flex;flex-wrap:wrap;gap:8px}
-.row canvas.face{outline-color:rgba(255,233,176,.035)}
-footer{
-  margin-top:26px;display:flex;justify-content:space-between;gap:16px;
-  font-size:8px;letter-spacing:.24em;text-transform:lowercase;
-  color:rgba(255,233,176,.28);
+.cue{
+  margin:0;flex:1 1 auto;min-width:0;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  font-variant-numeric:tabular-nums;
 }
-.err{margin:32px 0;font-size:11px;line-height:1.8;color:var(--amber)}
-@media (max-width:430px){
-  .sheet{grid-template-columns:repeat(3,minmax(0,1fr))}
+.cue[data-on]{color:var(--mint)}
+.deck .ctl{display:flex;align-items:center;gap:20px;flex:0 0 auto}
+.deck button{
+  appearance:none;-webkit-appearance:none;
+  display:inline-flex;align-items:center;min-height:40px;
+  margin:0;padding:10px 0;background:none;border:0;
+  border-bottom:1px solid rgba(255,233,176,.16);
+  font:inherit;font-size:8px;letter-spacing:.22em;text-transform:lowercase;
+  color:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent;
+  transition:color .25s ease,border-color .25s ease;
+}
+.deck button:hover{color:var(--cream);border-color:rgba(255,233,176,.4)}
+.deck button:disabled{opacity:.35;cursor:default;border-color:rgba(255,233,176,.08)}
+.deck button:focus-visible{outline:2px solid var(--mint);outline-offset:4px}
+
+@media (max-width:760px){
+  .hud{font-size:8px;padding:16px 18px}
+  .stage{left:18px;right:18px;bottom:calc(92px + env(safe-area-inset-bottom));width:auto}
+  .kicker{font-size:8px;margin-bottom:16px}
+  .status{font-size:9px;margin-top:14px}
+  .deck{padding-left:18px;padding-right:18px;gap:12px}
+  .deck .ctl{gap:14px}
+  .cue{font-size:7px;letter-spacing:.16em}
+}
+@media (max-width:380px){
+  .deck{gap:8px;padding-left:14px;padding-right:14px}
+  .deck .ctl{gap:10px}
+  .deck button{font-size:7px;letter-spacing:.14em}
+  .cue{font-size:6.5px;letter-spacing:.12em}
+}
+@media (prefers-reduced-motion:reduce){
+  .air{will-change:auto}
 }
 </style>
 </head>
 <body>
-<main>
-  <header class="hud">
-    <span>rusty / face</span>
-    <span class="r">15 expressions / 4&times;</span>
-  </header>
+<div class="air" id="air" aria-hidden="true"></div>
+<div class="vig" aria-hidden="true"></div>
+<div class="scan" aria-hidden="true"></div>
 
-  <section class="sheet" id="sheet" aria-label="Rusty expression sheet, drawn on black at four times"></section>
+<header class="hud">
+  <span>xenith / lab</span>
+  <span class="dim">intro choices / v1.0</span>
+</header>
 
-  <section class="strip" aria-label="Talk cycle samples">
-    <h2>talk cycle <b>t 0 to 420ms / intensity 1</b></h2>
-    <div class="row" id="talk"></div>
-  </section>
-
-  <section class="strip" aria-label="Blend samples">
-    <h2>blend <b>listening to proud / 0 to 1</b></h2>
-    <div class="row" id="blend"></div>
-  </section>
-
-  <footer>
-    <span>black / 4&times; / screen 15.2 &times; 10</span>
-    <span>face.js</span>
-  </footer>
+<main class="stage">
+  <p class="kicker">the room notices the cursor</p>
+  <div id="choices"></div>
+  <p class="status" id="status" role="status" aria-live="polite">rows load as dots, then arm.</p>
 </main>
 
-<script src="face.js"></script>
+<footer class="deck">
+  <p class="cue" id="cue" aria-hidden="true">cue / idle</p>
+  <div class="ctl">
+    <button id="sound" type="button" aria-pressed="true">sound : on</button>
+    <button id="hold" type="button" aria-pressed="false">hold</button>
+    <button id="replay" type="button">replay</button>
+  </div>
+</footer>
+
+<script src="buttons.js"></script>
 <script>
-(function () {
+(() => {
   "use strict";
 
-  var F = window.RustyFace;
-  var sheet = document.getElementById("sheet");
-  var talkRow = document.getElementById("talk");
-  var blendRow = document.getElementById("blend");
+  const host = document.getElementById("choices");
+  const status = document.getElementById("status");
+  const cueEl = document.getElementById("cue");
+  const soundBtn = document.getElementById("sound");
+  const holdBtn = document.getElementById("hold");
+  const replayBtn = document.getElementById("replay");
+  const air = document.getElementById("air");
 
-  if (!F) {
-    var err = document.createElement("p");
-    err.className = "err";
-    err.textContent = "face.js did not load. keep demo.html beside it.";
-    sheet.parentNode.insertBefore(err, sheet);
-    return;
+  const CHOICES = [
+    { id: "result", label: "check my vols application result", sub: "one file, one line" },
+    { id: "explore", label: "explore xenith", sub: "six departments, one page" }
+  ];
+
+  let inst = null;
+  let armTimer = 0;
+  let soundOn = true;
+  let held = false;
+  let trail = [];
+
+  function logCue(name) {
+    trail.push(name);
+    if (trail.length > 5) trail.shift();
+    cueEl.textContent = "cue / " + trail.join(" · ");
+    cueEl.removeAttribute("data-on");
+    if (name === "select") cueEl.setAttribute("data-on", "");
   }
 
-  var S = 4;
-  var SW = 15.2 * S;
-  var SH = 10 * S;
-  var CW = Math.ceil(SW);
-  var CH = Math.ceil(SH);
-  var EYE_X = 3.5;
-  var EYE_Y = -6.2;
-  var MOUTH_Y = -2.2;
-
-  function paint(ctx, rects, ox, oy) {
-    for (var i = 0; i < rects.length; i++) {
-      var r = rects[i];
-      var x0 = Math.round((ox + r.x) * S);
-      var x1 = Math.round((ox + r.x + r.w) * S);
-      var y0 = Math.round((oy + r.y) * S);
-      var y1 = Math.round((oy + r.y + r.h) * S);
-      ctx.fillStyle = r.c;
-      ctx.fillRect(x0, y0, Math.max(1, x1 - x0), Math.max(1, y1 - y0));
-    }
+  function setStatus(text, on) {
+    status.textContent = text;
+    if (on) status.setAttribute("data-on", "");
+    else status.removeAttribute("data-on");
   }
 
-  function face(shape, mouth) {
-    var cv = document.createElement("canvas");
-    cv.className = "face";
-    cv.width = CW;
-    cv.height = CH;
-    cv.setAttribute("aria-hidden", "true");
-    var ctx = cv.getContext("2d");
-    if (!ctx) return cv;
+  function start(audible) {
+    clearTimeout(armTimer);
+    trail = [];
+    held = false;
+    holdBtn.textContent = "hold";
+    holdBtn.disabled = false;
+    holdBtn.setAttribute("aria-pressed", "false");
+    cueEl.textContent = "cue / idle";
+    cueEl.removeAttribute("data-on");
+    if (inst) inst.destroy();
+    if (!window.IntroChoices) { setStatus("buttons.js did not load.", true); return; }
+    setStatus("mounting the dotted state.", false);
 
-    ctx.fillStyle = "#000";
-    ctx.fillRect(0, 0, CW, CH);
+    inst = window.IntroChoices.mount(host, {
+      items: CHOICES,
+      label: "choose a path",
+      armed: false,
+      focusAfter: "#replay",
+      onCue: logCue
+    }, (i, item) => {
+      holdBtn.disabled = true;
+      setStatus("picked / " + item.label + " / index " + i, true);
+    });
 
-    /* the screen rim, nothing else. the rects are the whole face. */
-    ctx.fillStyle = "rgba(123,92,255,.16)";
-    ctx.fillRect(0, 0, CW, 1);
-    ctx.fillRect(0, CH - 1, CW, 1);
+    if (!inst) { setStatus("buttons.js did not load.", true); return; }
+    inst.muted = !soundOn;
+    if (audible) inst.unlock();
 
-    paint(ctx, shape.eyes.l, 7.6 - EYE_X, 10 + EYE_Y);
-    paint(ctx, shape.eyes.r, 7.6 + EYE_X, 10 + EYE_Y);
-    paint(ctx, mouth || shape.mouth, 7.6, 10 + MOUTH_Y);
-    return cv;
+    armTimer = setTimeout(() => {
+      if (!inst) return;
+      inst.arm(audible !== true);
+      setStatus("armed. hover, tab, arrows, 1 2.", false);
+    }, 620);
   }
 
-  function cell(shape, label) {
-    var fig = document.createElement("figure");
-    fig.appendChild(face(shape));
-    var cap = document.createElement("figcaption");
-    cap.textContent = label;
-    fig.appendChild(cap);
-    return fig;
-  }
+  soundBtn.addEventListener("click", () => {
+    soundOn = !soundOn;
+    if (inst) inst.muted = !soundOn;
+    soundBtn.textContent = "sound : " + (soundOn ? "on" : "off");
+    soundBtn.setAttribute("aria-pressed", String(soundOn));
+  });
 
-  /* fifteen expressions, in the order he meets them */
-  for (var i = 0; i < F.names.length; i++) {
-    var name = F.names[i];
-    sheet.appendChild(cell(F.shapes(name), name));
-  }
+  holdBtn.addEventListener("click", () => {
+    if (!inst || inst.locked) return;
+    held = !held;
+    if (held) inst.disarm();
+    else inst.arm();
+    holdBtn.textContent = held ? "release" : "hold";
+    holdBtn.setAttribute("aria-pressed", String(held));
+    setStatus(held ? "held. four dots, no light." : "armed. hover, tab, arrows, 1 2.", false);
+  });
 
-  /* the mouth is the only thing that changes while he speaks */
-  var eyes = F.shapes("listening");
-  for (var n = 0; n < 7; n++) {
-    var cycle = F.talkCycle(n * .07, 1);
-    talkRow.appendChild(face(eyes, cycle.rects));
-  }
+  replayBtn.addEventListener("click", () => start(true));
 
-  /* two faces and five weights, the way expression combos resolve */
-  for (var k = 0; k <= 1; k += .25) {
-    blendRow.appendChild(face(F.blend("listening", "proud", k)));
+  start(false);
+
+  // one light, following the cursor, no parallax stack
+  let ax = innerWidth / 2;
+  let ay = innerHeight * 0.54;
+  let queued = 0;
+  function paint() {
+    queued = 0;
+    air.style.transform = "translate3d(" + ax + "px," + ay + "px,0) translate(-50%,-50%)";
   }
+  addEventListener("pointermove", (e) => {
+    ax = e.clientX;
+    ay = e.clientY;
+    if (!queued) queued = requestAnimationFrame(paint);
+  }, { passive: true });
+  paint();
 })();
 </script>
 </body>
