@@ -923,14 +923,7 @@
 
   function storyTick(now) {
     if (STORY.stopped) return;
-    if (STORY.logoStart == null) STORY.logoStart = now;
-    const pre = (now - STORY.logoStart) / 2600;
-    if (pre < 1 && !reduceMotion) {
-      storyGlass(pre);
-      STORY.raf = requestAnimationFrame(storyTick);
-      return;
-    }
-    if (!STORY.t0) STORY.t0 = now;
+    if (!STORY.t0) { STORY.raf = requestAnimationFrame(storyTick); return; }
     const el = now - STORY.t0;
     storyDraw(el);
     if (el < 3900) {
@@ -1018,6 +1011,31 @@
     storySize();
   }
 
+  const GLASS_CSS = "/*\n  Glass Logo Reveal: the stage the reveal is drawn on and the mark it lands on. The mark is the\n  real image, laid out by the page; the canvas paints over it while the glass moves and steps\n  aside once it has landed. Size the mark with --lg-logo-reveal-size.\n\n  Vanilla port of the MIT-licensed Glassy UI stylesheet. The original @layer wrappers are\n  dropped: link this file directly instead of compiling it into Tailwind.\n*/\n\n.lg-logo-reveal {\n  --lg-logo-reveal-stage: #1c1c1e;\n  --lg-logo-reveal-ink: #f5f5f7;\n\n  position: relative;\n  display: grid;\n  place-items: center;\n  aspect-ratio: 16 / 9;\n  margin: 0;\n  overflow: hidden;\n  container-type: size;\n  background-color: var(--lg-logo-reveal-stage);\n  color: var(--lg-logo-reveal-ink);\n}\n\n[data-lg-theme='light'] .lg-logo-reveal {\n  --lg-logo-reveal-stage: #faf9f7;\n  --lg-logo-reveal-ink: #222224;\n}\n\n/* The glass tile grows to a little under twice the mark, so nearly half the stage leaves room. */\n.lg-logo-reveal-mark {\n  display: block;\n  /* The box keeps the mark's own proportions, so nothing drawn from it is ever squashed. */\n  width: auto;\n  height: var(--lg-logo-reveal-size, 46cqmin);\n}\n\n.lg-logo-reveal-canvas {\n  position: absolute;\n  inset: 0;\n  display: block;\n  width: 100%;\n  height: 100%;\n  pointer-events: none;\n  user-select: none;\n}\n\n.lg-logo-reveal[data-state='ended'] .lg-logo-reveal-canvas {\n  opacity: 0;\n  transition: opacity 240ms var(--lg-ease-out, cubic-bezier(0.32, 0.72, 0, 1));\n}\n\n/* With scripting the canvas draws everything until the glass has gone. */\n@media (scripting: enabled) {\n  .lg-logo-reveal:not([data-state='ended']) .lg-logo-reveal-mark {\n    visibility: hidden;\n  }\n}\n\n/* Reduced motion and reduced transparency keep the mark and drop the glass. */\nhtml[data-lg-reduce-motion='1'] .lg-logo-reveal-mark,\nhtml[data-lg-reduce-transparency='1'] .lg-logo-reveal-mark {\n  visibility: visible;\n}\n\nhtml[data-lg-reduce-motion='1'] .lg-logo-reveal-canvas,\nhtml[data-lg-reduce-transparency='1'] .lg-logo-reveal-canvas {\n  visibility: hidden;\n}\n\n@media (prefers-reduced-motion: reduce), (prefers-reduced-transparency: reduce) {\n  .lg-logo-reveal-mark {\n    visibility: visible;\n  }\n\n  .lg-logo-reveal-canvas {\n    visibility: hidden;\n  }\n}\n\n.lg-logo-reveal-error {\n  position: absolute;\n  inset: auto 0 0;\n  padding: 12px;\n  font-size: 0.875rem;\n  text-align: center;\n}\n";
+
+  function storyGlassMount() {
+    if (!window.GlassReveal) return;
+    const root = STORY.root || document.body;
+    if (!root.querySelector("style[data-glass]")) {
+      const st = document.createElement("style");
+      st.setAttribute("data-glass", "");
+      st.textContent = GLASS_CSS + "\n.lg-logo-reveal{width:min(92vw,1000px);height:min(78vh,560px);background:transparent}";
+      root.appendChild(st);
+    }
+    const stage = document.createElement("div");
+    stage.style.cssText = "position:absolute;inset:0;display:grid;place-items:center;z-index:2;--lg-logo-reveal-size:120px;--lg-logo-reveal-stage:transparent";
+    STORY.layer.appendChild(stage);
+    try {
+      STORY.glass = window.GlassReveal.mount(stage, {
+        markSrc: "../assets/brand/xenith-logo-amber.svg",
+        label: "Xenith",
+        duration: 2600,
+        play: "mount",
+        onComplete: () => { STORY.t0 = performance.now(); }
+      });
+    } catch (e) { STORY.t0 = performance.now(); }
+  }
+
   function storyBegin(parent) {
     if (STORY.stopped || STORY.layer) return;
     storyBuild();
@@ -1034,7 +1052,9 @@
     const cover = document.getElementById("handoff-cover");
     if (cover) setTimeout(() => { if (cover.isConnected) cover.remove(); document.documentElement.classList.remove("engine-pending"); }, 900);
 
-    STORY.t0 = performance.now();
+    STORY.t0 = 0;
+    if (reduceMotion) STORY.t0 = performance.now();
+    else storyGlassMount();
     if (reduceMotion) {
       storyDraw(1e6);
       STORY.veil.style.opacity = ".45";

@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<title>Xenith / Glass Logo Reveal</title>
+<link rel="stylesheet" href="glass-reveal.css">
+<style>
+  :root {
+    color-scheme: dark;
+    --void: #05040c;
+    --stage: #06050f;
+    --amber: #ffb15c;
+    --cream: #ffe9b0;
+    --dim: rgba(255, 233, 176, 0.54);
+    --line: rgba(255, 233, 176, 0.14);
+    --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    --sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+
+  html { min-height: 100%; }
+
+  body {
+    margin: 0;
+    min-height: 100svh;
+    display: grid;
+    place-items: center;
+    padding: clamp(20px, 4vw, 48px);
+    background:
+      radial-gradient(70rem 38rem at 50% -12%, rgba(123, 92, 255, 0.12), transparent 62%),
+      radial-gradient(55rem 32rem at 50% 118%, rgba(255, 177, 92, 0.08), transparent 64%),
+      var(--void);
+    color: var(--cream);
+    font-family: var(--sans);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  main {
+    width: min(1000px, 100%);
+    display: grid;
+    gap: clamp(20px, 2.5vw, 28px);
+  }
+
+  .masthead { display: grid; gap: 10px; max-width: 64ch; }
+
+  .eyebrow {
+    margin: 0;
+    font: 11px/1.4 var(--mono);
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--dim);
+  }
+
+  h1 {
+    margin: 0;
+    font-size: clamp(24px, 4vw, 38px);
+    font-weight: 650;
+    letter-spacing: -0.025em;
+    line-height: 1.1;
+  }
+
+  .lede {
+    margin: 0;
+    color: var(--dim);
+    font-size: clamp(13px, 1.5vw, 15px);
+    line-height: 1.6;
+  }
+
+  #stage {
+    border-radius: 22px;
+    box-shadow:
+      0 0 0 1px var(--line),
+      0 40px 90px -30px rgba(0, 0, 0, 0.9);
+  }
+
+  /*
+    The upstream default sizes a square mark to 46cqmin, which leaves the ~2x glass at
+    ~92% of the stage's short side. The Xenith lockup is 3:1, so cap its width, not its
+    height, at 46cqmin: height = 46cqmin / 3. A 16:9 stage then holds the whole ball.
+  */
+  .xenith-stage .lg-logo-reveal {
+    --lg-logo-reveal-stage: var(--stage);
+    --lg-logo-reveal-ink: #ffe9b0;
+    --lg-logo-reveal-size: calc(46cqmin / 3);
+    border-radius: 22px;
+  }
+
+  .controls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px 16px;
+  }
+
+  button {
+    appearance: none;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: rgba(255, 233, 176, 0.04);
+    color: var(--cream);
+    padding: 11px 18px;
+    font: 12px/1 var(--mono);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 0.18s ease, border-color 0.18s ease, transform 0.18s ease;
+  }
+
+  button:hover {
+    background: rgba(255, 177, 92, 0.12);
+    border-color: rgba(255, 177, 92, 0.42);
+  }
+
+  button:active { transform: translateY(1px); }
+
+  button:focus-visible,
+  input:focus-visible {
+    outline: 2px solid var(--amber);
+    outline-offset: 3px;
+  }
+
+  .scrub {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font: 11px/1 var(--mono);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--dim);
+  }
+
+  input[type="range"] {
+    width: clamp(120px, 22vw, 220px);
+    accent-color: var(--amber);
+    cursor: pointer;
+  }
+
+  #status {
+    margin: 0 0 0 auto;
+    font: 12px/1.4 var(--mono);
+    color: var(--dim);
+  }
+
+  .hint,
+  .foot {
+    margin: 0;
+    color: rgba(255, 233, 176, 0.4);
+    font: 12px/1.6 var(--mono);
+  }
+
+  .foot { font-size: 11px; }
+
+  @media (max-width: 720px) {
+    #status { margin-left: 0; flex-basis: 100%; }
+    /* A square, phone-height stage keeps the glass and the mark legible. */
+    .xenith-stage .lg-logo-reveal { aspect-ratio: 1; }
+  }
+</style>
+</head>
+<body>
+<main>
+  <header class="masthead">
+    <p class="eyebrow">Glassy UI &middot; Glass Logo Reveal &middot; vanilla port</p>
+    <h1>Xenith, through glass</h1>
+    <p class="lede">
+      A ball of thick glass swells out of the dark, squares into a rounded tile and clears,
+      leaving the real mark. Hold the moment to stop the glass anywhere.
+    </p>
+  </header>
+
+  <div id="stage" class="xenith-stage"></div>
+
+  <div class="controls">
+    <button id="replay" type="button">Replay</button>
+    <label class="scrub" for="scrub">
+      Moment
+      <input id="scrub" type="range" min="0" max="100" step="1" value="0">
+    </label>
+    <button id="resume" type="button">Play on</button>
+    <p id="status" role="status" aria-live="polite">Revealing&hellip;</p>
+  </div>
+
+  <p class="hint">
+    Scrubbing holds a moment of the reveal. Play on releases it. Reduced motion, reduced
+    transparency, or no WebGL2 shows the mark at once.
+  </p>
+
+  <footer class="foot">
+    Vanilla port of Glassy UI's Glass Logo Reveal (MIT). Mark: Xenith.
+  </footer>
+
+  <noscript><p class="hint">This demo needs JavaScript. Without WebGL2 the mark still shows.</p></noscript>
+</main>
+
+<script src="renderer.js"></script>
+<script src="glass-reveal.js"></script>
+<script src="demo.js"></script>
+</body>
+</html>
