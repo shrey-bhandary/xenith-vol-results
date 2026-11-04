@@ -598,7 +598,8 @@
     .gate-note {
       position: absolute;
       left: 50%;
-      top: 66%;
+      top: auto;
+      bottom: calc(52px + env(safe-area-inset-bottom, 0px));
       transform: translateX(-50%);
       width: min(88vw, 540px);
       margin: 0;
@@ -607,20 +608,21 @@
       font-size: 11px;
       line-height: 1.6;
       letter-spacing: .04em;
-      color: rgba(255, 233, 176, .82);
+      color: rgba(255, 233, 176, .85);
     }
 
     .gate-meta {
       position: absolute;
       left: 50%;
-      top: calc(66% + 28px);
+      top: auto;
+      bottom: calc(26px + env(safe-area-inset-bottom, 0px));
       transform: translateX(-50%);
       margin: 0;
       pointer-events: none;
       font-size: 11px;
       letter-spacing: .26em;
       text-transform: lowercase;
-      color: rgba(255, 233, 176, .8);
+      color: rgba(255, 233, 176, .82);
       font-variant-numeric: tabular-nums;
       white-space: nowrap;
     }
@@ -821,12 +823,14 @@
       }
 
       .gate-note {
-        top: 65%;
+        top: auto;
+        bottom: calc(48px + env(safe-area-inset-bottom, 0px));
         font-size: 10.5px
       }
 
       .gate-meta {
-        top: calc(65% + 26px)
+        top: auto;
+        bottom: calc(24px + env(safe-area-inset-bottom, 0px))
       }
 
       .skip {
@@ -985,10 +989,10 @@
     </p>
   </noscript>
 
-  <script src="face.js?v=7"></script>
-  <script src="rusty.js?v=7"></script>
-  <script src="void-extras.js?v=7"></script>
-  <script src="buttons.js?v=7"></script>
+  <script src="face.js?v=8"></script>
+  <script src="rusty.js?v=8"></script>
+  <script src="void-extras.js?v=8"></script>
+  <script src="buttons.js?v=8"></script>
   <script>
     window.XenithIntroDone = function (detail) {
       detail = detail || {};
@@ -1003,7 +1007,7 @@
       location.href = "../?" + out.toString();
     };
   </script>
-  <script src="intro.js?v=7"></script>
+  <script src="intro.js?v=8"></script>
 </body>
 
 </html>

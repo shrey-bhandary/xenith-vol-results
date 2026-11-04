@@ -704,8 +704,8 @@
 
   function gateGuides() {
     const mob = W < 760;
-    const h = Math.min(W * 0.28, H * 0.115, mob ? 76 : 90);
-    const cx = W * 0.5, cy = H * 0.45;
+    const h = Math.min(W * 0.32, H * 0.14, mob ? 84 : 100);
+    const cx = W * 0.5, cy = H * (mob ? 0.48 : 0.48);
     return [
       [[cx - h, cy - h], [cx + h, cy + h]],
       [[cx + h, cy - h], [cx - h, cy + h]]

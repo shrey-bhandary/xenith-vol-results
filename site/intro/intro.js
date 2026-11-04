@@ -909,8 +909,8 @@
 
   function gateGuides() {
     const mob = W < 760;
-    const h = Math.min(W * 0.28, H * 0.115, mob ? 76 : 90);
-    const cx = W * 0.5, cy = H * 0.45;
+    const h = Math.min(W * 0.32, H * 0.14, mob ? 84 : 100);
+    const cx = W * 0.5, cy = H * (mob ? 0.48 : 0.48);
     return [
       [[cx - h, cy - h], [cx + h, cy + h]],
       [[cx + h, cy - h], [cx - h, cy + h]]
@@ -1179,35 +1179,36 @@
     gate.ca = ca;
     gate.cb = cb;
 
-    const pad = mob ? 18 : 22;
+    const mob = W < 760;
+    const pad = mob ? 20 : 26;
     const minX = Math.min(A[0][0], A[1][0], B[0][0], B[1][0]) - pad;
     const maxX = Math.max(A[0][0], A[1][0], B[0][0], B[1][0]) + pad;
     const minY = Math.min(A[0][1], A[1][1], B[0][1], B[1][1]) - pad;
     const maxY = Math.max(A[0][1], A[1][1], B[0][1], B[1][1]) + pad;
     c.save();
-    c.fillStyle = "rgba(255,233,176,.022)";
+    c.fillStyle = "rgba(255,233,176,.025)";
     c.fillRect(minX, minY, maxX - minX, maxY - minY);
-    c.strokeStyle = "rgba(255,233,176,.18)";
+    c.strokeStyle = "rgba(255,233,176,.24)";
     c.lineWidth = 1;
     c.strokeRect(minX + .5, minY + .5, maxX - minX - 1, maxY - minY - 1);
-    c.strokeStyle = "rgba(255,177,92,.7)";
-    const tick = 12;
+    c.strokeStyle = "rgba(255,177,92,.85)";
+    const tick = 14;
     for (const [tx, ty, dx, dy] of [[minX,minY,1,1],[maxX,minY,-1,1],[minX,maxY,1,-1],[maxX,maxY,-1,-1]]) {
       c.beginPath(); c.moveTo(tx, ty + dy * tick); c.lineTo(tx, ty); c.lineTo(tx + dx * tick, ty); c.stroke();
     }
     const pctNow = (ca + cb) / 2;
-    c.fillStyle = "rgba(255,233,176,.12)";
-    c.fillRect(minX, maxY + 10, maxX - minX, 1.5);
+    c.fillStyle = "rgba(255,233,176,.15)";
+    c.fillRect(minX, maxY + 10, maxX - minX, 2);
     if (pctNow > 0) {
-      c.fillStyle = "rgba(158,240,192,.85)";
-      c.fillRect(minX, maxY + 10, (maxX - minX) * pctNow, 1.5);
+      c.fillStyle = "rgba(158,240,192,.95)";
+      c.fillRect(minX, maxY + 10, (maxX - minX) * pctNow, 2);
     }
     c.restore();
 
     c.save();
-    c.setLineDash([6, 9]);
-    c.lineWidth = 1.4;
-    c.strokeStyle = "rgba(255,233,176,.44)";
+    c.setLineDash([8, 8]);
+    c.lineWidth = 2.4;
+    c.strokeStyle = "rgba(255,233,176,.68)";
     for (const gd of [A, B]) {
       c.beginPath();
       c.moveTo(gd[0][0], gd[0][1]);
