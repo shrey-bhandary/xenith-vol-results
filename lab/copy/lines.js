@@ -17,7 +17,7 @@
 
   return {
     katherine: {
-      family: "placement", mode: "carve-out", field: "WEAK", status: "live",
+      family: "placement", mode: "carve-out", field: "WEAK", status: "superseded",
       answer: "I'm dead by 7 PM. Evening classes are my nemesis.",
       line: "You said evening classes are your nemesis. We put the chaos at 12 PM.",
       beat: 0, fallback: DEPT.events

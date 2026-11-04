@@ -8,7 +8,7 @@ describe the role only.
 This file records which field each line leans on, so a reviewer can check the
 copy without the export. It is an index, not proof: it is written by the author,
 and the export is the only thing that can confirm a paraphrase. Tags are
-inferred from the same material and are marked as such below.
+inferred from the same material unless the last column marks them sourced.
 
 The form export itself is **not** in this repository and must never be. It
 contains phone numbers, emails, UIDs and people's unfiltered answers. Only

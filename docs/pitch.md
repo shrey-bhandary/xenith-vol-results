@@ -101,7 +101,7 @@ signature under the name, `built by ricco`, and parks next to Rusty.
 Confirmed heads: Aaditya (Events), Shreyas (Talks & Panels), Glynnis
 (Assistance & Hospitality), Ashley and Harsh (Tech & Venue), Omkar (Finance &
 Sponsorship), Mogithh (Publicity), Tejas (Admin), Nigel (Assistance & Hospitality
-sub-head), Naren (FnD). Shivam, Pratham and Sarvika still need roles.
+sub-head), Naren (FnD). Pratham still needs a role.
 
 ## The swarm story
 

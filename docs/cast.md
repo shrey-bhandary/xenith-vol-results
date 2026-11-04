@@ -15,7 +15,7 @@ Corrected from Ricco's message. Thirteen heads plus the builder.
 | admin | **Tejas** | Head of Admin | the clipboard and the checklist | "we make the chaos run on time" |
 | assistance2 | **Nigel** | Assistance & Hospitality, sub-head | the lost-and-found and the radio | "we make sure nobody is lost" |
 | fnd | **Naren** | FnD head, filming & documentary | the camera rig and the edit wall | "we film it so it happened" |
-| tbd1 | **Shivam** | role to confirm | pending | pending |
+| tbd1 | **Shivam** | Sub-head, Talks & Panels | the running order and the speaker brief | "we bring the room to listen" |
 | tbd2 | **Pratham** | role to confirm | pending | pending |
 | creatives | **Sarvika** | Creatives head | the ASCII poster and the identity wall | "we make it look like something" |
 
@@ -46,5 +46,5 @@ He never speaks over Rusty. His only line is the signature.
 
 ## Unknowns
 
-Shivam and Pratham still need roles. Shivam was "also something I
+Pratham still needs a role. Shivam was "also something I
 forgot". Tell me and I will finish the table and the lines.

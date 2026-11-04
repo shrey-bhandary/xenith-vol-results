@@ -585,6 +585,9 @@
   // than a fixed delay. Otherwise it prints to nobody.
   const STAMP_DELAY = 1000;
   const BUILD_DELAY = 500;
+  // set while a build is queued but has not mounted its cover yet, so the
+  // stamp cannot start printing in that window
+  let buildPending = false;
 
   // ---------- the stamp: a dot-matrix word that prints itself in ----------
   // Deliberately small and thrown-away looking. It presses onto the page like a
@@ -642,6 +645,7 @@
   // visitor reveals the page. A mounted host counts as covering, so this only
   // clears when the page is genuinely in front of the visitor.
   function covered() {
+    if (buildPending) return true;
     if (document.getElementById("handoff-cover")) return true;
     if (document.getElementById("xp-glass")) return true;
     if (document.querySelector("swarm-rebuild")) return true;
@@ -712,9 +716,13 @@
     // size first so the reveal never shifts when the print begins
     sizeStamp();
     let stampSeen = false;
+    let playedCovered = false;
     const playStamp = () => {
       if (stampSeen) return;
       stampSeen = true;
+      // if it had to draw while something was still over the page, the visitor
+      // did not see it print, so allow exactly one replay on the real reveal
+      playedCovered = covered();
       pixelStamp();
     };
     // prints once the page is actually in front of the visitor; on the engine
@@ -722,6 +730,12 @@
     whenVisible(() => setTimeout(playStamp, reduceMotion ? 0 : STAMP_DELAY));
     // and a backstop so the canvas is never blank
     setTimeout(playStamp, reduceMotion ? 0 : 9000);
+    // one replay, only if the first attempt was hidden
+    whenVisible(() => {
+      if (!playedCovered) return;
+      playedCovered = false;
+      setTimeout(() => pixelStamp(), reduceMotion ? 0 : STAMP_DELAY);
+    });
     const live = $("#live");
     if (live) {
       const who = String(person.name || "").trim();
@@ -1264,6 +1278,7 @@
   }
 
   function startSwarmWithPrelude() {
+    buildPending = false;
     showHandoffCover();
     // The prelude gets its own budget; loadSwarmEngine re-arms the six second
     // engine budget once the script is actually injected.
@@ -1321,8 +1336,9 @@
     if (document.body.classList.contains("entered")) return;
     const gate = $("#gate");
     if (gate) gate.classList.add("done");
+    buildPending = !skipBuild && !reduceMotion;
     finishUnlock();
-    if (!skipBuild && !reduceMotion) {
+    if (buildPending) {
       setTimeout(startSwarmWithPrelude, BUILD_DELAY);
     }
   }
