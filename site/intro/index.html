@@ -323,6 +323,12 @@ body[data-state="gate"] .vig{background:radial-gradient(120% 92% at 48% 54%, tra
     transition-duration:.01ms!important;scroll-behavior:auto!important;
   }
 }
+
+/* minimal void + quieter gate */
+.log{display:none!important}
+.hud-r #meter{opacity:.35}
+body[data-state="gate"] .hud{opacity:.22;transition:opacity .4s ease}
+body[data-state="gate"] .gate-tag{opacity:.45}
 </style>
 <link rel="stylesheet" href="buttons.css">
 </head>
