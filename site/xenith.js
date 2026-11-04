@@ -1054,6 +1054,13 @@
 
     STORY.t0 = 0;
     STORY.t0 = performance.now();
+    setTimeout(() => {
+      if (STORY.stopped) return;
+      const bg = STORY.root && STORY.root.querySelector ? STORY.root.querySelector(".bg") : null;
+      if (bg) { bg.style.transition = "opacity .9s ease"; bg.style.opacity = "0"; }
+      if (STORY.veil) { STORY.veil.style.transition = "opacity .9s ease"; STORY.veil.style.opacity = "0"; }
+      if (STORY.canvas) STORY.canvas.style.opacity = "0";
+    }, 900);
     if (reduceMotion) {
       storyDraw(1e6);
       STORY.veil.style.opacity = ".45";
