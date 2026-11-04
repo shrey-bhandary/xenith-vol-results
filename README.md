@@ -16,7 +16,7 @@ python3 -m http.server 8080
 
 Open `http://localhost:8080/` and it redirects to `/site/`.
 
-- `/?p=katherine` personalises the page and the visitor cursor
+- `/?p=ricco` personalises the page and the visitor cursor. With no `p` the demo defaults to **Ricco Marcelino**.
 - `/?gate=1` shows the old standalone gate
 - `/?entered=1&engine=1` skips the intro and runs the swarm build directly
 - `/?p=katherine&intro=1` forces the intro path

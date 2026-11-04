@@ -20,11 +20,18 @@ window.XENITH_PEOPLE = {
     line: "You split the registration desk into three jobs without blinking.",
     tag: "task division enthusiast"
   },
+  "ricco": {
+    name: "Ricco Marcelino",
+    dept: "Events",
+    role: "Events sub-head · built this",
+    line: "You built this page, then made everyone draw an X to get in. Show off.",
+    tag: "built the site, still fixing the small stuff"
+  },
   "default": {
-    name: "Your Name",
-    dept: "Xenith Crew",
-    role: "Selected",
-    line: "You are in. Rusty has been told to behave.",
-    tag: "new crew member"
+    name: "Ricco Marcelino",
+    dept: "Events",
+    role: "Events sub-head · built this",
+    line: "You built this page, then made everyone draw an X to get in. Show off.",
+    tag: "built the site, still fixing the small stuff"
   }
 };
