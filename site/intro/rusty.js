@@ -1181,7 +1181,7 @@
     var target = { x: 0.5, y: 0.46, s: 1 };
     var ph = rig.phase;
     if (ph === "gate") {
-      target = mob ? { x: 0.5, y: 0.17, s: 0.58 } : { x: 0.5, y: 0.18, s: 0.64 };
+      target = mob ? { x: 0.5, y: 0.23, s: 0.72 } : { x: 0.5, y: 0.23, s: 0.78 };
     } else if (ph === "greet" || ph === "menu" || ph === "pick" || state === "presenting") {
       target = mob ? { x: 0.5, y: 0.33, s: 0.95 } : { x: 0.685, y: 0.46, s: 1 };
     }

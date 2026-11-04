@@ -838,7 +838,7 @@
 
     const mob = W < 760;
     const target = state === "gate"
-      ? (mob ? { x: 0.5, y: 0.17, s: 0.58 } : { x: 0.5, y: 0.18, s: 0.64 })
+      ? (mob ? { x: 0.5, y: 0.23, s: 0.72 } : { x: 0.5, y: 0.23, s: 0.78 })
       : state === "greet" || state === "menu"
         ? (mob ? { x: 0.5, y: 0.33, s: 0.95 } : { x: 0.685, y: 0.46, s: 1 })
         : { x: 0.5, y: 0.46, s: 1 };
@@ -909,8 +909,8 @@
 
   function gateGuides() {
     const mob = W < 760;
-    const h = Math.min(W * 0.32, H * 0.14, mob ? 84 : 100);
-    const cx = W * 0.5, cy = H * (mob ? 0.48 : 0.48);
+    const h = Math.min(W * 0.32, H * 0.14, mob ? 88 : 104);
+    const cx = W * 0.5, cy = H * 0.53;
     return [
       [[cx - h, cy - h], [cx + h, cy + h]],
       [[cx + h, cy - h], [cx - h, cy + h]]
