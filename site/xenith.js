@@ -28,278 +28,225 @@
   if (own && params.get("p")) person = { ...own, ...overrides };
   else if (wantsOverride) person = { name: "", dept: "", role: "", line: "", tag: "", ...overrides };
   else person = { ...(all.default || { name: "", dept: "", role: "", line: "", tag: "" }) };
-  $("#name").textContent = person.name || "";
-  $("#role").textContent = person.dept || "";
-  $("#line").textContent = person.line || "";
 
-  // ---------- ascii slab ----------
+  // ---------- departments directory (for option 2 / explore mode) ----------
+  const DEPARTMENTS = [
+    {
+      id: "events",
+      name: "Events",
+      role: "DEPARTMENT 01 / 06 · EVENTS & COMPETITIONS",
+      title: "The Arenas",
+      line: "Where code meets adrenaline. 48 hours of hackathons, algorithmic sprints, game jams, and flagship cyber challenges."
+    },
+    {
+      id: "talks",
+      name: "Talks & Panels",
+      role: "DEPARTMENT 02 / 06 · TALKS & PANELS",
+      title: "The Keynotes",
+      line: "Frontier conversations with founders, researchers, and engineers building AI, distributed systems, and open protocols."
+    },
+    {
+      id: "tech",
+      name: "Tech & Systems",
+      role: "DEPARTMENT 03 / 06 · TECH & SYSTEMS",
+      title: "The Core",
+      line: "The architects of Xenith's digital realm. Real-time scoring dashboards, hidden terminal easter eggs, and resilient campus infra."
+    },
+    {
+      id: "hospitality",
+      name: "Hospitality",
+      role: "DEPARTMENT 04 / 06 · HOSPITALITY & LOGISTICS",
+      title: "The Welcoming Crew",
+      line: "Guiding over a thousand participants, college contingents, and keynote dignitaries through seamless campus hospitality."
+    },
+    {
+      id: "production",
+      name: "Production",
+      role: "DEPARTMENT 05 / 06 · VENUE & PRODUCTION",
+      title: "The Stage & Sound",
+      line: "Transforming the heritage campus into a neon-lit cyberpunk arena with synchronized soundscapes, monument rigs, and visuals."
+    },
+    {
+      id: "media",
+      name: "Creatives & Media",
+      role: "DEPARTMENT 06 / 06 · CREATIVES & MEDIA",
+      title: "The Visuals",
+      line: "Crafting the pixel aesthetics, lore, motion teasers, and broadcast photography that define Xenith's distinctive identity."
+    }
+  ];
+
+  let activeMode = (params.get("mode") === "explore") ? "explore" : "result";
+  let activeDeptId = "events";
+  let currentStampWord = (activeMode === "explore") ? "XENITH" : "SELECTED";
+
+  function renderView() {
+    const deptNav = $("#deptNav");
+    const saveBtn = $("#save");
+    const srOnly = document.querySelector(".stamp-wrap .sr-only");
+
+    if (activeMode === "explore") {
+      currentStampWord = "XENITH";
+      if (srOnly) srOnly.textContent = "xenith";
+      if (deptNav) {
+        deptNav.hidden = false;
+        deptNav.innerHTML = "";
+        DEPARTMENTS.forEach((dept) => {
+          const pill = document.createElement("button");
+          pill.type = "button";
+          pill.className = "dept-pill" + (dept.id === activeDeptId ? " active" : "");
+          pill.textContent = dept.name;
+          pill.addEventListener("click", () => {
+            activeDeptId = dept.id;
+            renderView();
+          });
+          deptNav.appendChild(pill);
+        });
+      }
+      const cur = DEPARTMENTS.find((d) => d.id === activeDeptId) || DEPARTMENTS[0];
+      $("#role").textContent = cur.role;
+      $("#line").textContent = cur.line;
+      $("#name").textContent = cur.title;
+      if (saveBtn) saveBtn.style.display = "none";
+    } else {
+      currentStampWord = "SELECTED";
+      if (srOnly) srOnly.textContent = "selected";
+      if (deptNav) deptNav.hidden = true;
+      $("#role").textContent = person.dept || "";
+      $("#line").textContent = person.line || "";
+      $("#name").textContent = person.name || "";
+      if (saveBtn) saveBtn.style.display = "";
+    }
+  }
+
+  renderView();
+
+  // ---------- cosmic starfield & shooting stars ----------
   const cv = $("#scene");
   const ctx = cv.getContext("2d");
   const skyCv = $("#sky");
   const skyCtx = skyCv.getContext("2d");
   const contentEl = $("#content");
   const photoEl = $("#photo");
-  const img = new Image();
-  img.src = "../assets/img/campus-wide.jpg";
 
-  const CH = " .:-=+*#%@";
   let W = innerWidth, H = innerHeight, ready = false;
   let mx = 0, my = 0, tx = 0, ty = 0;
-  let zoom = 1.2, zoomTarget = 1.2;
+  let zoom = 1.0, zoomTarget = 1.0;
   let enteredMix = 0, enteredTarget = 0;
   const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-  const mon = $("#monument");
-  const mctx = mon.getContext("2d");
-  let xpts = [];
+  let stars = [];
+  let shootingStars = [];
+  let lastShootingStar = 0;
 
-  function buildX() {
-    xpts = [];
-    const beams = [[-1.15, -1.15, 1.15, 1.15], [1.15, -1.15, -1.15, 1.15]];
-    for (const [ax, ay, bx, by] of beams) {
-      for (let t = 0.01; t <= 0.99; t += 0.011) {
-        const x = ax + (bx - ax) * t;
-        const y = ay + (by - ay) * t;
-        for (const z of [-0.08, 0, 0.08]) {
-          xpts.push({ x, y, z });
-        }
-      }
-    }
-  }
-
-  function drawX(t) {
-    if (!W || !H) return;
-    const dpr = Math.min(devicePixelRatio || 1, 2);
-    if (mon.width !== Math.floor(W * dpr) || mon.height !== Math.floor(H * dpr)) {
-      mon.width = Math.floor(W * dpr);
-      mon.height = Math.floor(H * dpr);
-      mon.style.width = W + "px";
-      mon.style.height = H + "px";
-      mctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    }
-    mctx.clearRect(0, 0, W, H);
-    if (!xpts.length) return;
-
-    const time = t / 1000;
-    const ay = reduceMotion ? 0.04 * enteredMix : Math.sin(time * 0.33) * 0.02 + (Math.sin(time * 0.32) * 0.3 + tx * 0.14) * enteredMix;
-    const ax = reduceMotion ? 0.01 * enteredMix : Math.cos(time * 0.27) * 0.01 + (Math.sin(time * 0.21) * 0.05 + ty * 0.07) * enteredMix;
-    const cyv = Math.cos(ay), syv = Math.sin(ay);
-    const cxv = Math.cos(ax), sxv = Math.sin(ax);
-    const mobile = W < 720;
-    const cX = W * (0.5 + (mobile ? 0.46 : 0.2) * enteredMix) + tx * 22 * enteredMix;
-    const cY = H * (0.5 - (mobile ? 0.2 : 0) * enteredMix) + ty * 18 * enteredMix;
-    const breathe = reduceMotion ? 1 : 1 + Math.sin(time * 0.9) * 0.012;
-    const S0 = Math.min(W, H) * (0.265 + 0.05 * enteredMix) * (1 - (mobile ? 0.44 : 0) * enteredMix) * breathe;
-    const base = S0 * 0.5;
-
-    function project(px, py, pz) {
-      const x = px * cyv - pz * syv;
-      const z1 = px * syv + pz * cyv;
-      const y = py * cxv - z1 * sxv;
-      const z2 = py * sxv + z1 * cxv;
-      const sc = 1 / (1.9 + z2 * 0.55);
-      return [cX + x * base * sc * 2.4, cY + y * base * sc * 2.4];
-    }
-
-    const g1 = project(-1.15, -1.15, 0), g2 = project(1.15, 1.15, 0);
-    const g3 = project(1.15, -1.15, 0), g4 = project(-1.15, 1.15, 0);
-    mctx.save();
-    mctx.strokeStyle = "rgba(255,170,90,.34)";
-    mctx.lineWidth = 3;
-    mctx.shadowColor = "rgba(255,150,60,.95)";
-    mctx.shadowBlur = 34;
-    mctx.beginPath();
-    mctx.moveTo(g1[0], g1[1]); mctx.lineTo(g2[0], g2[1]);
-    mctx.moveTo(g3[0], g3[1]); mctx.lineTo(g4[0], g4[1]);
-    mctx.stroke();
-    mctx.restore();
-
-    const proj = [];
-    for (const p of xpts) {
-      const x = p.x * cyv - p.z * syv;
-      const z1 = p.x * syv + p.z * cyv;
-      const y = p.y * cxv - z1 * sxv;
-      const z2 = p.y * sxv + z1 * cxv;
-      const sc = 1 / (1.9 + z2 * 0.55);
-      proj.push({ sx: cX + x * base * sc * 2.4, sy: cY + y * base * sc * 2.4, sc, z: z2 });
-    }
-    proj.sort((a, b) => a.sc - b.sc);
-
-    mctx.textAlign = "center";
-    mctx.textBaseline = "middle";
-    mctx.shadowBlur = 0;
-    const gate = enteredMix < 0.05;
-    for (const p of proj) {
-      const front = gate || p.z < 0;
-      mctx.globalAlpha = gate ? 1 : front ? 0.8 : 0.45;
-      mctx.fillStyle = front
-        ? "rgba(255,214,150,.98)"
-        : "rgba(150,120,240,.75)";
-      mctx.font = front ? "12px ui-monospace, Menlo, monospace" : "8px ui-monospace, Menlo, monospace";
-      mctx.fillText(front ? "#" : ":", p.sx, p.sy);
-    }
-    if (!sparks) {
-      sparks = Array.from({ length: 28 }, () => ({
-        x: Math.random() * W,
-        y: Math.random() * H,
-        v: 0.12 + Math.random() * 0.35,
-        ch: ".:+*"[Math.floor(Math.random() * 4)],
-        s: 0.4 + Math.random() * 0.7,
-      }));
-    }
-    mctx.fillStyle = "rgba(255,177,92,.55)";
-    for (const sp of sparks) {
-      sp.y -= sp.v;
-      if (sp.y < -10) { sp.y = H + 10; sp.x = Math.random() * W; }
-      mctx.globalAlpha = 0.18 + sp.s * 0.12;
-      mctx.font = Math.round(9 * sp.s + 5) + "px ui-monospace, monospace";
-      mctx.fillText(sp.ch, sp.x, sp.y);
-    }
-
-    mctx.globalAlpha = 1;
-    mctx.shadowBlur = 0;
-  }
-
-  let sparks = null;
-  buildX();
-
-  // ---------- digital rain ----------
-  const rainCv = $("#rain");
-  const rainCtx = rainCv.getContext("2d");
-  let rainCols = [], rainW = 0, rainH = 0, lastRain = 0;
-
-  function initRain() {
-    if (reduceMotion) { rainCv.style.display = "none"; return; }
-    const dpr = Math.min(devicePixelRatio || 1, 2);
-    rainW = innerWidth; rainH = innerHeight;
-    rainCv.width = Math.floor(rainW * dpr);
-    rainCv.height = Math.floor(rainH * dpr);
-    rainCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    const step = rainW < 720 ? 9 : 12;
-    const n = Math.ceil(rainW / step) + 1;
-    rainCols = [];
-    for (let i = 0; i < n; i++) {
-      rainCols.push({
-        x: i * step + step / 2,
-        y: -Math.random() * rainH,
-        sp: 45 + Math.random() * 85,
-        len: 14 + Math.floor(Math.random() * 12),
-        chars: [],
-      });
-    }
-  }
-
-  function drawRain(dt) {
-    if (!rainCols.length) return;
-    rainCtx.clearRect(0, 0, rainW, rainH);
-    rainCtx.font = "13px ui-monospace, Menlo, monospace";
-    rainCtx.textAlign = "center";
-    const lineH = 15;
-    for (const c of rainCols) {
-      for (let k = 0; k < c.len; k++) {
-        const y = c.y - k * lineH;
-        if (y < -20 || y > rainH + 20) continue;
-        if (!c.chars[k]) c.chars[k] = Math.random() < 0.5 ? "0" : "1";
-        const a = k === 0 ? 1 : Math.pow(1 - k / c.len, 1.15) * 0.95;
-        rainCtx.fillStyle = k === 0
-          ? `rgba(255,246,220,${a})`
-          : `rgba(255,157,61,${a})`;
-        rainCtx.shadowColor = "rgba(255,177,92,.9)";
-        rainCtx.shadowBlur = k === 0 ? 16 : 0;
-        rainCtx.fillText(c.chars[k], c.x, y);
-      }
-      if (Math.random() < 0.12) {
-        c.chars[Math.floor(Math.random() * c.len)] = Math.random() < 0.5 ? "0" : "1";
-      }
-      c.y += c.sp * dt / 1000;
-      if (c.y - c.len * lineH > rainH + 40) {
-        c.y = -Math.random() * 240;
-        c.sp = 45 + Math.random() * 85;
-        c.chars = [];
-      }
-    }
-    rainCtx.shadowBlur = 0;
-  }
-
-  function isSky(r, g, b, l) {
-    return b > 110 && b > r * 1.08 && g > r * 1.01 && l > 0.32;
-  }
-
-  function build() {
+  function initCosmos() {
     const dpr = Math.min(devicePixelRatio || 1, 2);
     W = innerWidth; H = innerHeight;
     cv.width = Math.floor(W * dpr);
     cv.height = Math.floor(H * dpr);
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     ctx.clearRect(0, 0, W, H);
+
     skyCv.width = Math.floor(W * dpr);
     skyCv.height = Math.floor(H * dpr);
     skyCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
     skyCtx.clearRect(0, 0, W, H);
-    if (!img.complete || !img.naturalWidth) return;
 
-    const cell = W < 720 ? 7 : 8;
-    const lineH = cell * 1.34;
-    const cols = Math.ceil(W / cell) + 1;
-    const rows = Math.ceil(H / lineH) + 1;
-
-    const s = document.createElement("canvas");
-    s.width = cols; s.height = rows;
-    const sc = s.getContext("2d", { willReadFrequently: true });
-    const ir = img.naturalWidth / img.naturalHeight;
-    const cr = cols / rows;
-    let sw, sh, sx, sy;
-    if (ir > cr) { sh = img.naturalHeight; sw = sh * cr; sx = (img.naturalWidth - sw) * 0.38; sy = 0; }
-    else { sw = img.naturalWidth; sh = sw / cr; sx = 0; sy = (img.naturalHeight - sh) * 0.06; }
-    sc.drawImage(img, sx, sy, sw, sh, 0, 0, cols, rows);
-    const d = sc.getImageData(0, 0, cols, rows).data;
-
-    ctx.font = Math.round(cell * 1.2) + "px ui-monospace, Menlo, monospace";
-    ctx.textBaseline = "top";
-    skyCtx.font = Math.round(cell * 1.2) + "px ui-monospace, Menlo, monospace";
-    skyCtx.textBaseline = "top";
-
-    for (let y = 0; y < rows; y++) {
-      for (let x = 0; x < cols; x++) {
-        const i = (y * cols + x) * 4;
-        const r = d[i], g = d[i + 1], b = d[i + 2];
-        const l = (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
-        const sky = isSky(r, g, b, l);
-        const px = x * cell, py = y * lineH;
-        if (sky) {
-          if (Math.random() > 0.05) continue;
-          skyCtx.globalAlpha = 0.12 + l * 0.22;
-          skyCtx.fillStyle = "rgba(158,138,230,.9)";
-          skyCtx.fillText(".", px, py);
-          continue;
-        }
-        if (l < 0.14) continue;
-        const ch = CH[Math.min(9, Math.max(1, Math.floor(l * 9.6)))];
-
-        ctx.globalAlpha = 0.1 + l * 0.08;
-        ctx.fillStyle = "rgba(123,92,255,.9)";
-        ctx.fillText(ch, px + 1.1, py + 1.1);
-
-        ctx.globalAlpha = 0.3 + l * 0.38;
-        ctx.fillStyle = l < 0.32 ? "rgba(168,120,220,.95)"
-          : l < 0.62 ? "rgba(255,157,61,.97)"
-          : "rgba(255,238,196,1)";
-        ctx.fillText(ch, px, py);
-      }
+    const count = Math.min(100, Math.floor((W * H) / 10000));
+    stars = [];
+    for (let i = 0; i < count; i++) {
+      stars.push({
+        x: Math.random() * W,
+        y: Math.random() * H,
+        size: Math.random() < 0.18 ? 3 : Math.random() < 0.5 ? 2 : 1,
+        flare: Math.random() < 0.16,
+        speedY: -(0.06 + Math.random() * 0.18),
+        speedX: (Math.random() - 0.5) * 0.06,
+        depth: 0.2 + Math.random() * 0.8,
+        phase: Math.random() * Math.PI * 2,
+        freq: 1.2 + Math.random() * 2.5,
+        color: Math.random() < 0.45 ? "254,210,53" : Math.random() < 0.75 ? "255,177,92" : "199,125,255"
+      });
     }
-    ctx.globalAlpha = 1;
-    skyCtx.globalAlpha = 1;
     ready = true;
   }
 
-  img.onload = build;
-  img.onerror = () => { ready = true; };
-  if (img.complete && img.naturalWidth) build();
+  function spawnShootingStar(now) {
+    shootingStars.push({
+      x: Math.random() * W * 0.85 + W * 0.05,
+      y: Math.random() * H * 0.35,
+      len: 70 + Math.random() * 110,
+      speed: 12 + Math.random() * 10,
+      angle: (Math.PI / 4) + (Math.random() - 0.5) * 0.2,
+      life: 1.0,
+      decay: 0.02 + Math.random() * 0.02
+    });
+    lastShootingStar = now + 4000 + Math.random() * 6000;
+  }
+
+  function drawCosmos(t) {
+    if (!W || !H || !ready) return;
+    const time = t / 1000;
+    ctx.clearRect(0, 0, W, H);
+
+    const ox = tx * 22;
+    const oy = ty * 16;
+
+    for (const s of stars) {
+      s.y += s.speedY;
+      s.x += s.speedX;
+      if (s.y < -10) { s.y = H + 10; s.x = Math.random() * W; }
+      if (s.x < -10) s.x = W + 10;
+      if (s.x > W + 10) s.x = -10;
+
+      const px = s.x - ox * s.depth;
+      const py = s.y - oy * s.depth;
+      const tw = 0.35 + 0.65 * Math.sin(time * s.freq + s.phase);
+      const a = (tw * (0.4 + s.depth * 0.6)).toFixed(3);
+
+      ctx.fillStyle = `rgba(${s.color},${a})`;
+      ctx.fillRect(Math.round(px), Math.round(py), s.size, s.size);
+
+      if (s.flare && tw > 0.75) {
+        ctx.fillStyle = `rgba(${s.color},${(tw * 0.32).toFixed(3)})`;
+        ctx.fillRect(Math.round(px) - 2, Math.round(py), s.size + 4, s.size);
+        ctx.fillRect(Math.round(px), Math.round(py) - 2, s.size, s.size + 4);
+      }
+    }
+
+    if (t > lastShootingStar && Math.random() < 0.035) {
+      spawnShootingStar(t);
+    }
+    for (let i = shootingStars.length - 1; i >= 0; i--) {
+      const ss = shootingStars[i];
+      ss.x += Math.cos(ss.angle) * ss.speed;
+      ss.y += Math.sin(ss.angle) * ss.speed;
+      ss.life -= ss.decay;
+      if (ss.life <= 0 || ss.x > W + 100 || ss.y > H + 100) {
+        shootingStars.splice(i, 1);
+        continue;
+      }
+      const tailX = ss.x - Math.cos(ss.angle) * ss.len;
+      const tailY = ss.y - Math.sin(ss.angle) * ss.len;
+      const grad = ctx.createLinearGradient(tailX, tailY, ss.x, ss.y);
+      grad.addColorStop(0, "rgba(254,210,53,0)");
+      grad.addColorStop(0.7, `rgba(255,177,92,${(ss.life * 0.5).toFixed(3)})`);
+      grad.addColorStop(1, `rgba(255,248,220,${(ss.life * 0.95).toFixed(3)})`);
+      ctx.strokeStyle = grad;
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(tailX, tailY);
+      ctx.lineTo(ss.x, ss.y);
+      ctx.stroke();
+    }
+  }
+
+  initCosmos();
+
   let resizeTimer;
   addEventListener("resize", () => {
     W = innerWidth; H = innerHeight;
     clearTimeout(resizeTimer);
-    resizeTimer = setTimeout(() => { if (ready) build(); initRain(); stillFrame(); }, 180);
+    resizeTimer = setTimeout(() => { initCosmos(); stillFrame(); }, 180);
   });
 
   addEventListener("pointermove", (e) => {
@@ -310,44 +257,32 @@
 
   let lastFrame = 0;
   let frameRaf = 0;
-  // The ambient art pauses while the engine owns the screen and resumes when it
-  // hands the page back. It must not stop for good: the rain, the slab X and
-  // Rusty are the life of the page after the build.
   let ambientPaused = false;
   function frame(t) {
     frameRaf = 0;
-    // Paused (engine owns the screen) or the canvas has no layout box: keep the
-    // tick alive but draw nothing. Resuming is then immediate.
     if (ambientPaused || !cv.clientWidth) { frameRaf = requestAnimationFrame(frame); return; }
-    // Reduced motion paints a single settled frame and never self-schedules.
     if (!reduceMotion) frameRaf = requestAnimationFrame(frame);
     if (!reduceMotion && (document.hidden || t - lastFrame < 33)) return;
     lastFrame = t;
     if (reduceMotion) { enteredMix = enteredTarget; tx = mx; ty = my; zoom = zoomTarget; }
-    if (!xpts.length) return;
     tx += (mx - tx) * 0.04;
-    enteredMix += (enteredTarget - enteredMix) * 0.05;
-    drawX(t);
-    if (!ready) return;
     ty += (my - ty) * 0.04;
+    enteredMix += (enteredTarget - enteredMix) * 0.05;
     zoom += (zoomTarget - zoom) * 0.035;
-    const time = t / 1000;
-    const px = tx * 30, py = ty * 20;
-    const skyScale = 1.06 + Math.sin(time * 0.05) * 0.012;
-    const sceneScale = 1.03 + Math.sin(time * 0.04) * 0.008;
-    skyCv.style.transform =
-      `translate3d(${(-px * 0.4 + Math.sin(time * 0.05) * 8).toFixed(1)}px,${(-py * 0.4 + Math.cos(time * 0.04) * 6).toFixed(1)}px,0) scale(${skyScale.toFixed(3)})`;
+
+    const px = tx * 24, py = ty * 16;
+    const sceneScale = 1.02 + Math.sin((t / 1000) * 0.04) * 0.008;
+
     cv.style.transform =
-      `perspective(1300px) translate3d(${(-px).toFixed(1)}px,${(-py).toFixed(1)}px,0) rotateX(${(-ty * 1.4).toFixed(2)}deg) rotateY(${(tx * 1.8).toFixed(2)}deg) scale(${sceneScale.toFixed(3)})`;
-    rainCv.style.transform =
-      `translate3d(${(-px * 1.15).toFixed(1)}px,${(-py * 1.15).toFixed(1)}px,0)`;
+      `translate3d(${(-px).toFixed(1)}px,${(-py).toFixed(1)}px,0) scale(${sceneScale.toFixed(3)})`;
     photoEl.style.transform =
-      `translate3d(${(-px * 0.3).toFixed(1)}px,${(-py * 0.3).toFixed(1)}px,0) scale(1.06)`;
+      `translate3d(${(-px * 0.25).toFixed(1)}px,${(-py * 0.25).toFixed(1)}px,0) scale(1.05)`;
     contentEl.style.transform =
-      `translate(${(px * 0.3).toFixed(1)}px, calc(-50% + ${(py * 0.3).toFixed(1)}px))`;
-    if (t - lastRain > 45) { drawRain(Math.min(120, t - lastRain)); lastRain = t; }
+      `translate(${(px * 0.2).toFixed(1)}px, calc(-50% + ${(py * 0.2).toFixed(1)}px))`;
+
+    drawCosmos(t);
   }
-  // Reduced motion gets one paint per state change instead of a loop.
+
   function stillFrame() {
     if (reduceMotion && !ambientPaused) frameRaf = requestAnimationFrame(frame);
   }
@@ -599,10 +534,13 @@
     L: ["10000", "10000", "10000", "10000", "10000", "10000", "11111"],
     C: ["01110", "10001", "10000", "10000", "10000", "10001", "01110"],
     T: ["11111", "00100", "00100", "00100", "00100", "00100", "00100"],
-    D: ["11110", "10001", "10001", "10001", "10001", "10001", "11110"]
+    D: ["11110", "10001", "10001", "10001", "10001", "10001", "11110"],
+    X: ["10001", "10001", "01010", "00100", "01010", "10001", "10001"],
+    N: ["10001", "11001", "10101", "10011", "10001", "10001", "10001"],
+    I: ["11111", "00100", "00100", "00100", "00100", "00100", "11111"],
+    H: ["10001", "10001", "10001", "11111", "10001", "10001", "10001"]
   };
   const STAMP_CELL = 7;
-  const STAMP_WORD = "SELECTED";
   const STAMP_COLS = 47;
   let stampDims = null;
   let stampRaf = 0;
@@ -610,8 +548,10 @@
 
   function stampBits(word) {
     const lit = [];
-    let x0 = 0;
-    for (const ch of word) {
+    const w = word || currentStampWord || "SELECTED";
+    const wordCols = w.length * 6 - 1;
+    let x0 = Math.max(0, Math.floor((STAMP_COLS - wordCols) / 2));
+    for (const ch of w) {
       const g = STAMP_GLYPHS[ch];
       if (!g) { x0 += 1; continue; }
       for (let y = 0; y < 7; y++) {
@@ -630,7 +570,7 @@
     const cv = document.getElementById("selectStamp");
     if (!cv) return;
     const avail = (cv.parentElement && cv.parentElement.clientWidth) || 329;
-    const cell = Math.max(3, Math.min(STAMP_CELL, Math.floor((avail - 96) / STAMP_COLS)));
+    const cell = Math.max(3, Math.min(STAMP_CELL, Math.floor(avail / STAMP_COLS)));
     const W = STAMP_COLS * cell;
     const H = 7 * cell;
     const dpr = Math.min(2, window.devicePixelRatio || 1);
@@ -648,7 +588,6 @@
   function covered() {
     if (buildPending) return true;
     if (document.getElementById("handoff-cover")) return true;
-    if (document.getElementById("xp-glass")) return true;
     if (document.querySelector("swarm-rebuild")) return true;
     return false;
   }
@@ -663,19 +602,29 @@
     setTimeout(check, 100);
   }
 
-  function pixelStamp() {
+  function pixelStamp(word) {
+    if (word) currentStampWord = word;
     const cv = document.getElementById("selectStamp");
     if (!cv || !stampDims) return;
     const { cell, W, H } = stampDims;
     const c = stampCtx;
     if (!c) return;
-    const lit = stampBits(STAMP_WORD);
+    const lit = stampBits(currentStampWord);
     if (stampRaf) { cancelAnimationFrame(stampRaf); stampRaf = 0; }
+
+    function pixelColor(y, alpha) {
+      if (y <= 1) return `rgba(254,210,53,${alpha})`;
+      if (y <= 3) return `rgba(255,152,0,${alpha})`;
+      if (y <= 5) return `rgba(230,74,25,${alpha})`;
+      return `rgba(180,25,35,${alpha})`;
+    }
 
     function settle() {
       c.clearRect(0, 0, W, H);
-      c.fillStyle = "rgba(255,177,92,.72)";
-      for (const [x, y] of lit) c.fillRect(x * cell + 1, y * cell + 1, cell - 2, cell - 2);
+      for (const [x, y] of lit) {
+        c.fillStyle = pixelColor(y, 0.95);
+        c.fillRect(x * cell + 1, y * cell + 1, cell - 2, cell - 2);
+      }
     }
 
     function print(head) {
@@ -684,10 +633,10 @@
         if (x > head) continue;
         const age = head - x;
         const heat = Math.max(0, 1 - age / 6);
-        const a = 0.46 + 0.3 * Math.min(1, age / 12);
+        const a = 0.5 + 0.45 * Math.min(1, age / 12);
         c.fillStyle = heat > 0
-          ? `rgba(255,240,208,${(a + heat * 0.32).toFixed(3)})`
-          : `rgba(255,177,92,${a.toFixed(3)})`;
+          ? `rgba(255,248,220,${(a + heat * 0.32).toFixed(3)})`
+          : pixelColor(y, a.toFixed(3));
         c.fillRect(x * cell + 1, y * cell + 1, cell - 2, cell - 2);
       }
     }
@@ -1203,9 +1152,6 @@
     storySize();
   }
 
-  const GLASS_CSS = "/*\n  Glass Logo Reveal: the stage the reveal is drawn on and the mark it lands on. The mark is the\n  real image, laid out by the page; the canvas paints over it while the glass moves and steps\n  aside once it has landed. Size the mark with --lg-logo-reveal-size.\n\n  Vanilla port of the MIT-licensed Glassy UI stylesheet. The original @layer wrappers are\n  dropped: link this file directly instead of compiling it into Tailwind.\n*/\n\n.lg-logo-reveal {\n  --lg-logo-reveal-stage: #1c1c1e;\n  --lg-logo-reveal-ink: #f5f5f7;\n\n  position: relative;\n  display: grid;\n  place-items: center;\n  aspect-ratio: 16 / 9;\n  margin: 0;\n  overflow: hidden;\n  container-type: size;\n  background-color: var(--lg-logo-reveal-stage);\n  color: var(--lg-logo-reveal-ink);\n}\n\n[data-lg-theme='light'] .lg-logo-reveal {\n  --lg-logo-reveal-stage: #faf9f7;\n  --lg-logo-reveal-ink: #222224;\n}\n\n/* The glass tile grows to a little under twice the mark, so nearly half the stage leaves room. */\n.lg-logo-reveal-mark {\n  display: block;\n  /* The box keeps the mark's own proportions, so nothing drawn from it is ever squashed. */\n  width: auto;\n  height: var(--lg-logo-reveal-size, 46cqmin);\n}\n\n.lg-logo-reveal-canvas {\n  position: absolute;\n  inset: 0;\n  display: block;\n  width: 100%;\n  height: 100%;\n  pointer-events: none;\n  user-select: none;\n}\n\n.lg-logo-reveal[data-state='ended'] .lg-logo-reveal-canvas {\n  opacity: 0;\n  transition: opacity 240ms var(--lg-ease-out, cubic-bezier(0.32, 0.72, 0, 1));\n}\n\n/* With scripting the canvas draws everything until the glass has gone. */\n@media (scripting: enabled) {\n  .lg-logo-reveal:not([data-state='ended']) .lg-logo-reveal-mark {\n    visibility: hidden;\n  }\n}\n\n/* Reduced motion and reduced transparency keep the mark and drop the glass. */\nhtml[data-lg-reduce-motion='1'] .lg-logo-reveal-mark,\nhtml[data-lg-reduce-transparency='1'] .lg-logo-reveal-mark {\n  visibility: visible;\n}\n\nhtml[data-lg-reduce-motion='1'] .lg-logo-reveal-canvas,\nhtml[data-lg-reduce-transparency='1'] .lg-logo-reveal-canvas {\n  visibility: hidden;\n}\n\n@media (prefers-reduced-motion: reduce), (prefers-reduced-transparency: reduce) {\n  .lg-logo-reveal-mark {\n    visibility: visible;\n  }\n\n  .lg-logo-reveal-canvas {\n    visibility: hidden;\n  }\n}\n\n.lg-logo-reveal-error {\n  position: absolute;\n  inset: auto 0 0;\n  padding: 12px;\n  font-size: 0.875rem;\n  text-align: center;\n}\n";
-
-
   function storyBegin(parent) {
     if (STORY.stopped || STORY.layer) return;
     storyBuild();
@@ -1276,49 +1222,10 @@
     wait();
   }
 
-  function glassPrelude(done) {
-    if (!window.GlassReveal) { done(); return; }
-    if (!document.querySelector("style[data-glass-page]")) {
-      const st = document.createElement("style");
-      st.setAttribute("data-glass-page", "");
-      st.textContent = GLASS_CSS + "\n\n#xp-glass{position:fixed;inset:0;z-index:2147483647;display:grid;place-items:center;background:#05040c;opacity:1;transition:opacity .45s ease}\n#xp-glass .lg-logo-reveal{width:min(62vw,400px);height:min(40vh,225px);border-radius:16px;background:#06050f;border:1px solid rgba(255,233,176,.14);box-shadow:0 40px 120px rgba(0,0,0,.8)}\n@media(max-width:720px){#xp-glass .lg-logo-reveal{width:min(78vw,320px);height:180px}}";
-      document.head.appendChild(st);
-    }
-    let finished = false;
-    const finish = () => {
-      if (finished) return;
-      finished = true;
-      wrap.style.opacity = "0";
-      setTimeout(() => { wrap.remove(); done(); }, 520);
-    };
-    const watchdog = setTimeout(finish, 4600);
-    const wrap = document.createElement("div");
-    wrap.id = "xp-glass";
-    wrap.style.setProperty("--lg-logo-reveal-size", "36px");
-    const plate = document.createElement("div");
-    wrap.appendChild(plate);
-    document.body.appendChild(wrap);
-    try {
-      window.GlassReveal.mount(plate, {
-        markSrc: "../assets/brand/xenith-logo-amber.svg",
-        label: "Xenith",
-        duration: 2600,
-        play: "mount",
-        onComplete: () => {
-          clearTimeout(watchdog);
-          setTimeout(finish, 380);
-        }
-      });
-    } catch (e) { wrap.remove(); done(); }
-  }
-
-  function startSwarmWithPrelude() {
+  function startSwarmEngine() {
     buildPending = false;
     showHandoffCover();
-    // The prelude gets its own budget; loadSwarmEngine re-arms the six second
-    // engine budget once the script is actually injected.
-    armHandoffTimeout(12000);
-    glassPrelude(() => setTimeout(loadSwarmEngine, 160));
+    loadSwarmEngine();
   }
 
   function loadSwarmEngine() {
@@ -1419,7 +1326,7 @@
     buildPending = !skipBuild && !reduceMotion;
     finishUnlock();
     if (buildPending) {
-      setTimeout(startSwarmWithPrelude, BUILD_DELAY);
+      setTimeout(startSwarmEngine, BUILD_DELAY);
     }
   }
 
@@ -1491,7 +1398,8 @@
     });
   }
 
-  $("#skip").addEventListener("click", () => unlock(true));
+  const skipBtn = $("#skip");
+  if (skipBtn) skipBtn.addEventListener("click", () => unlock(true));
   addEventListener("keydown", (e) => {
     if (e.key === "Escape") unlock(true);
   });
@@ -1565,7 +1473,6 @@
 
   // ---------- boot ----------
   sizePad();
-  initRain();
   if (params.get("engine")) {
     // Reduced motion keeps the revealed page: no prelude, no cover, no build.
     if (reduceMotion) clearHandoff();
@@ -1574,7 +1481,7 @@
   if (params.get("entered")) {
     setTimeout(() => {
       unlock(true);
-      if (params.get("engine") && !reduceMotion) setTimeout(startSwarmWithPrelude, BUILD_DELAY);
+      if (params.get("engine") && !reduceMotion) setTimeout(startSwarmEngine, BUILD_DELAY);
     }, 300);
   }
   if (params.get("gate") === "auto") {

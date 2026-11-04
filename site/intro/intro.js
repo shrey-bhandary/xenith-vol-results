@@ -19,11 +19,11 @@
   // ---------- copy ----------
   const OPTIONS = [
     { id: "result", label: "check my vols application result", sub: "one file, one line" },
-    { id: "explore", label: "explore xenith", sub: "six departments, one page" }
+    { id: "explore", label: "explore xenith", sub: "six departments, one festival" }
   ];
   const SAY_HELLO = "oh. hello. can i help you with something?";
   const SAY_RESULT = "then i need one thing from you.";
-  const SAY_EXPLORE = "six departments. events fills the room, tech keeps it standing, the rest make it loud.";
+  const SAY_EXPLORE = "six departments make xenith run. let me show you what each crew builds.";
 
   // ---------- palette, helpers ----------
   const P = {
@@ -684,28 +684,6 @@
     c.fillStyle = P.deep;
     rr(c, -15, -62, 30, 7, 3);
     c.fill();
-    if (!rig.stall.on) return;
-    c.save();
-    c.strokeStyle = "rgba(255,177,92,.5)";
-    c.lineWidth = 1;
-    c.setLineDash([3, 4]);
-    c.beginPath();
-    c.arc(0, -62, 19, 0, 6.3);
-    c.stroke();
-    c.setLineDash([]);
-    c.strokeStyle = P.amber;
-    c.lineWidth = 2;
-    c.beginPath();
-    c.arc(0, -62, 19, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * clamp(rig.stall.p));
-    c.stroke();
-    c.fillStyle = "rgba(255,233,176,.85)";
-    c.font = "7px ui-monospace, monospace";
-    c.textAlign = "center";
-    c.textBaseline = "middle";
-    c.fillText(rig.stall.text, 0, -62);
-    c.fillStyle = "rgba(255,177,92,.55)";
-    c.fillText("head", 0, -92);
-    c.restore();
   }
 
   function drawEyes(c, t, boot) {
@@ -860,7 +838,7 @@
 
     const mob = W < 760;
     const target = state === "gate"
-      ? (mob ? { x: 0.5, y: 0.3, s: 0.72 } : { x: 0.815, y: 0.34, s: 0.88 })
+      ? (mob ? { x: 0.5, y: 0.17, s: 0.58 } : { x: 0.5, y: 0.18, s: 0.64 })
       : state === "greet" || state === "menu"
         ? (mob ? { x: 0.5, y: 0.33, s: 0.95 } : { x: 0.685, y: 0.46, s: 1 })
         : { x: 0.5, y: 0.46, s: 1 };
@@ -931,8 +909,8 @@
 
   function gateGuides() {
     const mob = W < 760;
-    const h = Math.min(W, H) * (mob ? 0.17 : 0.19);
-    const cx = W * (mob ? 0.5 : 0.47), cy = H * (mob ? 0.54 : 0.56);
+    const h = Math.min(W * 0.28, H * 0.115, mob ? 76 : 90);
+    const cx = W * 0.5, cy = H * 0.45;
     return [
       [[cx - h, cy - h], [cx + h, cy + h]],
       [[cx + h, cy - h], [cx - h, cy + h]]
@@ -1201,10 +1179,11 @@
     gate.ca = ca;
     gate.cb = cb;
 
-    const minX = Math.min(A[0][0], A[1][0], B[0][0], B[1][0]) - 26;
-    const maxX = Math.max(A[0][0], A[1][0], B[0][0], B[1][0]) + 26;
-    const minY = Math.min(A[0][1], A[1][1], B[0][1], B[1][1]) - 26;
-    const maxY = Math.max(A[0][1], A[1][1], B[0][1], B[1][1]) + 26;
+    const pad = mob ? 18 : 22;
+    const minX = Math.min(A[0][0], A[1][0], B[0][0], B[1][0]) - pad;
+    const maxX = Math.max(A[0][0], A[1][0], B[0][0], B[1][0]) + pad;
+    const minY = Math.min(A[0][1], A[1][1], B[0][1], B[1][1]) - pad;
+    const maxY = Math.max(A[0][1], A[1][1], B[0][1], B[1][1]) + pad;
     c.save();
     c.fillStyle = "rgba(255,233,176,.022)";
     c.fillRect(minX, minY, maxX - minX, maxY - minY);
@@ -1217,8 +1196,12 @@
       c.beginPath(); c.moveTo(tx, ty + dy * tick); c.lineTo(tx, ty); c.lineTo(tx + dx * tick, ty); c.stroke();
     }
     const pctNow = (ca + cb) / 2;
-    c.fillStyle = "rgba(158,240,192,.75)";
-    c.fillRect(minX, maxY + 10, (maxX - minX) * Math.max(0.02, pctNow), 1.5);
+    c.fillStyle = "rgba(255,233,176,.12)";
+    c.fillRect(minX, maxY + 10, maxX - minX, 1.5);
+    if (pctNow > 0) {
+      c.fillStyle = "rgba(158,240,192,.85)";
+      c.fillRect(minX, maxY + 10, (maxX - minX) * pctNow, 1.5);
+    }
     c.restore();
 
     c.save();
@@ -1351,9 +1334,8 @@
     gate.r1 = gate.r2 = false;
     dom.gate.hidden = false;
     dom.say.hidden = true;
-    dom.gateSkip.hidden = false;
-    focusGateSkip();
-    dom.skip.hidden = true;
+    if (dom.gateSkip) dom.gateSkip.hidden = true;
+    if (dom.skip) dom.skip.hidden = true;
     dom.menu.hidden = true;
     gateSize();
     gatePaint(0);
@@ -1465,6 +1447,7 @@
 
   let menuBuilt = false;
   let lastPick = "";
+  let chosenMode = params.get("mode") || "result";
 
   function buildLocalMenu() {
     if (menuBuilt) return;
@@ -1599,6 +1582,7 @@
   function choose(id) {
     if (pickLock || done) return;
     pickLock = true;
+    chosenMode = id === "explore" ? "explore" : "result";
     const rows = [...document.querySelectorAll("#menu button")];
     rows.forEach((b) => { b.classList.remove("picked"); b.removeAttribute("aria-selected"); });
     const picked = rows[id === "explore" ? 1 : 0];
@@ -1667,7 +1651,7 @@
     setState("assemble");
     if (extRig && typeof extRig.setState === "function") { try { extRig.setState("boot"); } catch (err) {} }
     assembleAt = performance.now();
-    dom.skip.hidden = false;
+    if (dom.skip) dom.skip.hidden = true;
     rig.mood = "idle";
     rig.leanT = 0;
     stage.pixelTarget = 0;
@@ -1694,8 +1678,7 @@
     if (state !== "assemble" || !A) return;
 
     let ap = 0;
-    if (!A.stallAt) ap = clamp((now - A.start) / D(1900)) * 0.55;
-    else if (!A.dropAt) ap = 0.55;
+    if (!A.dropAt) ap = clamp((now - A.start) / D(1410)) * 0.55;
     else ap = 0.55 + clamp((now - A.dropAt) / A.dDrop) * 0.45;
     if (extRig && typeof extRig.assemble === "function") {
       try { extRig.assemble(ap); } catch (err) {}
@@ -1721,31 +1704,14 @@
       log("arms: 2 of 2");
     }
 
-    if (A.arms && !A.stallAt) {
-      A.stallAt = now;
-      rig.stall.on = true;
-      rig.stall.p = 0;
-      rig.stall.text = "0.0s";
-      audio.servo(420, 120, 0.42);
-      log("head: missing");
-      if (pending > 0) log("waiting: " + pendingNames.join(", "));
-      audio.tone(320, 0.05, "triangle", 0.02, -90);
-    }
-
-    if (A.stallAt && !A.dropAt) {
-      const waited = now - A.stallAt;
-      const minStall = REDUCE ? 620 : 1450 * FAST;
-      rig.stall.p = clamp(waited / minStall);
-      rig.stall.text = (waited / 1000).toFixed(1) + "s";
-      if (waited >= minStall && pending <= 0) {
-        A.dropAt = now;
-        audio.servo(620, 140, 0.34);
-        rig.stall.on = false;
-        rig.head.vis = true;
-        rig.head.fall = 0;
-        log("head: incoming");
-        audio.tone(220, 0.04, "square", 0.02);
-      }
+    if (A.arms && !A.dropAt) {
+      A.dropAt = now;
+      audio.servo(620, 140, 0.34);
+      rig.stall.on = false;
+      rig.head.vis = true;
+      rig.head.fall = 0;
+      log("head: incoming");
+      audio.tone(220, 0.04, "square", 0.02);
     }
 
     if (A.dropAt && !A.landedAt) {
@@ -1861,7 +1827,8 @@
       modules: { stage: stageMode, rig: rigMode, menu: menuMode },
       params: paramsPassed,
       name: params.get("name") || "",
-      dept: params.get("dept") || ""
+      dept: params.get("dept") || "",
+      mode: chosenMode
     };
     gate.success = crossed;
 
@@ -1990,8 +1957,8 @@
     });
 
     dom.wake.addEventListener("click", (e) => { e.preventDefault(); onWake(e); });
-    dom.skip.addEventListener("click", () => handoff("skip"));
-    dom.gateSkip.addEventListener("click", () => handoff("skip"));
+    if (dom.skip) dom.skip.addEventListener("click", () => handoff("skip"));
+    if (dom.gateSkip) dom.gateSkip.addEventListener("click", () => handoff("skip"));
 
     document.addEventListener("keydown", (e) => {
       if (e.key === "Escape" && !done && state !== "void") {

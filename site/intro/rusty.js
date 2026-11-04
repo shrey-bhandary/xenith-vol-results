@@ -1181,7 +1181,7 @@
     var target = { x: 0.5, y: 0.46, s: 1 };
     var ph = rig.phase;
     if (ph === "gate") {
-      target = mob ? { x: 0.5, y: 0.30, s: 0.72 } : { x: 0.815, y: 0.34, s: 0.88 };
+      target = mob ? { x: 0.5, y: 0.17, s: 0.58 } : { x: 0.5, y: 0.18, s: 0.64 };
     } else if (ph === "greet" || ph === "menu" || ph === "pick" || state === "presenting") {
       target = mob ? { x: 0.5, y: 0.33, s: 0.95 } : { x: 0.685, y: 0.46, s: 1 };
     }
@@ -1194,17 +1194,9 @@
   function step(dt) {
     time += dt;
 
-    /* auto assembly, with the honest stall held at the socket */
+    /* auto assembly, without socket stall */
     if (asmAuto) {
-      if (asm < HEAD_AT) {
-        asm = Math.min(HEAD_AT, asm + dt / 1.9);
-        autoStallT = 0;
-      } else if (!autoDone) {
-        autoStallT += dt;
-        if (autoStallT >= (rig.reduced ? 0.4 : 1.2)) autoDone = true;
-      } else {
-        asm = Math.min(1, asm + dt / 1.0);
-      }
+      asm = Math.min(1, asm + dt / 1.8);
     }
     var dp = dropP();
     if (asm >= 1 && !wake.landed) completeBoot();
@@ -1217,9 +1209,6 @@
         celPrev = null;
       }
     }
-
-    /* false start: the head is missing, so the right arm tries and gives up */
-    if (!wake.landed && asm >= 0.52 && failAt < 0) failAt = time;
 
     /* the gaze is a damp, the head is a spring, the antenna is last */
     var sinceLand = wake.landed ? time - wake.landT : -1;
@@ -1528,8 +1517,6 @@
       ctx.restore();
     }
 
-    drawStall(gm);
-
     if (screenFlash > 0 && headVisible()) {
       var scr = byId.screen;
       ctx.save();
@@ -1546,33 +1533,7 @@
   }
 
   function drawStall(gm) {
-    if (wake.landed || asm < 0.52 || asm > HEAD_AT + 0.0001) return;
-    var n = 0;
-    for (var i = 0; i < PARTS.length; i++) if (PARTS[i].alpha > 0.5) n++;
-    var progress = clamp(n / PARTS.length, 0, 1);
-
-    ctx.save();
-    ctx.transform(gm[0], gm[1], gm[2], gm[3], gm[4], gm[5]);
-    if (ctx.setLineDash) {
-      ctx.setLineDash([1.2, 1.4]);
-      ctx.strokeStyle = "rgba(255,177,92,.45)";
-      ctx.lineWidth = hair;
-      ctx.beginPath();
-      ctx.arc(0, -1, 6.2, 0, TAU);
-      ctx.stroke();
-      ctx.setLineDash([]);
-    }
-    ctx.strokeStyle = C.amber;
-    ctx.lineWidth = hair * 2;
-    ctx.beginPath();
-    ctx.arc(0, -1, 6.2, -Math.PI / 2, -Math.PI / 2 + TAU * progress);
-    ctx.stroke();
-    ctx.fillStyle = "rgba(255,233,176,.85)";
-    ctx.font = "2px PS2P, ui-monospace, monospace";
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    ctx.fillText(n + "/" + PARTS.length, 0, -1);
-    ctx.restore();
+    // Stall indicator removed: head is placed directly
   }
 
   /* ---------- boot the module ---------- */

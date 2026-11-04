@@ -122,39 +122,67 @@
     c.width = W; c.height = H;
     const ctx = c.getContext("2d");
 
-    ctx.fillStyle = "#06050f";
+    // Load banner image for card if available
+    let bannerImg = null;
+    try {
+      const img = new Image();
+      img.src = "../assets/brand/xenith-banner.jpg";
+      await new Promise((res) => {
+        img.onload = () => { bannerImg = img; res(); };
+        img.onerror = () => res();
+      });
+    } catch (e) {}
+
+    ctx.fillStyle = "#060412";
     ctx.fillRect(0, 0, W, H);
 
-    // warm haze behind the mark
-    const g = ctx.createRadialGradient(W * 0.5, H * 0.36, 20, W * 0.5, H * 0.36, 520);
-    g.addColorStop(0, "rgba(255,140,60,.12)");
-    g.addColorStop(0.6, "rgba(90,60,170,.06)");
-    g.addColorStop(1, "rgba(6,5,15,0)");
+    // cosmic haze behind the mark
+    const g = ctx.createRadialGradient(W * 0.5, H * 0.28, 20, W * 0.5, H * 0.28, 560);
+    g.addColorStop(0, "rgba(254,210,53,.18)");
+    g.addColorStop(0.4, "rgba(123,44,191,.15)");
+    g.addColorStop(0.8, "rgba(20,8,40,.4)");
+    g.addColorStop(1, "rgba(6,4,18,0)");
     ctx.fillStyle = g;
     ctx.fillRect(0, 0, W, H);
 
-    drawX(ctx, W / 2, 330, 380, 0.9);
+    if (bannerImg && bannerImg.naturalWidth) {
+      const bw = Math.min(840, W - 140);
+      const bh = (bw * bannerImg.naturalHeight) / bannerImg.naturalWidth;
+      const bx = (W - bw) / 2;
+      const by = 200;
+      ctx.drawImage(bannerImg, bx, by, bw, bh);
+    } else {
+      drawX(ctx, W / 2, 330, 380, 0.9);
+    }
 
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
 
-    ctx.fillStyle = "rgba(255,233,176,.55)";
+    ctx.fillStyle = "rgba(254,210,53,.65)";
     ctx.font = "18px ui-monospace, Menlo, monospace";
     ctx.fillText("X E N I T H   2 0 2 6", W / 2, 90);
 
-    ctx.fillStyle = "#ffe9b0";
     const nameSize = fitFont(ctx, name, 880, 68, '"PS2P", monospace');
     ctx.font = `${nameSize}px "PS2P", monospace`;
     const nameLines = name.length > 18 ? name.split(" ") : [name];
     if (nameLines.length > 1 && nameLines.join(" ").length > 18) {
       const mid = Math.ceil(nameLines.length / 2);
-      ctx.fillText(nameLines.slice(0, mid).join(" "), W / 2, 690);
-      ctx.fillText(nameLines.slice(mid).join(" "), W / 2, 690 + nameSize * 1.35);
+      const l1 = nameLines.slice(0, mid).join(" ");
+      const l2 = nameLines.slice(mid).join(" ");
+      ctx.fillStyle = "#180a2b";
+      ctx.fillText(l1, W / 2 + 4, 694);
+      ctx.fillText(l2, W / 2 + 4, 694 + nameSize * 1.35);
+      ctx.fillStyle = "#fed235";
+      ctx.fillText(l1, W / 2, 690);
+      ctx.fillText(l2, W / 2, 690 + nameSize * 1.35);
     } else {
+      ctx.fillStyle = "#180a2b";
+      ctx.fillText(name, W / 2 + 4, 694);
+      ctx.fillStyle = "#fed235";
       ctx.fillText(name, W / 2, 690);
     }
 
-    ctx.fillStyle = "#ffb15c";
+    ctx.fillStyle = "#ff9800";
     ctx.font = "20px ui-monospace, Menlo, monospace";
     ctx.fillText(fit(ctx, (dept || "XENITH CREW").toUpperCase(), 880), W / 2, 840);
 

@@ -18,7 +18,7 @@
 <meta property="og:description" content="a small private page for the xenith team at st xavier's college mumbai.">
 <meta property="og:image" content="../assets/brand/app-icon-512.png">
 <meta name="twitter:card" content="summary_large_image">
-<link rel="stylesheet" href="style.css?v=10">
+<link rel="stylesheet" href="style.css?v=18">
 </head>
 <body class="locked">
 <noscript><style>#gate{display:none}.actions{display:none}#content,#rusty{opacity:1!important;visibility:visible!important}body.locked #content{opacity:1;visibility:visible}</style></noscript>
@@ -39,19 +39,19 @@
   </header>
 
   <main id="content">
-    <h1 id="name" tabindex="-1">xenith</h1>
+    <div class="stamp-wrap">
+      <canvas id="selectStamp" width="329" height="49" aria-hidden="true"></canvas>
+      <span class="sr-only">selected</span>
+    </div>
+    <div id="deptNav" class="dept-nav" hidden></div>
     <p id="role">talks and panel discussions</p>
     <p id="line">this page needs javascript to open. try a browser setting or a different browser.</p>
+    <h1 id="name" tabindex="-1">xenith</h1>
     <div class="actions">
       <button id="save" class="save" type="button">save card</button>
       <button id="copy" class="save" type="button">copy link</button>
     </div>
-    <div class="stamp-wrap">
-      <canvas id="selectStamp" width="329" height="49" aria-hidden="true"></canvas>
-      <span class="sr-only">selected</span>
-      <span class="stamp-note" aria-hidden="true">xenith / 2026</span>
-    </div>
-      </main>
+  </main>
 
   <canvas id="rusty" aria-hidden="true"></canvas>
   <p id="live" class="sr-only" aria-live="polite"></p>
@@ -62,7 +62,6 @@
       <span class="p1">draw x</span>
       <span class="p2">to enter</span>
     </div>
-    <button id="skip" type="button">skip</button>
   </div>
 </div>
 
@@ -73,12 +72,9 @@
   location.replace("intro/" + location.search);
 })();
 </script>
-<script src="data.js?v=10"></script>
-<script src="card.js?v=10"></script>
-<script src="swarm.js?v=10"></script>
-<link rel="stylesheet" href="vendor/glass-reveal.css">
-<script src="vendor/glass-renderer.js"></script>
-<script src="vendor/glass-reveal.js"></script>
-<script src="xenith.js?v=10"></script>
+<script src="data.js?v=18"></script>
+<script src="card.js?v=18"></script>
+<script src="swarm.js?v=18"></script>
+<script src="xenith.js?v=18"></script>
 </body>
 </html>
