@@ -174,7 +174,7 @@
       ctx = null;
       master = null;
     }
-    return { on, tone, thump, tick, chord, voice, close, ambientStart, ambientStop, servo, ratchet, clank, powerUp };
+    return { on, tone, thump, tick, chord, voice, close, ambientStart, ambientStop, servo, ratchet, clank, powerUp, busy: () => voiceBusy || vq.length > 0 };
   })();
 
   // ---------- module probes ----------

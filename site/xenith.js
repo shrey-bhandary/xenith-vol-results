@@ -1019,7 +1019,7 @@
     if (!root.querySelector("style[data-glass]")) {
       const st = document.createElement("style");
       st.setAttribute("data-glass", "");
-      st.textContent = GLASS_CSS + "\n.lg-logo-reveal{width:min(62vw,400px);height:min(40vh,225px);background:#06050f;border-radius:14px;box-shadow:0 30px 80px rgba(0,0,0,.6)}@media(max-width:720px){.lg-logo-reveal{width:78vw;height:190px}}";
+      st.textContent = GLASS_CSS + "\n.lg-logo-reveal{width:min(62vw,400px);height:min(40vh,225px);background:#06050f;border-radius:14px;box-shadow:0 30px 80px rgba(0,0,0,.6)}@media(max-width:720px){.lg-logo-reveal{width:min(78vw,320px);height:180px}}";
       root.appendChild(st);
     }
     const stage = document.createElement("div");
@@ -1093,11 +1093,20 @@
     if (!document.querySelector("style[data-glass-page]")) {
       const st = document.createElement("style");
       st.setAttribute("data-glass-page", "");
-      st.textContent = GLASS_CSS + "\n\n#xp-glass{position:fixed;inset:0;z-index:2147483647;display:grid;place-items:center;background:#05040c;opacity:1;transition:opacity .45s ease}\n#xp-glass .lg-logo-reveal{width:min(62vw,400px);height:min(40vh,225px);border-radius:16px;background:#06050f;border:1px solid rgba(255,233,176,.14);box-shadow:0 40px 120px rgba(0,0,0,.8)}\n@media(max-width:720px){#xp-glass .lg-logo-reveal{width:78vw;height:190px}}";
+      st.textContent = GLASS_CSS + "\n\n#xp-glass{position:fixed;inset:0;z-index:2147483647;display:grid;place-items:center;background:#05040c;opacity:1;transition:opacity .45s ease}\n#xp-glass .lg-logo-reveal{width:min(62vw,400px);height:min(40vh,225px);border-radius:16px;background:#06050f;border:1px solid rgba(255,233,176,.14);box-shadow:0 40px 120px rgba(0,0,0,.8)}\n@media(max-width:720px){#xp-glass .lg-logo-reveal{width:min(78vw,320px);height:180px}}";
       document.head.appendChild(st);
     }
+    let finished = false;
+    const finish = () => {
+      if (finished) return;
+      finished = true;
+      wrap.style.opacity = "0";
+      setTimeout(() => { wrap.remove(); done(); }, 520);
+    };
+    const watchdog = setTimeout(finish, 4600);
     const wrap = document.createElement("div");
     wrap.id = "xp-glass";
+    wrap.style.setProperty("--lg-logo-reveal-size", "36px");
     const plate = document.createElement("div");
     wrap.appendChild(plate);
     document.body.appendChild(wrap);
@@ -1108,10 +1117,8 @@
         duration: 2600,
         play: "mount",
         onComplete: () => {
-          setTimeout(() => {
-            wrap.style.opacity = "0";
-            setTimeout(() => { wrap.remove(); done(); }, 520);
-          }, 380);
+          clearTimeout(watchdog);
+          setTimeout(finish, 380);
         }
       });
     } catch (e) { wrap.remove(); done(); }
@@ -1147,6 +1154,7 @@
       s.id = "swarm-engine";
       s.src = "vendor/swarm.js?v=6";
       s.onload = () => { const c = document.getElementById("handoff-cover"); if (c) c.remove(); document.documentElement.classList.remove("engine-pending"); done(); };
+      s.onerror = () => { const c = document.getElementById("handoff-cover"); if (c) c.remove(); document.documentElement.classList.remove("engine-pending"); };
       document.body.appendChild(s);
     });
   }
