@@ -1,0 +1,21 @@
+Copyright (c) 2026 Ricco Marcelino. All rights reserved.
+
+This repository is a private, unpublished project. No permission is granted to
+copy, publish, redistribute, sublicense or sell any part of it. Do not deploy it
+publicly or share per-person links without the author's permission.
+
+The code, copy, design and assets written for Xenith are the author's work and
+are not open source.
+
+Third-party files are not covered by this notice and keep their own terms:
+
+- site/vendor/swarm.js is third-party, unlicensed code from
+  DhvanilPatel/swarm-cursors, which adapts Joel Califa's Swarm. It is not
+  covered by this notice. Do not publish or redistribute it without permission
+  from its authors.
+- site/vendor/glass-renderer.js and site/vendor/glass-reveal.js are ports of
+  the MIT-licensed Glassy UI glass logo reveal.
+- assets/fonts/PressStart2P.ttf is licensed under the SIL Open Font License 1.1.
+
+See site/vendor/NOTICE.md for the vendored-file details. This notice does not
+replace or relicense those terms.

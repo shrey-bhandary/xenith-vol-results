@@ -1,0 +1,21 @@
+# keep the answer key, internal notes and repo metadata off the deployment.
+# .vercelignore replaces .gitignore for uploads, so it must list these itself.
+lab/
+docs/
+research/
+README.md
+LICENSE
+.gitignore
+*.log
+**/.DS_Store
+
+# local tooling, secrets and caches
+.vercel/
+*.tmp
+.env
+.env.*
+__pycache__/
+*.pyc
+
+# a real form export must never be deployed
+**/people.csv

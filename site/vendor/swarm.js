@@ -436,6 +436,11 @@
     return null;
   }
 
+  /* xenith: canvases are encoded through a downscaled proxy. The page's full-screen
+     canvases are 2880x1800 at DPR2 (~20MB RGBA each) and five were encoded synchronously
+     in one scan; a 1280px long-edge proxy keeps the data URL usable as an image source. */
+  const CANVAS_PROXY_MAX = 1280;
+
   function canvasPixels(el) {
     try {
       const probe = document.createElement("canvas");
@@ -445,7 +450,17 @@
       const d = g.getImageData(0, 0, 12, 12).data;
       let a = 0;
       for (let i = 3; i < d.length; i += 4) a += d[i];
-      return a > 0 ? el.toDataURL() : null;
+      if (a <= 0) return null;
+      const long = Math.max(el.width || 0, el.height || 0, 1);
+      const k = Math.min(1, CANVAS_PROXY_MAX / long);
+      if (k >= 1) return el.toDataURL();
+      const proxy = document.createElement("canvas");
+      proxy.width = Math.max(1, Math.round((el.width || 1) * k));
+      proxy.height = Math.max(1, Math.round((el.height || 1) * k));
+      const pg = proxy.getContext("2d");
+      if (!pg) return el.toDataURL();
+      pg.drawImage(el, 0, 0, proxy.width, proxy.height);
+      return proxy.toDataURL();
     } catch (_) {
       return null;
     }
@@ -1543,6 +1558,15 @@
 .hud button.snd.off{color:#8a8a8a}
 .hud button.snd.tap{background:#0D99FF;animation:hudpulse 1.6s ease-in-out infinite}
 @keyframes hudpulse{50%{box-shadow:0 0 0 4px rgba(13,153,255,.28)}}
+/* xenith: keyboard focus ring - HUD buttons are all:unset, so they had no visible focus */
+.hud button:focus-visible{outline:1px solid #9ef0c0;outline-offset:2px}
+/* xenith: mobile HUD - the nowrap row is wider than a phone, which clipped the ✕ exit */
+@media (max-width:560px){
+.hud{flex-wrap:wrap;row-gap:6px;width:calc(100% - 24px);max-width:100%;white-space:normal;justify-content:center;padding-bottom:calc(6px + env(safe-area-inset-bottom,0px))}
+.hud .txt{justify-content:center}
+.hud button{padding:6px 8px;font-size:11px;min-height:28px}
+.hud .x{min-width:28px;min-height:28px;order:99}
+}
 `;
 
   // -------------------------------------------------------------------- env
@@ -1628,6 +1652,7 @@
       this.host = host;
       const root = host.attachShadow({ mode: "open" });
       this.root = root;
+      /* xenith: ARIA-only patch - labels on ✕ and Go live, role=status on the rewritten progress span; markup is additive, layout untouched. */
       root.innerHTML = `<style>${STYLE}</style>
 <div class="bg"></div>
 <div class="layer under"></div>
@@ -1640,14 +1665,14 @@
 <div class="rulers"></div>
 <div class="hud">
   <div class="dots"></div>
-  <div class="txt"><span class="status">Scanning page…</span></div>
+  <div class="txt"><span class="status" role="status" aria-live="polite">Scanning page…</span></div>
   <div class="bar"><i></i></div>
   <button data-a="tour" title="Auto-scroll while the swarm builds">Tour</button>
   <button data-a="speed" title="Build speed">0.5×</button>
   <button data-a="sound" class="snd" title="Sound (M)"></button>
-  <button data-a="live" class="pri" hidden title="Fade back to the real page">Go live</button>
+  <button data-a="live" class="pri" hidden title="Fade back to the real page" aria-label="Go live and fade back to the real page">Go live</button>
   <button data-a="replay" hidden title="Wipe and rebuild again">Replay</button>
-  <button data-a="close" class="x" title="Exit (Esc)">✕</button>
+  <button data-a="close" class="x" title="Exit (Esc)" aria-label="Close the build">✕</button>
 </div>`;
       const $ = (s) => root.querySelector(s);
       this.bg = $(".bg");
