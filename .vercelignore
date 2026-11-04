@@ -19,3 +19,6 @@ __pycache__/
 
 # a real form export must never be deployed
 **/people.csv
+# metadata that does not need to be public
+.vercelignore
+**/.void-*.js

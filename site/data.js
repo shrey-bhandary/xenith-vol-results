@@ -5,63 +5,63 @@ window.XENITH_PEOPLE = {
     dept: "Talks and panel discussions",
     role: "Head",
     line: "You get the mic and the running order. The clock is the part everyone argues with.",
-    tag: "the running order is his problem"
+    tag: "the panel someone has to close"
   },
   "shivam": {
     name: "Shivam Chakroborty",
     dept: "Talks and panel discussions",
     role: "Sub-head",
-    line: "You're the second name on the talks sheet, which is the one who actually reads the speaker brief.",
-    tag: "arrives before the speaker does"
+    line: "You hold the second desk on talks, which is the one that owns the calendar.",
+    tag: "the calendar, not the glory"
   },
   "suhani": {
     name: "Suhani Minocha",
     dept: "Talks and panel discussions",
     role: "Volunteer",
     line: "You've herded speakers and judges through a school fest. Xenith has more of both.",
-    tag: "sessions that survive a school fest"
+    tag: "fintech panel, if it survives"
   },
   "joann": {
     name: "Joann Sarah Matthew",
     dept: "Talks and panel discussions",
     role: "Volunteer",
     line: "You host a podcast, so you know when a room has gone quiet. Xenith's panels are yours.",
-    tag: "knows when a panel has gone quiet"
+    tag: "pitched a panel about not being replaced"
   },
   "katherine": {
     name: "Katherine Augustine",
     dept: "Talks and panel discussions",
     role: "Volunteer",
     line: "You pitched three panels, one about clothes running software. Start with that one.",
-    tag: "three panels, one about clothes"
+    tag: "memory corrupted, game over, outfits"
   },
   "arijeet": {
     name: "Arijeet Ray",
     dept: "Talks and panel discussions",
     role: "Volunteer",
-    line: "You asked for cybersecurity and you've run production. Xenith has one projector and no security policy.",
-    tag: "ran Fitoor, wants cybersecurity"
+    line: "You asked for cybersecurity and you ran Fitoor production. The security panel is yours to build.",
+    tag: "wants a security panel that is actually scary"
   },
   "nandini": {
     name: "Nandini Thakur",
     dept: "Talks and panel discussions",
     role: "Volunteer",
     line: "You want sessions on the environment and education. The questions are yours, including the awkward one.",
-    tag: "moderates, and notices when it lags"
+    tag: "pharma contacts and some actors"
   },
   "devang": {
     name: "Devang Singh",
     dept: "Talks and panel discussions",
     role: "Volunteer",
     line: "You anchored college and commercial events, then asked what Xenith actually is. Here it is.",
-    tag: "anchors commercial events, reads briefs"
+    tag: "anchors commercial events too"
   },
   "ryan": {
     name: "Ryan Joseph Johnson",
     dept: "Talks and panel discussions",
     role: "Volunteer",
     line: "You want ISRO's Somanath and a Chandrayaan director on one stage. That pitch goes to the ideas meeting.",
-    tag: "keeps pitching ISRO"
+    tag: "BEYOND EARTH, still on the sheet"
   },
   "trinity": {
     name: "Trinity Fernandes",

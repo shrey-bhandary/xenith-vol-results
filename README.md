@@ -27,6 +27,10 @@ Open `http://localhost:8080/` and it redirects to `/site/`.
 2. Framework preset: **Other**. Build command: none. Output directory: `.`.
 3. Deploy. `vercel.json` only sets caching for the engine and voice clips.
 4. Before sharing per-person links, enable **Deployment Protection** in Vercel.
+   The X gate is cosmetic. `site/data.js` is a plain static file, so anyone with
+   the deployment URL can fetch every record without drawing the X, and
+   `?entered=1` or `?gate=auto` skip the intro entirely. Deployment Protection is
+   the only real access control.
    A private GitHub repo does not make the deployment URL private.
 
 `.vercelignore` keeps `lab/`, `docs/`, `research/`, this README and the licence
@@ -48,7 +52,7 @@ site/               the page, intro and engine
 site/index.html     reveal page, gate and swarm handoff
 site/xenith.js      page behaviour, gate and build handoff
 site/card.js        save-card renderer (copy-link lives in xenith.js)
-site/data.js        live records
+site/data.js        live records, built from lab/personal/people.sample.csv
 site/style.css      page styles
 site/swarm.js       ambient cursor crew, separate from the vendor engine
 site/manifest.webmanifest  install metadata
@@ -63,7 +67,7 @@ lab/                prototypes and motion plans (not deployed)
 
 ## Cast
 
-Ricco (events sub-head, built the site), Aaditya (events), Shreyas Bhandari
+Ricco (events sub-head, built the site), Aaditya (events), Shreyas Bhandary
 (head of talks and panel discussions), Shivam Chakroborty (sub-head of talks
 and panel discussions), Glynnis and Nigel (assistance and hospitality), Ashley
 and Harsh (tech and venue), Omkar (finance and sponsorship), Mogithh

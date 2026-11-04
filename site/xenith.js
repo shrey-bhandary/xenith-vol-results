@@ -583,7 +583,7 @@
   // The reveal is hidden behind the handoff cover / glass prelude until the
   // engine hands the page back, so the stamp waits for real visibility rather
   // than a fixed delay. Otherwise it prints to nobody.
-  const STAMP_DELAY = 220;
+  const STAMP_DELAY = 1000;
   const BUILD_DELAY = 500;
 
   // ---------- the stamp: a dot-matrix word that prints itself in ----------
@@ -618,27 +618,61 @@
 
   // Run cb once nothing opaque is covering the page. The engine can take a
   // while, so fall back after ~14s rather than hanging forever.
+  function opaque(el) {
+    if (!el) return false;
+    const cs = getComputedStyle(el);
+    if (cs.display === "none" || cs.visibility === "hidden") return false;
+    return Number(cs.opacity) >= 0.05;
+  }
+
+  // The page can be hidden by up to four different layers over the life of a
+  // reveal: the boot cover, the glass prelude, the vendored engine's own opaque
+  // host, and the story veil inside that host's shadow root. Wait for all of
+  // them, not just the two we create ourselves.
+  function covered() {
+    if (document.getElementById("handoff-cover")) return true;
+    if (document.getElementById("xp-glass")) return true;
+    const host = document.querySelector("swarm-rebuild");
+    if (host) {
+      const root = host.shadowRoot;
+      if (root) {
+        if (opaque(root.querySelector(".bg"))) return true;
+        if (opaque(root.querySelector("#xenith-story"))) return true;
+      }
+    }
+    return false;
+  }
+
   function whenVisible(cb) {
     let tries = 0;
     const check = () => {
-      const blocked = document.getElementById("handoff-cover") || document.getElementById("xp-glass");
-      if (!blocked) { cb(); return; }
-      if (++tries > 140) { cb(); return; }
-      setTimeout(check, 100);
+      if (++tries > 300) { cb(); return; }
+      if (covered()) { setTimeout(check, 100); return; }
+      // clear now, but confirm: a fade can dip and come back
+      setTimeout(() => {
+        if (!covered()) cb();
+        else setTimeout(check, 100);
+      }, 500);
     };
-    check();
+    setTimeout(check, 100);
   }
 
   function pixelStamp() {
     const cv = document.getElementById("selectStamp");
-    if (!cv || stampStarted) return;
+    if (!cv) return;
+    // it may be asked to play again if an earlier attempt happened while the
+    // page was still behind a build layer
     stampStarted = true;
-    const cell = STAMP_CELL;
     const word = "SELECTED";
     const lit = stampBits(word);
     const cols = 47;
+    // Pick the largest integer cell size that fits. A fractional scale would
+    // make some dots wider than others and break the dot-matrix regularity.
+    const avail = (cv.parentElement && cv.parentElement.clientWidth) || 329;
+    const cell = Math.max(3, Math.min(STAMP_CELL, Math.floor((avail - 96) / cols)));
     const W = cols * cell;
     const H = 7 * cell;
+    cv.style.width = W + "px";
     const dpr = Math.min(2, window.devicePixelRatio || 1);
     cv.width = Math.round(W * dpr);
     cv.height = Math.round(H * dpr);
@@ -648,7 +682,7 @@
 
     function settle() {
       c.clearRect(0, 0, W, H);
-      c.fillStyle = "rgba(255,177,92,.86)";
+      c.fillStyle = "rgba(255,177,92,.8)";
       for (const [x, y] of lit) c.fillRect(x * cell + 1, y * cell + 1, cell - 2, cell - 2);
     }
 
@@ -691,7 +725,32 @@
     if (!reduceMotion) fireConfetti();
     startRusty();
     stillFrame();
-    whenVisible(() => setTimeout(pixelStamp, reduceMotion ? 0 : STAMP_DELAY));
+    let stampSeen = false;
+    const playStamp = (force) => {
+      if (stampSeen && !force) return;
+      stampSeen = true;
+      pixelStamp();
+    };
+    // once nothing is covering the page
+    whenVisible(() => setTimeout(() => playStamp(false), reduceMotion ? 0 : STAMP_DELAY));
+    // never leave a blank canvas, even if a layer never clears
+    setTimeout(() => playStamp(false), reduceMotion ? 0 : 9000);
+    // the engine keeps its own veil up until the visitor reveals the page, so
+    // replay the print on the gesture that does it. This is the moment the
+    // stamp is meant to land.
+    let replayed = false;
+    const onFirstLook = () => {
+      if (replayed) return;
+      replayed = true;
+      window.removeEventListener("pointerdown", onFirstLook);
+      window.removeEventListener("keydown", onFirstLook);
+      // The engine only gives the page back on the visitor's own gesture, and
+      // its fade takes about half a second. Print on that beat regardless of
+      // what the layers report, because a gesture means they are looking.
+      setTimeout(() => playStamp(true), 700);
+    };
+    window.addEventListener("pointerdown", onFirstLook, { passive: true });
+    window.addEventListener("keydown", onFirstLook);
     const live = $("#live");
     if (live) {
       const who = String(person.name || "").trim();

@@ -91,22 +91,23 @@ window.XENITH_PEOPLE = {
 - `xenith.js` also accepts `?name=`, `?dept=`, `?role=` and `?line=` for
   testing without a rebuild. Never put them in a shared link: anyone can
   override the page and the cursor with them.
-- To ship, the generated `people.js` replaces `site/data.js` at freeze time. This
-  folder does not write to `site/`, and `site/data.js` was not touched.
-- The Katherine, Trinity and Adwitiya records match `site/data.js` byte for
-  byte. `site/data.js` also has a `ricco` record and a `default` that points at
-  Ricco Marcelino, so the generated file is not byte-identical to it: the
-  generated `default` is the placeholder above. The sample adds the other nine
-  and does not include the `ricco` record.
-- The nine newer names are first names only, as in the copy deck. Add preferred
-  full names in the CSV once the crew sheet confirms them.
-- Departments for the nine are placeholders from the copy deck and need the same
-  confirmation.
-- Privacy: a shared data file ships every line to anyone with one link. If a
-  weakness line should stay private, split to one record per page before release.
-- The real form export must never be committed. Only the invented sample CSV
-  belongs here; `.gitignore` excludes `people.csv`, but keep the real file out
-  of git and out of the deployment by hand.
+- `site/data.js` **is** built from this CSV. It is the generated output plus one
+  hand-kept `default` record that points at Ricco Marcelino; the generator's own
+  `default` is the placeholder above, so do not overwrite `site/data.js` with the
+  raw generator output without restoring that record.
+- The CSV carries the confirmed talks and panel roster: full names, the
+  department, the position, the line and the tag. `PROVENANCE.md` records which
+  form answer each line leans on.
+- The lines and departments are real, not placeholders. Anything still
+  unconfirmed belongs in a branch, not in this file.
+- Privacy: a shared data file ships every line to anyone with one link. The gate
+  is cosmetic. If a weakness line should stay private, split to one record per
+  page before release.
+- The real form export must never be committed. `.gitignore` and
+  `.vercelignore` exclude `people.csv`, but keep the export out of git and out of
+  the deployment by hand. Only `slug, name, dept, role, line, tag` is ever
+  written to `site/data.js`; phone numbers, emails, UIDs and free-text answers
+  never leave the export.
 
 ## Constraints
 
