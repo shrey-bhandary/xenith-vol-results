@@ -271,6 +271,18 @@ body.engine #swarm,body.engine .sound,body.engine #confetti{display:none!importa
 }
 
 body.engine #content{opacity:1!important;visibility:visible!important;transition:none!important}
+/* while the vendored engine is drawing its own rebuild, take the real page out
+   of the way so the build starts from an empty canvas instead of being drawn
+   over the finished page. This class is only added after the engine has
+   captured the page, because the capture reads opacity and skips hidden
+   elements. */
+body.swarm-build #content{opacity:0!important;visibility:hidden!important}
+body.swarm-build #sky,
+body.swarm-build #scene,
+body.swarm-build #rain,
+body.swarm-build #monument,
+body.swarm-build #photo,
+body.swarm-build #confetti{opacity:0!important;visibility:hidden!important}
 body.engine #name{animation:none!important;opacity:1!important;filter:none!important;transform:none!important}
 
 html.engine-pending body::before{content:"";position:fixed;inset:0;background:#05040c;z-index:2147483646;pointer-events:none}

@@ -1300,17 +1300,60 @@
       settled = true;
       clearHandoff();
     };
+    // The engine paints its own opaque backdrop to turn the page into a blank
+    // canvas. Until that backdrop is actually opaque, anything behind it can be
+    // seen, so the cover must outlive it. Dropping the cover on a fixed timer
+    // was what let the finished page flash for half a second before the build.
+    const bgOpacity = () => {
+      const host = document.querySelector("swarm-rebuild");
+      const bg = host && host.shadowRoot && host.shadowRoot.querySelector(".bg");
+      return bg ? Number(getComputedStyle(bg).opacity) : -1;
+    };
+    const engineBlanked = () => bgOpacity() >= 0.9;
+
+    // The engine draws a schematic rebuild over whatever is underneath it and
+    // never hides the real page, so without this the visitor sees the finished
+    // page with cursors drawn on top of it. Once the backdrop has gone fully
+    // opaque the capture is done, so the real page can be taken out of the way
+    // until the build is dismissed.
+    let sawBlank = false;
+    let watchingBuild = false;
+    const watchBuild = () => {
+      if (watchingBuild) return;
+      watchingBuild = true;
+      const t = setInterval(() => {
+        const host = document.querySelector("swarm-rebuild");
+        if (!host) {
+          clearInterval(t);
+          document.body.classList.remove("swarm-build");
+          return;
+        }
+        const o = bgOpacity();
+        if (o >= 0.98) sawBlank = true;
+        else if (sawBlank && o < 0.95) document.body.classList.add("swarm-build");
+      }, 60);
+    };
     // The engine creates <swarm-rebuild> from a promise chain, so poll for it.
-    // Stop after ~6s and reveal the page rather than leave a black screen.
-    let attempts = 0;
+    let hostTries = 0;
+    let blankTries = 0;
     const drop = () => {
       if (settled) return;
-      if (document.querySelector("swarm-rebuild")) { setTimeout(settle, 700); return; }
-      if (++attempts >= 60) {
-        if (document.getElementById("handoff-cover")) {
-          console.error("[xenith] the engine never produced <swarm-rebuild>; revealing the page");
+      const host = document.querySelector("swarm-rebuild");
+      if (!host) {
+        if (++hostTries >= 60) {
+          if (document.getElementById("handoff-cover")) {
+            console.error("[xenith] the engine never produced <swarm-rebuild>; revealing the page");
+          }
+          settle();
+          return;
         }
-        settle();
+        setTimeout(drop, 100);
+        return;
+      }
+      // host is up: wait for it to be blank, then hand over
+      if (engineBlanked() || ++blankTries >= 60) {
+        watchBuild();
+        setTimeout(settle, 120);
         return;
       }
       setTimeout(drop, 100);
