@@ -997,6 +997,13 @@
     layer.appendChild(label);
     STORY.label = label;
 
+    const hero = document.createElement("img");
+    hero.src = "../assets/brand/xenith-logo-amber.svg";
+    hero.alt = "";
+    hero.style.cssText = "position:absolute;left:50%;top:50%;width:min(34vw,180px);transform:translate(-50%,-50%);z-index:3;opacity:1;transition:opacity .6s ease;filter:drop-shadow(0 0 26px rgba(255,177,92,.45))";
+    layer.appendChild(hero);
+    STORY.hero = hero;
+
     STORY.layer = layer;
     STORY.onResize = storySize;
     addEventListener("resize", STORY.onResize);
@@ -1054,13 +1061,16 @@
 
     STORY.t0 = 0;
     STORY.t0 = performance.now();
+    STORY.noFrame = true;
+    STORY.raf = requestAnimationFrame(storyTick);
     setTimeout(() => {
       if (STORY.stopped) return;
       const bg = STORY.root && STORY.root.querySelector ? STORY.root.querySelector(".bg") : null;
       if (bg) { bg.style.transition = "opacity .9s ease"; bg.style.opacity = "0"; }
       if (STORY.veil) { STORY.veil.style.transition = "opacity .9s ease"; STORY.veil.style.opacity = "0"; }
       if (STORY.canvas) STORY.canvas.style.opacity = "0";
-    }, 900);
+      if (STORY.hero) { STORY.hero.style.opacity = "0"; setTimeout(() => STORY.hero.remove(), 650); }
+    }, 1700);
     if (reduceMotion) {
       storyDraw(1e6);
       STORY.veil.style.opacity = ".45";
