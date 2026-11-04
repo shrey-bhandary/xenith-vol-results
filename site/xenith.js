@@ -4,15 +4,33 @@
   const params = new URLSearchParams(location.search);
 
   // ---------- person ----------
+  // XENITH_PEOPLE is a plain object literal, so "constructor" and friends are
+  // inherited keys. Resolve records by own property only.
   const key = (params.get("p") || "default").toLowerCase();
   const all = window.XENITH_PEOPLE || {};
-  const person = { ...(all[key] || all.default || { name: "", dept: "", line: "" }) };
-  ["name", "dept", "role", "line"].forEach((k) => {
-    if (params.get(k)) person[k] = params.get(k);
+  const own = Object.prototype.hasOwnProperty.call(all, key) ? all[key] : null;
+  const overrides = {};
+  ["name", "dept", "role"].forEach((k) => {
+    if (params.get(k)) overrides[k] = params.get(k);
   });
-  $("#name").textContent = person.name;
-  $("#role").textContent = person.dept;
-  $("#line").textContent = person.line;
+  // The line is the written part of the reveal, so a shared link cannot rewrite
+  // it. Only a dev host may.
+  if (params.get("line")) {
+    const devHost = location.protocol === "file:" ||
+      /^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname);
+    if (devHost) overrides.line = params.get("line");
+    else console.warn("[xenith] ignoring ?line=: it is only allowed on a dev host");
+  }
+  const wantsOverride = Object.keys(overrides).length > 0;
+  // Overrides only patch the record the link actually asked for; otherwise they
+  // build a neutral record instead of borrowing the author's line.
+  let person;
+  if (own && params.get("p")) person = { ...own, ...overrides };
+  else if (wantsOverride) person = { name: "", dept: "", role: "", line: "", tag: "", ...overrides };
+  else person = { ...(all.default || { name: "", dept: "", role: "", line: "", tag: "" }) };
+  $("#name").textContent = person.name || "";
+  $("#role").textContent = person.dept || "";
+  $("#line").textContent = person.line || "";
 
   // ---------- ascii slab ----------
   const cv = $("#scene");
@@ -281,7 +299,7 @@
   addEventListener("resize", () => {
     W = innerWidth; H = innerHeight;
     clearTimeout(resizeTimer);
-    resizeTimer = setTimeout(() => { if (ready) build(); initRain(); }, 180);
+    resizeTimer = setTimeout(() => { if (ready) build(); initRain(); stillFrame(); }, 180);
   });
 
   addEventListener("pointermove", (e) => {
@@ -291,10 +309,20 @@
   });
 
   let lastFrame = 0;
+  let frameRaf = 0;
+  let ambientStopped = false;
   function frame(t) {
-    requestAnimationFrame(frame);
-    if (document.hidden || t - lastFrame < 33) return;
+    frameRaf = 0;
+    if (ambientStopped) return;
+    // The engine paints an opaque full-screen host over #stage, and a hidden or
+    // collapsed canvas is not worth 50k text draws a second either. Bail for
+    // good instead of rescheduling.
+    if (document.body.classList.contains("engine") || !cv.clientWidth) return;
+    // Reduced motion paints a single settled frame and never self-schedules.
+    if (!reduceMotion) frameRaf = requestAnimationFrame(frame);
+    if (!reduceMotion && (document.hidden || t - lastFrame < 33)) return;
     lastFrame = t;
+    if (reduceMotion) { enteredMix = enteredTarget; tx = mx; ty = my; zoom = zoomTarget; }
     if (!xpts.length) return;
     tx += (mx - tx) * 0.04;
     enteredMix += (enteredTarget - enteredMix) * 0.05;
@@ -318,7 +346,11 @@
       `translate(${(px * 0.3).toFixed(1)}px, calc(-50% + ${(py * 0.3).toFixed(1)}px))`;
     if (t - lastRain > 45) { drawRain(Math.min(120, t - lastRain)); lastRain = t; }
   }
-  requestAnimationFrame(frame);
+  // Reduced motion gets one paint per state change instead of a loop.
+  function stillFrame() {
+    if (reduceMotion && !ambientStopped) frameRaf = requestAnimationFrame(frame);
+  }
+  frameRaf = requestAnimationFrame(frame);
 
   // ---------- gate ----------
   const pad = $("#xpad");
@@ -548,6 +580,142 @@
 
   let celebrateUntil = 0;
 
+  // The reveal is hidden behind the handoff cover / glass prelude until the
+  // engine hands the page back, so the stamp waits for real visibility rather
+  // than a fixed delay. Otherwise it prints to nobody.
+  const STAMP_DELAY = 1000;
+  const BUILD_DELAY = 500;
+
+  // ---------- the stamp: a dot-matrix word that prints itself in ----------
+  // Deliberately small and thrown-away looking. It presses onto the page like a
+  // mark on a form, rather than announcing anything across the screen.
+  const STAMP_GLYPHS = {
+    S: ["01111", "10000", "10000", "01110", "00001", "00001", "11110"],
+    E: ["11111", "10000", "10000", "11110", "10000", "10000", "11111"],
+    L: ["10000", "10000", "10000", "10000", "10000", "10000", "11111"],
+    C: ["01110", "10001", "10000", "10000", "10000", "10001", "01110"],
+    T: ["11111", "00100", "00100", "00100", "00100", "00100", "00100"],
+    D: ["11110", "10001", "10001", "10001", "10001", "10001", "11110"]
+  };
+  const STAMP_CELL = 7;
+  let stampStarted = false;
+
+  function stampBits(word) {
+    const lit = [];
+    let x0 = 0;
+    for (const ch of word) {
+      const g = STAMP_GLYPHS[ch];
+      if (!g) { x0 += 1; continue; }
+      for (let y = 0; y < 7; y++) {
+        for (let x = 0; x < 5; x++) {
+          if (g[y][x] === "1") lit.push([x0 + x, y]);
+        }
+      }
+      x0 += 6;
+    }
+    return lit;
+  }
+
+  // Run cb once nothing opaque is covering the page. The engine can take a
+  // while, so fall back after ~14s rather than hanging forever.
+  function opaque(el) {
+    if (!el) return false;
+    const cs = getComputedStyle(el);
+    if (cs.display === "none" || cs.visibility === "hidden") return false;
+    return Number(cs.opacity) >= 0.05;
+  }
+
+  // The page can be hidden by up to four different layers over the life of a
+  // reveal: the boot cover, the glass prelude, the vendored engine's own opaque
+  // host, and the story veil inside that host's shadow root. Wait for all of
+  // them, not just the two we create ourselves.
+  function covered() {
+    if (document.getElementById("handoff-cover")) return true;
+    if (document.getElementById("xp-glass")) return true;
+    const host = document.querySelector("swarm-rebuild");
+    if (host) {
+      const root = host.shadowRoot;
+      if (root) {
+        if (opaque(root.querySelector(".bg"))) return true;
+        if (opaque(root.querySelector("#xenith-story"))) return true;
+      }
+    }
+    return false;
+  }
+
+  function whenVisible(cb) {
+    let tries = 0;
+    const check = () => {
+      if (++tries > 300) { cb(); return; }
+      if (covered()) { setTimeout(check, 100); return; }
+      // clear now, but confirm: a fade can dip and come back
+      setTimeout(() => {
+        if (!covered()) cb();
+        else setTimeout(check, 100);
+      }, 500);
+    };
+    setTimeout(check, 100);
+  }
+
+  function pixelStamp() {
+    const cv = document.getElementById("selectStamp");
+    if (!cv) return;
+    // it may be asked to play again if an earlier attempt happened while the
+    // page was still behind a build layer
+    stampStarted = true;
+    const word = "SELECTED";
+    const lit = stampBits(word);
+    const cols = 47;
+    // Pick the largest integer cell size that fits. A fractional scale would
+    // make some dots wider than others and break the dot-matrix regularity.
+    const avail = (cv.parentElement && cv.parentElement.clientWidth) || 329;
+    const cell = Math.max(3, Math.min(STAMP_CELL, Math.floor((avail - 96) / cols)));
+    const W = cols * cell;
+    const H = 7 * cell;
+    cv.style.width = W + "px";
+    const dpr = Math.min(2, window.devicePixelRatio || 1);
+    cv.width = Math.round(W * dpr);
+    cv.height = Math.round(H * dpr);
+    const c = cv.getContext("2d");
+    if (!c) return;
+    c.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    function settle() {
+      c.clearRect(0, 0, W, H);
+      c.fillStyle = "rgba(255,177,92,.8)";
+      for (const [x, y] of lit) c.fillRect(x * cell + 1, y * cell + 1, cell - 2, cell - 2);
+    }
+
+    function print(head) {
+      c.clearRect(0, 0, W, H);
+      for (const [x, y] of lit) {
+        if (x > head) continue;
+        const age = head - x;
+        const heat = Math.max(0, 1 - age / 6);
+        const a = 0.5 + 0.36 * Math.min(1, age / 12);
+        c.fillStyle = heat > 0
+          ? `rgba(255,240,208,${(a + heat * 0.35).toFixed(3)})`
+          : `rgba(255,177,92,${a.toFixed(3)})`;
+        c.fillRect(x * cell + 1, y * cell + 1, cell - 2, cell - 2);
+      }
+    }
+
+    if (reduceMotion) { settle(); return; }
+
+    print(-1);
+    const t0 = performance.now();
+    let raf = 0;
+    const run = (now) => {
+      const p = Math.min(1, (now - t0) / 820);
+      print(-1 + p * (cols + 6));
+      if (p < 1) { raf = requestAnimationFrame(run); return; }
+      raf = 0;
+      settle();
+    };
+    raf = requestAnimationFrame(run);
+    cv.__stampStop = () => { if (raf) cancelAnimationFrame(raf); settle(); };
+  }
+
   function finishUnlock() {
     document.body.classList.remove("locked", "building");
     document.body.classList.add("entered", "built");
@@ -556,10 +724,63 @@
     celebrateUntil = performance.now() + 1500;
     if (!reduceMotion) fireConfetti();
     startRusty();
+    stillFrame();
+    let stampSeen = false;
+    const playStamp = (force) => {
+      if (stampSeen && !force) return;
+      stampSeen = true;
+      pixelStamp();
+    };
+    // once nothing is covering the page
+    whenVisible(() => setTimeout(() => playStamp(false), reduceMotion ? 0 : STAMP_DELAY));
+    // never leave a blank canvas, even if a layer never clears
+    setTimeout(() => playStamp(false), reduceMotion ? 0 : 9000);
+    // the engine keeps its own veil up until the visitor reveals the page, so
+    // replay the print on the gesture that does it. This is the moment the
+    // stamp is meant to land.
+    let replayed = false;
+    const onFirstLook = () => {
+      if (replayed) return;
+      replayed = true;
+      window.removeEventListener("pointerdown", onFirstLook);
+      window.removeEventListener("keydown", onFirstLook);
+      // The engine only gives the page back on the visitor's own gesture, and
+      // its fade takes about half a second. Print on that beat regardless of
+      // what the layers report, because a gesture means they are looking.
+      setTimeout(() => playStamp(true), 700);
+    };
+    window.addEventListener("pointerdown", onFirstLook, { passive: true });
+    window.addEventListener("keydown", onFirstLook);
     const live = $("#live");
-    if (live) live.textContent = `You are in. ${person.name}, ${person.dept}.`;
+    if (live) {
+      const who = String(person.name || "").trim();
+      live.textContent = who ? `You are in. ${who}, ${String(person.dept || "").trim()}.` : "You are in.";
+    }
     const h = $("#name");
     if (h) h.focus({ preventScroll: true });
+  }
+
+  let handoffTimer = 0;
+
+  // Six seconds is the whole budget for the engine handoff. The timer is
+  // re-armed when the engine script is injected, so a slow prelude is not
+  // charged against the engine.
+  function armHandoffTimeout(ms) {
+    clearTimeout(handoffTimer);
+    handoffTimer = setTimeout(() => {
+      handoffTimer = 0;
+      if (!document.getElementById("handoff-cover") && !document.documentElement.classList.contains("engine-pending")) return;
+      console.error("[xenith] engine handoff timed out; revealing the page");
+      clearHandoff();
+    }, ms);
+  }
+
+  function clearHandoff() {
+    clearTimeout(handoffTimer);
+    handoffTimer = 0;
+    const c = document.getElementById("handoff-cover");
+    if (c) c.remove();
+    document.documentElement.classList.remove("engine-pending");
   }
 
   function showHandoffCover() {
@@ -569,7 +790,7 @@
     c.id = "handoff-cover";
     c.style.cssText = "position:fixed;inset:0;background:#05040c;z-index:2147483646;pointer-events:none";
     document.body.appendChild(c);
-    setTimeout(() => { if (c.isConnected) c.remove(); document.documentElement.classList.remove("engine-pending"); }, 12000);
+    armHandoffTimeout(6000);
   }
 
   // ---------- story layer: ricco's gold pass, then the heads ----------
@@ -622,6 +843,17 @@
     if (STORY.onResize) removeEventListener("resize", STORY.onResize);
     if (STORY.layer && STORY.layer.parentNode) STORY.layer.parentNode.removeChild(STORY.layer);
     STORY.layer = null;
+  }
+
+  // The engine paints its own opaque full-screen host, so the page's ambient
+  // loops have nothing left to show. Called from loadSwarmEngine.
+  function stopAmbient() {
+    ambientStopped = true;
+    if (frameRaf) { cancelAnimationFrame(frameRaf); frameRaf = 0; }
+    if (STORY.poll) { clearInterval(STORY.poll); STORY.poll = 0; }
+    if (STORY.hostObs) { STORY.hostObs.disconnect(); STORY.hostObs = null; }
+    // the ambient cursor crew draws into a canvas the engine has hidden
+    try { if (window.XenithSwarm && window.XenithSwarm.stop) window.XenithSwarm.stop(); } catch (e) {}
   }
 
   // The engine swaps its host on Replay. Keep the layer in whichever shadow
@@ -781,17 +1013,6 @@
     ctx.restore();
   }
 
-  function storyLogoDraw(a) {
-    const c = STORY.ctx;
-    if (!c || !STORY.W || !STORY_LOGO.complete) return;
-    const iw = Math.min(STORY.W * 0.44, 560), ih = iw * (400 / 1200);
-    c.save();
-    c.globalAlpha = a;
-    c.shadowColor = "rgba(255,177,92,.5)";
-    c.shadowBlur = 24;
-    c.drawImage(STORY_LOGO, (STORY.W - iw) / 2, (STORY.H - ih) / 2, iw, ih);
-    c.restore();
-  }
 
   function storyDraw(el) {
     const ctx = STORY.ctx;
@@ -872,53 +1093,6 @@
     c.arcTo(x, y + h, x, y, r);
     c.arcTo(x, y, x + w, y, r);
     c.closePath();
-  }
-  function storyGlass(p) {
-    const c = STORY.ctx; if (!c) return;
-    const W = STORY.W, H = STORY.H;
-    c.setTransform(STORY.dpr || 1, 0, 0, STORY.dpr || 1, 0, 0);
-    c.clearRect(0, 0, W, H);
-    const iw = Math.min(W * 0.44, 560), ih = iw * (400 / 1200);
-    const lx = (W - iw) / 2, ly = (H - ih) / 2;
-    const la = Math.max(0, Math.min(1, (p - 0.55) / 0.35));
-    if (STORY_LOGO.complete && STORY_LOGO.naturalWidth && la > 0) {
-      c.globalAlpha = la;
-      c.shadowColor = "rgba(255,177,92,.55)";
-      c.shadowBlur = 26;
-      c.drawImage(STORY_LOGO, lx, ly, iw, ih);
-      c.shadowBlur = 0;
-      c.globalAlpha = 1;
-    }
-    const grow = Math.min(1, p / 0.42);
-    const morph = Math.max(0, Math.min(1, (p - 0.28) / 0.36));
-    const R = Math.min(W, H) * 0.30 * (0.2 + 0.8 * (1 - Math.pow(1 - grow, 3)));
-    const tileW = iw * 1.16, tileH = ih * 2.1;
-    const cx = W / 2, cy = H / 2;
-    const bw = R * 2 + (tileW - R * 2) * morph;
-    const bh = R * 2 + (tileH - R * 2) * morph;
-    const rad = (Math.min(bw, bh) * 0.5) * (1 - morph) + Math.min(bw, bh) * 0.14 * morph;
-    const ga = Math.max(0, 1 - (p - 0.7) / 0.3);
-    if (ga <= 0.001) return;
-    c.save();
-    c.globalAlpha = ga;
-    storyRound(c, cx - bw / 2, cy - bh / 2, bw, bh, rad);
-    c.clip();
-    const g = c.createLinearGradient(cx - bw / 2, cy - bh / 2, cx + bw / 2, cy + bh / 2);
-    g.addColorStop(0, "rgba(255,255,255,.18)");
-    g.addColorStop(0.45, "rgba(170,215,255,.07)");
-    g.addColorStop(1, "rgba(255,255,255,.02)");
-    c.fillStyle = g;
-    c.fillRect(cx - bw / 2, cy - bh / 2, bw, bh);
-    c.lineWidth = 1.4;
-    c.strokeStyle = "rgba(255,255,255,.55)";
-    storyRound(c, cx - bw / 2, cy - bh / 2, bw, bh, rad);
-    c.stroke();
-    c.strokeStyle = "rgba(255,255,255,.5)";
-    c.lineWidth = 2.2;
-    c.beginPath();
-    c.ellipse(cx - bw * 0.16, cy - bh * 0.2, bw * 0.2, bh * 0.05, -0.5, 0, Math.PI * 2);
-    c.stroke();
-    c.restore();
   }
 
   function storyTick(now) {
@@ -1020,28 +1194,6 @@
 
   const GLASS_CSS = "/*\n  Glass Logo Reveal: the stage the reveal is drawn on and the mark it lands on. The mark is the\n  real image, laid out by the page; the canvas paints over it while the glass moves and steps\n  aside once it has landed. Size the mark with --lg-logo-reveal-size.\n\n  Vanilla port of the MIT-licensed Glassy UI stylesheet. The original @layer wrappers are\n  dropped: link this file directly instead of compiling it into Tailwind.\n*/\n\n.lg-logo-reveal {\n  --lg-logo-reveal-stage: #1c1c1e;\n  --lg-logo-reveal-ink: #f5f5f7;\n\n  position: relative;\n  display: grid;\n  place-items: center;\n  aspect-ratio: 16 / 9;\n  margin: 0;\n  overflow: hidden;\n  container-type: size;\n  background-color: var(--lg-logo-reveal-stage);\n  color: var(--lg-logo-reveal-ink);\n}\n\n[data-lg-theme='light'] .lg-logo-reveal {\n  --lg-logo-reveal-stage: #faf9f7;\n  --lg-logo-reveal-ink: #222224;\n}\n\n/* The glass tile grows to a little under twice the mark, so nearly half the stage leaves room. */\n.lg-logo-reveal-mark {\n  display: block;\n  /* The box keeps the mark's own proportions, so nothing drawn from it is ever squashed. */\n  width: auto;\n  height: var(--lg-logo-reveal-size, 46cqmin);\n}\n\n.lg-logo-reveal-canvas {\n  position: absolute;\n  inset: 0;\n  display: block;\n  width: 100%;\n  height: 100%;\n  pointer-events: none;\n  user-select: none;\n}\n\n.lg-logo-reveal[data-state='ended'] .lg-logo-reveal-canvas {\n  opacity: 0;\n  transition: opacity 240ms var(--lg-ease-out, cubic-bezier(0.32, 0.72, 0, 1));\n}\n\n/* With scripting the canvas draws everything until the glass has gone. */\n@media (scripting: enabled) {\n  .lg-logo-reveal:not([data-state='ended']) .lg-logo-reveal-mark {\n    visibility: hidden;\n  }\n}\n\n/* Reduced motion and reduced transparency keep the mark and drop the glass. */\nhtml[data-lg-reduce-motion='1'] .lg-logo-reveal-mark,\nhtml[data-lg-reduce-transparency='1'] .lg-logo-reveal-mark {\n  visibility: visible;\n}\n\nhtml[data-lg-reduce-motion='1'] .lg-logo-reveal-canvas,\nhtml[data-lg-reduce-transparency='1'] .lg-logo-reveal-canvas {\n  visibility: hidden;\n}\n\n@media (prefers-reduced-motion: reduce), (prefers-reduced-transparency: reduce) {\n  .lg-logo-reveal-mark {\n    visibility: visible;\n  }\n\n  .lg-logo-reveal-canvas {\n    visibility: hidden;\n  }\n}\n\n.lg-logo-reveal-error {\n  position: absolute;\n  inset: auto 0 0;\n  padding: 12px;\n  font-size: 0.875rem;\n  text-align: center;\n}\n";
 
-  function storyGlassMount() {
-    if (!window.GlassReveal) return;
-    const root = STORY.root || document.body;
-    if (!root.querySelector("style[data-glass]")) {
-      const st = document.createElement("style");
-      st.setAttribute("data-glass", "");
-      st.textContent = GLASS_CSS + "\n.lg-logo-reveal{width:min(62vw,400px);height:min(40vh,225px);background:#06050f;border-radius:14px;box-shadow:0 30px 80px rgba(0,0,0,.6)}@media(max-width:720px){.lg-logo-reveal{width:min(78vw,320px);height:180px}}";
-      root.appendChild(st);
-    }
-    const stage = document.createElement("div");
-    stage.style.cssText = "position:absolute;inset:0;display:grid;place-items:center;z-index:2;--lg-logo-reveal-size:36px;--lg-logo-reveal-stage:#06050f";
-    STORY.layer.appendChild(stage);
-    try {
-      STORY.glass = window.GlassReveal.mount(stage, {
-        markSrc: "../assets/brand/xenith-logo-amber.svg",
-        label: "Xenith",
-        duration: 2600,
-        play: "mount",
-        onComplete: () => { STORY.t0 = performance.now(); setTimeout(() => { stage.style.transition = "opacity .5s ease"; stage.style.opacity = "0"; setTimeout(() => stage.remove(), 650); }, 250); }
-      });
-    } catch (e) { STORY.t0 = performance.now(); }
-  }
 
   function storyBegin(parent) {
     if (STORY.stopped || STORY.layer) return;
@@ -1057,7 +1209,7 @@
     STORY.poll = setInterval(storySync, 1200);
 
     const cover = document.getElementById("handoff-cover");
-    if (cover) setTimeout(() => { if (cover.isConnected) cover.remove(); document.documentElement.classList.remove("engine-pending"); }, 900);
+    if (cover) setTimeout(clearHandoff, 900);
 
     STORY.t0 = 0;
     STORY.t0 = performance.now();
@@ -1142,6 +1294,9 @@
 
   function startSwarmWithPrelude() {
     showHandoffCover();
+    // The prelude gets its own budget; loadSwarmEngine re-arms the six second
+    // engine budget once the script is actually injected.
+    armHandoffTimeout(12000);
     glassPrelude(() => setTimeout(loadSwarmEngine, 160));
   }
 
@@ -1151,28 +1306,44 @@
     enteredMix = 1;
     try { drawX(performance.now()); } catch (e) {}
     showHandoffCover();
-    const done = () => setTimeout(startSwarmStory, 600);
-    fetch("vendor/swarm.js?v=6").then((r) => r.text()).then((src) => {
-      try { new Function(src)(); } catch (err) { console.error("[xenith] engine boot failed", err); }
-      const drop = () => {
-        if (document.querySelector("swarm-rebuild")) {
-          setTimeout(() => {
-            const c = document.getElementById("handoff-cover");
-            if (c) c.remove();
-            document.documentElement.classList.remove("engine-pending");
-          }, 700);
-        } else setTimeout(drop, 100);
-      };
-      drop();
-      done();
-    }).catch(() => {
-      const s = document.createElement("script");
-      s.id = "swarm-engine";
-      s.src = "vendor/swarm.js?v=6";
-      s.onload = () => { const c = document.getElementById("handoff-cover"); if (c) c.remove(); document.documentElement.classList.remove("engine-pending"); done(); };
-      s.onerror = () => { const c = document.getElementById("handoff-cover"); if (c) c.remove(); document.documentElement.classList.remove("engine-pending"); };
-      document.body.appendChild(s);
-    });
+    stopAmbient();
+
+    let settled = false;
+    const settle = () => {
+      if (settled) return;
+      settled = true;
+      clearHandoff();
+    };
+    // The engine creates <swarm-rebuild> from a promise chain, so poll for it.
+    // Stop after ~6s and reveal the page rather than leave a black screen.
+    let attempts = 0;
+    const drop = () => {
+      if (settled) return;
+      if (document.querySelector("swarm-rebuild")) { setTimeout(settle, 700); return; }
+      if (++attempts >= 60) {
+        if (document.getElementById("handoff-cover")) {
+          console.error("[xenith] the engine never produced <swarm-rebuild>; revealing the page");
+        }
+        settle();
+        return;
+      }
+      setTimeout(drop, 100);
+    };
+
+    // A real script element, not new Function(src): that keeps the page CSP-safe.
+    const s = document.createElement("script");
+    s.id = "swarm-engine";
+    s.src = "vendor/swarm.js?v=7";
+    s.onload = () => setTimeout(startSwarmStory, 600);
+    s.onerror = () => {
+      console.error("[xenith] engine boot failed: vendor/swarm.js did not load");
+      settled = true;
+      clearHandoff();
+    };
+    document.body.appendChild(s);
+    // The six second budget starts here, not when the prelude began.
+    armHandoffTimeout(6000);
+    drop();
   }
 
   function unlock(skipBuild) {
@@ -1181,19 +1352,49 @@
     if (gate) gate.classList.add("done");
     finishUnlock();
     if (!skipBuild && !reduceMotion) {
-      startSwarmWithPrelude();
+      setTimeout(startSwarmWithPrelude, BUILD_DELAY);
     }
+  }
+
+  function announce(msg) {
+    const live = $("#live");
+    if (live) live.textContent = msg;
+  }
+
+  // Fallback for browsers without the async clipboard API, or an insecure origin.
+  function legacyCopy(text) {
+    if (!document.execCommand) return false;
+    const ta = document.createElement("textarea");
+    ta.value = text;
+    ta.setAttribute("readonly", "");
+    ta.style.cssText = "position:fixed;top:0;left:0;width:1px;height:1px;padding:0;border:0;opacity:0;pointer-events:none";
+    document.body.appendChild(ta);
+    ta.select();
+    let ok = false;
+    try { ok = document.execCommand("copy"); } catch (e) { ok = false; }
+    ta.remove();
+    return ok;
   }
 
   const copyBtn = $("#copy");
   if (copyBtn) {
     copyBtn.addEventListener("click", async () => {
       const label = copyBtn.textContent;
-      try {
-        await navigator.clipboard.writeText(location.href);
+      let ok = false;
+      if (navigator.clipboard && window.isSecureContext) {
+        try {
+          await navigator.clipboard.writeText(location.href);
+          ok = true;
+        } catch (e) { ok = false; }
+      }
+      if (!ok) ok = legacyCopy(location.href);
+      if (ok) {
         copyBtn.textContent = "copied.";
-      } catch (e) {
+        announce("link copied.");
+      } else {
         copyBtn.textContent = "copy failed";
+        announce("could not copy the link. copy it from the prompt.");
+        try { window.prompt("copy this link", location.href); } catch (e) {}
       }
       setTimeout(() => { copyBtn.textContent = label; }, 1800);
     });
@@ -1202,16 +1403,24 @@
   const saveBtn = $("#save");
   if (saveBtn && window.XenithCard) {
     saveBtn.addEventListener("click", async () => {
+      if (saveBtn.disabled) return;
       saveBtn.disabled = true;
       const label = saveBtn.textContent;
+      let ok = false;
       try {
-        await window.XenithCard.download(person);
-        saveBtn.textContent = "saved.";
-        setTimeout(() => { saveBtn.textContent = label; saveBtn.disabled = false; }, 1800);
+        ok = await window.XenithCard.download(person);
       } catch (e) {
-        saveBtn.textContent = label;
-        saveBtn.disabled = false;
+        ok = false;
+        console.error("[xenith] save card failed", e);
       }
+      if (ok) {
+        saveBtn.textContent = "saved.";
+        announce("card saved.");
+      } else {
+        saveBtn.textContent = "could not save";
+        announce("could not save the card.");
+      }
+      setTimeout(() => { saveBtn.textContent = label; saveBtn.disabled = false; }, 1800);
     });
   }
 
@@ -1227,7 +1436,7 @@
   rc.width = CW; rc.height = CHH;
   const C = { white: "#e9e3d2", shade: "#bdb6a4", dark: "#241d3a", screen: "#0b0818", red: "#ff5c3b", amber: "#ffb15c", cream: "#ffe9b0" };
   const px = (x, y, w, h, c) => { rx.fillStyle = c; rx.fillRect(x * U, y * U, w * U, h * U); };
-  let blink = 0, lastBlink = 0, rustStarted = false;
+  let blink = 0, lastBlink = 0, rustStarted = false, lastRust = 0;
 
   function drawRusty(t) {
     const party = performance.now() < celebrateUntil;
@@ -1272,7 +1481,13 @@
 
   function rustyLoop(t) {
     if (!rustStarted) return;
+    // The engine's host is opaque, so nothing Rusty draws can be seen. Stop
+    // re-arming instead of keeping a 60fps callback alive for the session.
+    if (document.body.classList.contains("engine") || ambientStopped) { rustStarted = false; return; }
     requestAnimationFrame(rustyLoop);
+    // rAF runs at the display's rate; draw at ~30fps, ~10fps under reduced motion.
+    if (t - lastRust < (reduceMotion ? 100 : 33)) return;
+    lastRust = t;
     if (t - lastBlink > 3400) { blink = 1; lastBlink = t; setTimeout(() => (blink = 0), 130); }
     drawRusty(t / 1000);
   }
@@ -1286,11 +1501,15 @@
   // ---------- boot ----------
   sizePad();
   initRain();
-  if (params.get("engine")) showHandoffCover();
+  if (params.get("engine")) {
+    // Reduced motion keeps the revealed page: no prelude, no cover, no build.
+    if (reduceMotion) clearHandoff();
+    else showHandoffCover();
+  }
   if (params.get("entered")) {
     setTimeout(() => {
       unlock(true);
-      if (params.get("engine")) setTimeout(startSwarmWithPrelude, 500);
+      if (params.get("engine") && !reduceMotion) setTimeout(startSwarmWithPrelude, BUILD_DELAY);
     }, 300);
   }
   if (params.get("gate") === "auto") {

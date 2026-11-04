@@ -483,11 +483,13 @@
 
     c.save();
     for (const m of stage.motes) {
-      m.y -= m.v * dt;
-      m.x += (m.drift + Math.sin(t + m.ph) * 0.00012) * dt;
-      if (m.y < -0.02) { m.y = 1.02; m.x = Math.random(); }
-      if (m.x < -0.02) m.x = 1.02;
-      else if (m.x > 1.02) m.x = -0.02;
+      if (!REDUCE) {
+        m.y -= m.v * dt;
+        m.x += (m.drift + Math.sin(t + m.ph) * 0.00012) * dt;
+        if (m.y < -0.02) { m.y = 1.02; m.x = Math.random(); }
+        if (m.x < -0.02) m.x = 1.02;
+        else if (m.x > 1.02) m.x = -0.02;
+      }
       const x = m.x * W, y = m.y * H;
       const near = Math.max(0, 1 - Math.hypot(x - cx, y - cy) / 160);
       c.globalAlpha = 0.07 + m.s * 0.14 + near * 0.5;
@@ -539,6 +541,7 @@
   }
 
   function puff(x, y, n) {
+    if (REDUCE) return;
     for (let i = 0; i < n; i++) {
       rig.dust.push({
         x, y,
@@ -551,6 +554,7 @@
   }
 
   function stepParticles(dt) {
+    if (REDUCE) { rig.dust.length = 0; return; }
     for (let i = rig.dust.length - 1; i >= 0; i--) {
       const p = rig.dust[i];
       p.t += dt;
@@ -850,6 +854,7 @@
 
   function drawLocalRig(t, dt) {
     const c = rctx;
+    if (REDUCE) t = 0;
     c.setTransform(DPR, 0, 0, DPR, 0, 0);
     c.clearRect(0, 0, W, H);
 
@@ -919,7 +924,7 @@
   const gate = {
     c: xpad.getContext("2d"),
     active: false, success: false,
-    strokes: [], cur: null,
+    strokes: [], norm: [], cur: null,
     ca: 0, cb: 0, cracks: [], particles: [], burstAt: 0
   };
   let gateRaf = 0;
@@ -932,6 +937,49 @@
       [[cx - h, cy - h], [cx + h, cy + h]],
       [[cx + h, cy - h], [cx - h, cy + h]]
     ];
+  }
+
+  // ---------- gate space ----------
+  // strokes stay in css px for painting; norm mirrors them 0..1 inside the
+  // guide box so a resize can remap the drawn x instead of wiping it.
+  function gateBox() {
+    const [A, B] = gateGuides();
+    const x0 = Math.min(A[0][0], A[1][0], B[0][0], B[1][0]);
+    const y0 = Math.min(A[0][1], A[1][1], B[0][1], B[1][1]);
+    return {
+      x0, y0,
+      w: Math.max(A[0][0], A[1][0], B[0][0], B[1][0]) - x0,
+      h: Math.max(A[0][1], A[1][1], B[0][1], B[1][1]) - y0
+    };
+  }
+
+  function gateToNorm(p) {
+    const b = gateBox();
+    if (!b.w || !b.h) return [0.5, 0.5];
+    return [(p[0] - b.x0) / b.w, (p[1] - b.y0) / b.h];
+  }
+
+  function gateToPixel(q, b) {
+    return [b.x0 + q[0] * b.w, b.y0 + q[1] * b.h];
+  }
+
+  function gateRescale() {
+    const b = gateBox();
+    const wasDrawing = !!gate.cur;
+    if (!b.w || !b.h || !gate.norm.length) {
+      gate.strokes = [];
+      gate.norm = [];
+      gate.cur = null;
+      return;
+    }
+    const next = [];
+    gate.norm.forEach((row) => {
+      const pts = [];
+      row.forEach((q) => pts.push(gateToPixel(q, b)));
+      next.push(pts);
+    });
+    gate.strokes = next;
+    gate.cur = wasDrawing ? next[next.length - 1] : null;
   }
 
   function gateSize() {
@@ -949,7 +997,88 @@
     return Math.hypot(p[0] - (a[0] + t * dx), p[1] - (a[1] + t * dy));
   }
 
-  function coverGuide(gd) {
+  // ---------- x scoring ----------
+  // A stroke is split at direction reversals, so one continuous drag can still
+  // score both arms of the x. Each segment is credited to the guide whose
+  // direction it matches best, then the guide is sampled exactly as before.
+  function resampleStroke(st, gap) {
+    const n = st.length;
+    const cum = [0];
+    for (let i = 1; i < n; i++) {
+      cum.push(cum[i - 1] + Math.hypot(st[i][0] - st[i - 1][0], st[i][1] - st[i - 1][1]));
+    }
+    const total = cum[n - 1];
+    if (total < 1) return [st[0]];
+    const out = [];
+    let j = 0;
+    for (let d = 0; d < total; d += gap) {
+      while (j < n - 2 && cum[j + 1] < d) j++;
+      const span = cum[j + 1] - cum[j] || 1;
+      const f = clamp((d - cum[j]) / span);
+      out.push([
+        st[j][0] + (st[j + 1][0] - st[j][0]) * f,
+        st[j][1] + (st[j + 1][1] - st[j][1]) * f
+      ]);
+    }
+    out.push(st[n - 1]);
+    return out;
+  }
+
+  function splitStroke(st) {
+    if (st.length === 1) return [[st[0]]];
+    const pts = resampleStroke(st, 6);
+    if (pts.length < 3) return [pts];
+    // a corner or a doubling back shows up as a large change of heading
+    const win = 4, minArm = 12, turn = 0.5;
+    const cuts = [];
+    for (let i = win; i < pts.length - win; i++) {
+      const ax = pts[i][0] - pts[i - win][0], ay = pts[i][1] - pts[i - win][1];
+      const bx = pts[i + win][0] - pts[i][0], by = pts[i + win][1] - pts[i][1];
+      const la = Math.hypot(ax, ay), lb = Math.hypot(bx, by);
+      if (la < minArm || lb < minArm) continue;
+      if ((ax * bx + ay * by) / (la * lb) < turn) {
+        if (!cuts.length || i - cuts[cuts.length - 1] > win) cuts.push(i);
+      }
+    }
+    if (!cuts.length) return [pts];
+    const out = [];
+    let from = 0;
+    for (const at of cuts) {
+      if (at - from > 1) out.push(pts.slice(from, at + 1));
+      from = at;
+    }
+    if (pts.length - 1 - from > 0) out.push(pts.slice(from));
+    return out;
+  }
+
+  function gateSegments(guides) {
+    const segs = [];
+    for (const st of gate.strokes) {
+      if (!st || !st.length) continue;
+      for (const pts of splitStroke(st)) {
+        if (!pts.length) continue;
+        if (pts.length === 1) { segs.push({ pts, guide: -1 }); continue; }
+        const a = pts[0], b = pts[pts.length - 1];
+        const dx = b[0] - a[0], dy = b[1] - a[1];
+        const len = Math.hypot(dx, dy);
+        if (len < 24) continue;
+        let guide = -1, best = 0.72;
+        for (let i = 0; i < guides.length; i++) {
+          const gd = guides[i];
+          const gx = gd[1][0] - gd[0][0], gy = gd[1][1] - gd[0][1];
+          const gl = Math.hypot(gx, gy);
+          if (!gl) continue;
+          const cos = Math.abs((dx * gx + dy * gy) / (len * gl));
+          if (cos >= best) { best = cos; guide = i; }
+        }
+        if (guide < 0) continue;
+        segs.push({ pts, guide });
+      }
+    }
+    return segs;
+  }
+
+  function coverGuide(gd, gi, segs) {
     const n = 18;
     const tol = Math.max(28, Math.min(W, H) * 0.055);
     let hit = 0;
@@ -960,13 +1089,9 @@
         gd[0][1] + (gd[1][1] - gd[0][1]) * f
       ];
       let near = Infinity;
-      for (const st of gate.strokes) {
-        if (st.length > 1) {
-          const sx = st[st.length - 1][0] - st[0][0], sy = st[st.length - 1][1] - st[0][1];
-          const gx = gd[1][0] - gd[0][0], gy = gd[1][1] - gd[0][1];
-          const sl = Math.hypot(sx, sy), gl = Math.hypot(gx, gy);
-          if (sl < 24 || !gl || Math.abs((sx * gx + sy * gy) / (sl * gl)) < 0.72) continue;
-        }
+      for (const seg of segs) {
+        if (seg.guide !== -1 && seg.guide !== gi) continue;
+        const st = seg.pts;
         if (st.length === 1) near = Math.min(near, Math.hypot(p[0] - st[0][0], p[1] - st[0][1]));
         for (let j = 1; j < st.length; j++) {
           const d = distSeg(p, st[j - 1], st[j]);
@@ -1071,6 +1196,10 @@
     c.setTransform(DPR, 0, 0, DPR, 0, 0);
     c.clearRect(0, 0, W, H);
     const [A, B] = gateGuides();
+    const segs = gateSegments([A, B]);
+    const ca = coverGuide(A, 0, segs), cb = coverGuide(B, 1, segs);
+    gate.ca = ca;
+    gate.cb = cb;
 
     const minX = Math.min(A[0][0], A[1][0], B[0][0], B[1][0]) - 26;
     const maxX = Math.max(A[0][0], A[1][0], B[0][0], B[1][0]) + 26;
@@ -1087,7 +1216,7 @@
     for (const [tx, ty, dx, dy] of [[minX,minY,1,1],[maxX,minY,-1,1],[minX,maxY,1,-1],[maxX,maxY,-1,-1]]) {
       c.beginPath(); c.moveTo(tx, ty + dy * tick); c.lineTo(tx, ty); c.lineTo(tx + dx * tick, ty); c.stroke();
     }
-    const pctNow = Math.min(gate.ca || 0, gate.cb || 0);
+    const pctNow = (ca + cb) / 2;
     c.fillStyle = "rgba(158,240,192,.75)";
     c.fillRect(minX, maxY + 10, (maxX - minX) * Math.max(0.02, pctNow), 1.5);
     c.restore();
@@ -1103,10 +1232,6 @@
       c.stroke();
     }
     c.restore();
-
-    const ca = coverGuide(A), cb = coverGuide(B);
-    gate.ca = ca;
-    gate.cb = cb;
 
     for (const pair of [[A, ca], [B, cb]]) {
       const gd = pair[0], cov = pair[1];
@@ -1144,9 +1269,9 @@
       c.restore();
     }
 
-    if (gate.success) drawBurst(c, progress || 0);
+    if (gate.success && !REDUCE) drawBurst(c, progress || 0);
 
-    const pct = Math.min(ca, cb);
+    const pct = (ca + cb) / 2;
     const lines = (ca >= 0.55 ? 1 : 0) + (cb >= 0.55 ? 1 : 0);
     dom.gateMeta.textContent = lines + " / 2 lines   " + Math.round(pct * 100) + "%";
 
@@ -1161,11 +1286,13 @@
     if (gate.success || done) return;
     gate.success = true;
     gate.cur = null;
-    gate.burstAt = performance.now();
-    makeCracks();
-    if (extStage && typeof extStage.burst === "function") {
-      const [A, B] = gateGuides();
-      try { extStage.burst((A[0][0] + A[1][0]) / 2, (A[0][1] + A[1][1]) / 2); } catch (err) {}
+    if (!REDUCE) {
+      gate.burstAt = performance.now();
+      makeCracks();
+      if (extStage && typeof extStage.burst === "function") {
+        const [A, B] = gateGuides();
+        try { extStage.burst((A[0][0] + A[1][0]) / 2, (A[0][1] + A[1][1]) / 2); } catch (err) {}
+      }
     }
     rigFace("FOUND", 6000);
     audio.voice("found");
@@ -1191,6 +1318,24 @@
     gateRaf = requestAnimationFrame(loop);
   }
 
+  // the skip buttons swap places when the gate opens, so focus has to move
+  // first and keep a ring: focus-visible alone will not fire for this focus().
+  function gateSkipRing(on) {
+    if (!dom.gateSkip) return;
+    dom.gateSkip.style.outline = on ? "1px solid " + P.mint : "";
+    dom.gateSkip.style.outlineOffset = on ? "3px" : "";
+  }
+
+  function focusGateSkip() {
+    if (!dom.gateSkip || dom.gateSkip.hidden) return;
+    gateSkipRing(true);
+    try { dom.gateSkip.focus({ preventScroll: true }); } catch (err) {
+      try { dom.gateSkip.focus(); } catch (err2) {}
+    }
+  }
+
+  if (dom.gateSkip) dom.gateSkip.addEventListener("blur", () => gateSkipRing(false));
+
   function gateStart() {
     if (state === "gate" || done) return;
     setState("gate");
@@ -1201,12 +1346,14 @@
     const gt = document.querySelector(".gate-tag");
     if (gt) gt.textContent = "verification / " + (lastPick || "x");
     gate.strokes = [];
+    gate.norm = [];
     gate.cur = null;
     gate.r1 = gate.r2 = false;
     dom.gate.hidden = false;
     dom.say.hidden = true;
-    dom.skip.hidden = true;
     dom.gateSkip.hidden = false;
+    focusGateSkip();
+    dom.skip.hidden = true;
     dom.menu.hidden = true;
     gateSize();
     gatePaint(0);
@@ -1227,6 +1374,7 @@
     try { xpad.setPointerCapture(e.pointerId); } catch (err) {}
     gate.cur = [gatePoint(e)];
     gate.strokes.push(gate.cur);
+    gate.norm.push([gateToNorm(gate.cur[0])]);
     if (gate.strokes.length === 1) {
       audio.tone(1400, 0.04, "square", 0.018, -900);
       rig.mood = "wide";
@@ -1245,6 +1393,8 @@
     const last = gate.cur[gate.cur.length - 1];
     if (Math.hypot(x - last[0], y - last[1]) < 2) return;
     gate.cur.push([x, y]);
+    const row = gate.norm[gate.norm.length - 1];
+    if (row) row.push(gateToNorm([x, y]));
     if (extRig && typeof extRig.setGaze === "function") {
       try { extRig.setGaze((x / W) * 2 - 1, (y / H) * 2 - 1); } catch (err) {}
     }
@@ -1378,6 +1528,7 @@
     dom.menu.hidden = false;
     dom.menu.classList.remove("out");
     dom.menu.classList.add("in");
+    if (dom.line) dom.line.setAttribute("tabindex", "-1");
     try {
       choiceApi = api.mount(dom.menu, {
         items: OPTIONS.map((o) => ({ id: o.id, label: o.label, sub: o.sub })),
@@ -1390,7 +1541,7 @@
           else if (name === "down" || name === "press") audio.tone(600, 0.07, "square", 0.035);
           else audio.tone(1260, 0.035, "square", 0.02);
         },
-        focusAfter: dom.skip,
+        focusAfter: dom.line,
         onLean: (dir) => { rig.leanT = dir; },
         onPick: (i, item) => choose((item && item.id) || (OPTIONS[i] && OPTIONS[i].id))
       });
@@ -1778,8 +1929,7 @@
     }
     if (gate.active) {
       gateSize();
-      gate.strokes = [];
-      gate.cur = null;
+      gateRescale();
       gatePaint(0);
     }
   }

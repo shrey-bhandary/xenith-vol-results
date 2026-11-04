@@ -10,10 +10,18 @@
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Xenith</title>
+<meta name="description" content="a small private page for the xenith team at st xavier's college mumbai.">
+<meta name="theme-color" content="#05040c">
+<meta name="robots" content="noindex,nofollow,noarchive">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Xenith">
+<meta property="og:description" content="a small private page for the xenith team at st xavier's college mumbai.">
+<meta property="og:image" content="../assets/brand/app-icon-512.png">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="stylesheet" href="style.css?v=2">
 </head>
 <body class="locked">
-<noscript><style>#gate{display:none}#content,#rusty{opacity:1!important;visibility:visible!important}body.locked #content{opacity:1;visibility:visible}</style></noscript>
+<noscript><style>#gate{display:none}.actions{display:none}#content,#rusty{opacity:1!important;visibility:visible!important}body.locked #content{opacity:1;visibility:visible}</style></noscript>
 <div id="stage">
   <canvas id="sky" aria-hidden="true"></canvas>
   <div id="photo" aria-hidden="true"></div>
@@ -22,22 +30,26 @@
   <canvas id="monument" aria-hidden="true"></canvas>
   <canvas id="confetti" aria-hidden="true"></canvas>
   <div id="scrim"></div>
-  <div id="selectStamp" aria-hidden="true">SELECTED</div>
   <div id="vignette"></div>
   <div id="scanlines"></div>
 
   <header class="hud">
-    <span class="brand"><img class="brand-x" src="../assets/brand/xenith-x.svg" alt="" width="11" height="11"><span>enith</span></span>
+    <span class="brand"><img class="brand-x" src="../assets/brand/xenith-x.svg" alt="X" width="11" height="11"><span>enith</span></span>
     <span>2026</span>
   </header>
 
   <main id="content">
-    <h1 id="name" tabindex="-1"></h1>
-    <p id="role"></p>
-    <p id="line"></p>
+    <h1 id="name" tabindex="-1">xenith</h1>
+    <p id="role">talks and panel discussions</p>
+    <p id="line">this page needs javascript to open. try a browser setting or a different browser.</p>
     <div class="actions">
       <button id="save" class="save" type="button">save card</button>
       <button id="copy" class="save" type="button">copy link</button>
+    </div>
+    <div class="stamp-wrap">
+      <canvas id="selectStamp" class="pixel-selected" width="376" height="56" aria-hidden="true"></canvas>
+      <span class="sr-only">selected</span>
+      <span class="stamp-note" aria-hidden="true">xenith / 2026</span>
     </div>
       </main>
 

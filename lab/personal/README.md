@@ -15,8 +15,10 @@ JavaScript object `site/index.html` already loads. One row, one private page.
 
 ## Command
 
+Run these from the repository root, so the path works in any checkout:
+
 ```
-cd /home/ricco/xenith-selected/lab/personal
+cd lab/personal
 python3 build_people.py people.sample.csv --out people.js
 node --check people.js
 ```
@@ -59,8 +61,8 @@ Warnings, which do not block:
 
 ## Output shape
 
-The generated file is the same shape as `site/data.js`, field order included,
-and always ends with a `default` record for unknown links:
+The generated file has the same shape and field order as `site/data.js`, and
+always ends with a `default` record for unknown links:
 
 ```js
 window.XENITH_PEOPLE = {
@@ -86,18 +88,26 @@ window.XENITH_PEOPLE = {
 
 - Link per person: `site/index.html?p=sanskrati`. An unknown slug falls back to
   `default` in `xenith.js`.
-- `xenith.js` also accepts `?name=`, `?dept=`, `?role=` for testing without a
-  rebuild. Do not use those in shared links.
-- To ship, the generated `people.js` replaces `site/data.js` at freeze time. This
-  folder does not write to `site/`, and `site/data.js` was not touched.
-- The three live records (Katherine, Trinity, Adwitiya) and the default record
-  are byte-identical to `site/data.js`. The sample adds the other nine.
-- The nine newer names are first names only, as in the copy deck. Add preferred
-  full names in the CSV once the crew sheet confirms them.
-- Departments for the nine are placeholders from the copy deck and need the same
-  confirmation.
-- Privacy: a shared data file ships every line to anyone with one link. If a
-  weakness line should stay private, split to one record per page before release.
+- `xenith.js` also accepts `?name=`, `?dept=`, `?role=` and `?line=` for
+  testing without a rebuild. Never put them in a shared link: anyone can
+  override the page and the cursor with them.
+- `site/data.js` **is** built from this CSV. It is the generated output plus one
+  hand-kept `default` record that points at Ricco Marcelino; the generator's own
+  `default` is the placeholder above, so do not overwrite `site/data.js` with the
+  raw generator output without restoring that record.
+- The CSV carries the confirmed talks and panel roster: full names, the
+  department, the position, the line and the tag. `PROVENANCE.md` records which
+  form answer each line leans on.
+- The lines and departments are real, not placeholders. Anything still
+  unconfirmed belongs in a branch, not in this file.
+- Privacy: a shared data file ships every line to anyone with one link. The gate
+  is cosmetic. If a weakness line should stay private, split to one record per
+  page before release.
+- The real form export must never be committed. `.gitignore` and
+  `.vercelignore` exclude `people.csv`, but keep the export out of git and out of
+  the deployment by hand. Only `slug, name, dept, role, line, tag` is ever
+  written to `site/data.js`; phone numbers, emails, UIDs and free-text answers
+  never leave the export.
 
 ## Constraints
 

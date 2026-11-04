@@ -83,6 +83,16 @@
     return size;
   }
 
+  // Shrink a single line to fit, then ellipsize if it still overflows.
+  function fit(ctx, text, maxWidth) {
+    if (ctx.measureText(text).width <= maxWidth) return text;
+    let out = text;
+    while (out.length > 4 && ctx.measureText(out + "\u2026").width > maxWidth) {
+      out = out.slice(0, -1);
+    }
+    return out.replace(/[\s,.:;-]+$/, "") + "\u2026";
+  }
+
   function wrap(ctx, text, maxWidth) {
     const words = text.split(/\s+/);
     const lines = [];
@@ -101,7 +111,13 @@
   }
 
   async function render(person) {
+    person = person || {};
     await ensureFont();
+    // Coerce here: a bad ?p= must not crash the card render.
+    const name = String(person.name || "").trim() || "xenith crew";
+    const dept = String(person.dept || "").trim();
+    const tag = String(person.tag || "").trim();
+    const line = String(person.line || "").trim();
     const c = document.createElement("canvas");
     c.width = W; c.height = H;
     const ctx = c.getContext("2d");
@@ -127,25 +143,35 @@
     ctx.fillText("X E N I T H   2 0 2 6", W / 2, 90);
 
     ctx.fillStyle = "#ffe9b0";
-    const nameSize = fitFont(ctx, person.name, 880, 68, '"PS2P", monospace');
+    const nameSize = fitFont(ctx, name, 880, 68, '"PS2P", monospace');
     ctx.font = `${nameSize}px "PS2P", monospace`;
-    const nameLines = person.name.length > 18 ? person.name.split(" ") : [person.name];
+    const nameLines = name.length > 18 ? name.split(" ") : [name];
     if (nameLines.length > 1 && nameLines.join(" ").length > 18) {
       const mid = Math.ceil(nameLines.length / 2);
       ctx.fillText(nameLines.slice(0, mid).join(" "), W / 2, 690);
       ctx.fillText(nameLines.slice(mid).join(" "), W / 2, 690 + nameSize * 1.35);
     } else {
-      ctx.fillText(person.name, W / 2, 690);
+      ctx.fillText(name, W / 2, 690);
     }
 
     ctx.fillStyle = "#ffb15c";
     ctx.font = "20px ui-monospace, Menlo, monospace";
-    ctx.fillText((person.dept || "XENITH CREW").toUpperCase(), W / 2, 840);
+    ctx.fillText(fit(ctx, (dept || "XENITH CREW").toUpperCase(), 880), W / 2, 840);
+
+    if (tag) {
+      ctx.fillStyle = "rgba(158,240,192,.82)";
+      ctx.font = "22px ui-monospace, Menlo, monospace";
+      ctx.fillText(fit(ctx, tag, 880), W / 2, 884);
+    }
 
     ctx.fillStyle = "rgba(255,233,176,.68)";
     ctx.font = "26px ui-monospace, Menlo, monospace";
-    const lines = wrap(ctx, person.line || "", 760);
-    lines.slice(0, 3).forEach((ln, i) => {
+    const lines = wrap(ctx, line, 760);
+    const shown = lines.slice(0, 3);
+    if (lines.length > 3) {
+      shown[2] = fit(ctx, shown[2] + "\u2026", 760);
+    }
+    shown.forEach((ln, i) => {
       ctx.fillText(ln, W / 2, 940 + i * 44);
     });
 
@@ -165,21 +191,81 @@
     return c;
   }
 
+  function toFile(canvas, name) {
+    return new Promise((res) => {
+      if (typeof File !== "function" || !canvas.toBlob) { res(null); return; }
+      try {
+        canvas.toBlob((blob) => {
+          if (!blob) { res(null); return; }
+          try { res(new File([blob], name, { type: "image/png" })); } catch (e) { res(null); }
+        }, "image/png");
+      } catch (e) { res(null); }
+    });
+  }
+
+  // Resolves true only when the png actually left the page: the share sheet
+  // took it, the tab got it, or the browser was handed the anchor download.
   async function download(person) {
-    const c = await render(person);
-    const url = c.toDataURL("image/png");
-    const name = `xenith-${(person.name || "crew").toLowerCase().replace(/[^a-z0-9]+/g, "-")}.png`;
-    const ios = /iPad|iPhone|iPod/.test(navigator.userAgent);
+    person = person || {};
+    const name = `xenith-${String(person.name || "crew").toLowerCase().replace(/[^a-z0-9]+/g, "-")}.png`;
+    const ua = navigator.userAgent;
+    // iPadOS reports itself as a Mac, so check touch points too.
+    const ios = /iPad|iPhone|iPod/.test(ua) ||
+      (ua.indexOf("Macintosh") !== -1 && (navigator.maxTouchPoints || 0) > 1);
+
+    // Open the tab before any await: a window opened after one is blocked.
+    let tab = null;
     if (ios) {
-      const w = window.open();
-      if (w) { w.document.write(`<img src="${url}" style="width:100%">`); return; }
+      try { tab = window.open("", "_blank"); } catch (e) { tab = null; }
     }
+
+    let c;
+    try {
+      c = await render(person);
+    } catch (e) {
+      if (tab) { try { tab.close(); } catch (err) {} }
+      throw e;
+    }
+    const url = c.toDataURL("image/png");
+
+    // 1. share sheet, the one path that confirms the handoff
+    try {
+      const file = await toFile(c, name);
+      if (file && navigator.canShare && typeof navigator.share === "function" &&
+        navigator.canShare({ files: [file] })) {
+        await navigator.share({ files: [file], title: "xenith" });
+        if (tab) { try { tab.close(); } catch (err) {} }
+        return true;
+      }
+    } catch (e) {
+      // Dismissing the sheet is not a save: say so instead of lying.
+      if (e && e.name === "AbortError") {
+        if (tab) { try { tab.close(); } catch (err) {} }
+        return false;
+      }
+      // any other share failure falls through to the tab / anchor below
+    }
+
+    // 2. iOS: the tab was opened synchronously above, fill it in now
+    if (tab && !tab.closed) {
+      try {
+        tab.document.write(`<title>${name}</title><img src="${url}" alt="" style="width:100%">`);
+        tab.document.close();
+        return true;
+      } catch (e) {
+        try { tab.close(); } catch (err) {}
+      }
+    }
+
+    // 3. plain anchor download
     const a = document.createElement("a");
+    if (!("download" in a)) return false;
     a.download = name;
     a.href = url;
     document.body.appendChild(a);
     a.click();
     a.remove();
+    return true;
   }
 
   window.XenithCard = { render, download };

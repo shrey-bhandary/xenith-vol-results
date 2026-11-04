@@ -405,4 +405,7 @@
   } else if (!touchOnly) {
     start();
   }
+  // exposed so the reveal can shut the ambient crew down when the
+  // vendored engine takes over the screen.
+  window.XenithSwarm = { start, stop };
 })();
