@@ -944,17 +944,21 @@
   }
 
   function storyWordGeom(ctx, g) {
-    const size = Math.round(Math.max(16, Math.min(24, Math.min(g.W, g.H) * 0.055)));
+    // The mark is the centrepiece of this beat, so it is sized off the shorter
+    // edge and centred. It used to be capped at 24px and pinned to the top-left
+    // corner, which read as a smudge rather than a logo.
+    const short = Math.min(g.W, g.H);
+    const size = Math.round(Math.max(44, Math.min(short * 0.34, g.W * 0.14)));
     ctx.font = "600 " + size + "px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace";
-    const track = Math.max(2, Math.round(size * 0.16));
+    const track = Math.round(size * 0.18);
     const chars = ["x", "e", "n", "i", "t", "h"];
     const widths = chars.map((c) => ctx.measureText(c).width);
     let total = track * (chars.length - 1);
     for (const w of widths) total += w;
     return {
       size, track, chars, widths, total,
-      x: g.pad + Math.max(18, Math.round(size * 0.9)),
-      y: g.pad + Math.max(30, Math.round(size * 1.8))
+      x: Math.round((g.W - total) / 2),
+      y: Math.round(g.H / 2 + size * 0.34)
     };
   }
 
@@ -962,11 +966,11 @@
     const reveal = wg.total * p;
     ctx.save();
     ctx.beginPath();
-    ctx.rect(wg.x - 8, wg.y - wg.size * 1.5, reveal + 8, wg.size * 2);
+    ctx.rect(wg.x - 10, wg.y - wg.size * 1.6, reveal + 10, wg.size * 2.2);
     ctx.clip();
     ctx.fillStyle = "#ffe9b0";
     ctx.shadowColor = "rgba(255,177,92,.75)";
-    ctx.shadowBlur = 16;
+    ctx.shadowBlur = Math.round(wg.size * 0.5);
     let x = wg.x;
     for (let i = 0; i < wg.chars.length; i++) {
       ctx.fillText(wg.chars[i], x, wg.y);
@@ -976,7 +980,7 @@
     ctx.save();
     ctx.globalAlpha = 0.32;
     ctx.fillStyle = "#ffb15c";
-    ctx.fillRect(wg.x - 2, wg.y + 7, reveal, 1);
+    ctx.fillRect(wg.x - 2, wg.y + Math.round(wg.size * 0.2), reveal, 1);
     ctx.restore();
   }
 
@@ -1015,38 +1019,19 @@
     ctx.clearRect(0, 0, STORY.W, STORY.H);
     const g = storyGeom();
     const wg = storyWordGeom(ctx, g);
-    const frameP = storyEase(storyClamp(el / 1500));
-    // The border hands over to the wordmark instead of sitting on top of it:
-    // it eases away once the trace finishes, and the cursor takes its time
-    // travelling to the mark rather than snapping across the screen.
-    const frameFade = el < 1500 ? 1 : Math.max(0, 1 - (el - 1500) / 600);
-    const handoff = 1500;
-    const handoffMs = 500;
-    const writeP = storyClamp((el - (handoff + handoffMs)) / 900);
-
-    ctx.save();
-    ctx.lineCap = "round";
-    ctx.lineJoin = "round";
-    ctx.strokeStyle = "rgba(255,233,176,.92)";
-    ctx.shadowColor = "rgba(255,177,92,.85)";
-    ctx.shadowBlur = 12 * frameFade;
-    ctx.lineWidth = 1.2;
-    ctx.globalAlpha = frameFade;
-    storyFrame(ctx, g, frameP);
-    ctx.restore();
+    // No border pass. Tracing a frame around the whole page read as a stray
+    // box arriving over the build and fighting the wordmark, so the logo gets
+    // the screen to itself: the cursor glides in and draws it, nothing else.
+    const arriveMs = 700;
+    const drawIn = storyEase(storyClamp(el / arriveMs));
+    const writeP = storyClamp((el - arriveMs) / 900);
 
     if (writeP > 0) storyWord(ctx, wg, writeP);
 
     let px, py;
-    if (el < handoff) {
-      const p = storyFramePoint(g, frameP);
-      px = p[0]; py = p[1];
-    } else if (el < handoff + handoffMs) {
-      // eased, so the cursor glides from the last frame corner to the mark
-      const a = storyFramePoint(g, 1);
-      const t = storyEase((el - handoff) / handoffMs);
-      px = a[0] + (wg.x - a[0]) * t;
-      py = a[1] + (wg.y - 4 - a[1]) * t;
+    if (el < arriveMs) {
+      px = wg.x - 110 * (1 - drawIn);
+      py = wg.y - 4 - 46 * (1 - drawIn);
     } else {
       px = wg.x + wg.total * writeP;
       py = wg.y - 4;
@@ -1081,8 +1066,8 @@
       const ly = Math.min(Math.max(10, py + 18), Math.max(10, STORY.H - 44));
       STORY.label.style.transform = "translate(" + Math.round(lx) + "px," + Math.round(ly) + "px)";
       // the tag is for the frame pass only; it clears before the wordmark
-      if (el > 320 && el < 1400) STORY.label.style.opacity = "1";
-      else if (el >= 1400) STORY.label.style.opacity = "0";
+      if (el > 260 && el < 900) STORY.label.style.opacity = "1";
+      else if (el >= 900) STORY.label.style.opacity = "0";
     }
   }
 
@@ -1222,7 +1207,13 @@
       const bg = STORY.root && STORY.root.querySelector ? STORY.root.querySelector(".bg") : null;
       if (bg) { bg.style.transition = "opacity 1.3s ease"; bg.style.opacity = "0"; }
       if (STORY.veil) { STORY.veil.style.transition = "opacity 1.3s ease"; STORY.veil.style.opacity = "0"; }
-      if (STORY.canvas) STORY.canvas.style.opacity = "0";
+      // The story canvas carries the frame trace and the wordmark, so it stays
+      // lit for the whole arc and is faded on its own schedule below. It used to
+      // be killed here at 600ms, which is what cut the logo off mid-draw.
+      // The engine has finished capturing by now, so this is also the right
+      // moment to take the real page out of the way: the build should happen on
+      // an empty canvas, not over the finished page.
+      document.body.classList.add("swarm-build");
       if (STORY.hero) { STORY.hero.style.transition = "opacity 1.1s ease"; STORY.hero.style.opacity = "0"; setTimeout(() => STORY.hero.remove(), 1200); }
     }, 600);
     if (reduceMotion) {
@@ -1236,12 +1227,15 @@
     }
 
     STORY.raf = requestAnimationFrame(storyTick);
+    // The mark finishes writing at ~1.6s and then holds. Clearing it at 2.05s
+    // meant the completed logo was on screen for less than half a second, which
+    // read as the animation being cut off.
     storyLater(() => {
       STORY.fading = true;
       if (STORY.label) STORY.label.style.opacity = "0";
-    }, 2750);
-    storyLater(() => { if (STORY.canvas) STORY.canvas.style.opacity = "0"; }, 3050);
-    storyLater(storyCaptions, 3250);
+    }, 3200);
+    storyLater(() => { if (STORY.canvas) STORY.canvas.style.opacity = "0"; }, 3400);
+    storyLater(storyCaptions, 3700);
   }
 
   function startSwarmStory() {
@@ -1382,7 +1376,7 @@
     // A real script element, not new Function(src): that keeps the page CSP-safe.
     const s = document.createElement("script");
     s.id = "swarm-engine";
-    s.src = "vendor/swarm.js?v=7";
+    s.src = "vendor/swarm.js?v=9";
     s.onload = () => setTimeout(startSwarmStory, 600);
     s.onerror = () => {
       console.error("[xenith] engine boot failed: vendor/swarm.js did not load");

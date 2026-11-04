@@ -277,6 +277,7 @@ body.engine #content{opacity:1!important;visibility:visible!important;transition
    captured the page, because the capture reads opacity and skips hidden
    elements. */
 body.swarm-build #content{opacity:0!important;visibility:hidden!important}
+body.swarm-build #rusty{opacity:0!important;visibility:hidden!important}
 body.swarm-build #sky,
 body.swarm-build #scene,
 body.swarm-build #rain,
