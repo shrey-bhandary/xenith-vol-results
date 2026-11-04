@@ -68,10 +68,10 @@
     const cyv = Math.cos(ay), syv = Math.sin(ay);
     const cxv = Math.cos(ax), sxv = Math.sin(ax);
     const mobile = W < 720;
-    const cX = W * (0.5 + (mobile ? 0.4 : 0.2) * enteredMix) + tx * 26 * enteredMix;
+    const cX = W * (0.5 + (mobile ? 0.46 : 0.2) * enteredMix) + tx * 22 * enteredMix;
     const cY = H * (0.5 - (mobile ? 0.2 : 0) * enteredMix) + ty * 18 * enteredMix;
     const breathe = reduceMotion ? 1 : 1 + Math.sin(time * 0.9) * 0.012;
-    const S0 = Math.min(W, H) * (0.265 + 0.05 * enteredMix) * (1 - (mobile ? 0.38 : 0) * enteredMix) * breathe;
+    const S0 = Math.min(W, H) * (0.265 + 0.05 * enteredMix) * (1 - (mobile ? 0.44 : 0) * enteredMix) * breathe;
     const base = S0 * 0.5;
 
     function project(px, py, pz) {

@@ -164,8 +164,8 @@ body.locked #content,body.locked #rusty{opacity:0;visibility:hidden}
 
 @media (max-width:720px){
   #content{left:22px;right:22px;max-width:none}
-  #name{font-size:clamp(24px,7.6vw,34px)}
-  #line{font-size:13px;max-width:none}
+  #name{font-size:clamp(22px,6.6vw,32px);max-width:88%}
+  #line{font-size:12px;max-width:94%}
   #role{font-size:8.5px;letter-spacing:.3em}
   #rusty{width:84px;right:14px;bottom:18px}
   .hud{font-size:8px;padding:16px 18px}
