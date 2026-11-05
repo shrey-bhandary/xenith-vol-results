@@ -106,6 +106,8 @@ Direct links to each volunteer's personalized easter-egg card and gate reveal on
 
 ## Assistance & Hospitality
 
+> **Assistance & Hospitality WhatsApp Group**: https://chat.whatsapp.com/B6if8jpEmSbDJizxJ4A9Fb?s=cl&p=a&iam=2
+
 | # | Name | Role | Personal Result Link |
 |---|---|---|---|
 | 1 | Glynnis Rodrigues | Head | [https://results.xenithfest.in/site/intro/?p=glynnis](https://results.xenithfest.in/site/intro/?p=glynnis) |
