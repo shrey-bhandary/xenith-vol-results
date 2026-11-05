@@ -88,6 +88,8 @@ Direct links to each volunteer's personalized easter-egg card and gate reveal on
 
 ## Publicity
 
+> **Publicity WhatsApp Group**: https://chat.whatsapp.com/Jy0y5CM4RdkACepCPt4oKi?s=cl&p=a&iam=2
+
 | # | Name | Role | Personal Result Link |
 |---|---|---|---|
 | 1 | Mogithh M | Head | [https://results.xenithfest.in/site/intro/?p=mogithh](https://results.xenithfest.in/site/intro/?p=mogithh) |

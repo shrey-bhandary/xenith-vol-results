@@ -80,7 +80,8 @@
     talks: "https://chat.whatsapp.com/LGsNfqXoneTGq5q3vFc17P",
     eventsVol: "https://chat.whatsapp.com/FFcVvmsXHGe3QUVvRKWZ2h",
     adminVol: "https://chat.whatsapp.com/KUgCYDp8hOA9XMHK2F7E4N",
-    eventsXAdmin: "https://chat.whatsapp.com/CH1UQTadXuD48IPbaMlhxx"
+    eventsXAdmin: "https://chat.whatsapp.com/CH1UQTadXuD48IPbaMlhxx",
+    publicity: "https://chat.whatsapp.com/Jy0y5CM4RdkACepCPt4oKi?s=cl&p=a&iam=2"
   };
 
   const ADMIN_CREW = new Set([
@@ -92,6 +93,11 @@
     if (d.includes("talks")) {
       return [
         { label: "join talks group", url: WHATSAPP_LINKS.talks }
+      ];
+    }
+    if (d.includes("publicity")) {
+      return [
+        { label: "join publicity group", url: WHATSAPP_LINKS.publicity }
       ];
     }
     if (d.includes("events")) {
