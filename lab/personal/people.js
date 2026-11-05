@@ -189,8 +189,8 @@ window.XENITH_PEOPLE = {
     line: "Congratulations on getting selected to Creatives and Documentation. Welcome, we are glad to have you on the crew.",
     tag: "synthwave gradient stylist"
   },
-  "vidhi": {
-    name: "Vidhi Bane",
+  "deepika": {
+    name: "Deepika Gautam",
     dept: "Creatives & Documentation",
     role: "Volunteer",
     line: "Congratulations on getting selected to Creatives and Documentation. Welcome, we are glad to have you on the crew.",
@@ -231,26 +231,12 @@ window.XENITH_PEOPLE = {
     line: "Congratulations on getting selected to Creatives and Documentation. Welcome, we are glad to have you on the crew.",
     tag: "dark mode aesthetic lead"
   },
-  "angelisha": {
-    name: "Angelisha Bhardwaj",
-    dept: "Creatives & Documentation",
-    role: "Volunteer",
-    line: "Congratulations on getting selected to Creatives and Documentation. Welcome, we are glad to have you on the crew.",
-    tag: "apparel brand minimalist"
-  },
   "jovian": {
     name: "Jovian Carvalho",
     dept: "Creatives & Documentation",
     role: "Volunteer",
     line: "Congratulations on getting selected to Creatives and Documentation. Welcome, we are glad to have you on the crew.",
     tag: "retro chrome animator"
-  },
-  "niyati-rastogi": {
-    name: "Niyati Rastogi",
-    dept: "Creatives & Documentation",
-    role: "Volunteer",
-    line: "Congratulations on getting selected to Creatives and Documentation. Welcome, we are glad to have you on the crew.",
-    tag: "high voltage art direction"
   },
   "ashish": {
     name: "Ashish Soren",
@@ -508,7 +494,7 @@ window.XENITH_PEOPLE = {
     name: "Suhani Minocha",
     dept: "Talks and Panels",
     role: "Volunteer",
-    line: "You pitched a panel on the tech behind billions in global finance. High stakes keynote ready.",
+    line: "Soch Jara jaane jaa tujhko ham kitna chahte hai... Rote hai ham bhi agar tere papa nahi aate hai",
     tag: "fintech keynote curator"
   },
   "joann": {

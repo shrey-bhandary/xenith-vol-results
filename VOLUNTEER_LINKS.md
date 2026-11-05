@@ -75,16 +75,14 @@ Direct links to each volunteer's personalized easter-egg card and gate reveal on
 | 1 | Sarvika Rajula | Head | [https://results.xenithfest.in/site/intro/?p=sarvika](https://results.xenithfest.in/site/intro/?p=sarvika) |
 | 2 | Dakshita Jadyar | Volunteer | [https://results.xenithfest.in/site/intro/?p=dakshita](https://results.xenithfest.in/site/intro/?p=dakshita) |
 | 3 | Joel Chettiar | Volunteer | [https://results.xenithfest.in/site/intro/?p=joel](https://results.xenithfest.in/site/intro/?p=joel) |
-| 4 | Vidhi Bane | Volunteer | [https://results.xenithfest.in/site/intro/?p=vidhi](https://results.xenithfest.in/site/intro/?p=vidhi) |
+| 4 | Deepika Gautam | Volunteer | [https://results.xenithfest.in/site/intro/?p=deepika](https://results.xenithfest.in/site/intro/?p=deepika) |
 | 5 | Krisha Mohile | Volunteer | [https://results.xenithfest.in/site/intro/?p=krisha](https://results.xenithfest.in/site/intro/?p=krisha) |
 | 6 | Manaswini R | Volunteer | [https://results.xenithfest.in/site/intro/?p=manaswini](https://results.xenithfest.in/site/intro/?p=manaswini) |
 | 7 | Angela M Baite | Volunteer | [https://results.xenithfest.in/site/intro/?p=angela](https://results.xenithfest.in/site/intro/?p=angela) |
 | 8 | Zeroun Creado | Volunteer | [https://results.xenithfest.in/site/intro/?p=zeroun](https://results.xenithfest.in/site/intro/?p=zeroun) |
 | 9 | Shanelle Barretto | Volunteer | [https://results.xenithfest.in/site/intro/?p=shanelle](https://results.xenithfest.in/site/intro/?p=shanelle) |
-| 10 | Angelisha Bhardwaj | Volunteer | [https://results.xenithfest.in/site/intro/?p=angelisha](https://results.xenithfest.in/site/intro/?p=angelisha) |
-| 11 | Jovian Carvalho | Volunteer | [https://results.xenithfest.in/site/intro/?p=jovian](https://results.xenithfest.in/site/intro/?p=jovian) |
-| 12 | Niyati Rastogi | Volunteer | [https://results.xenithfest.in/site/intro/?p=niyati-rastogi](https://results.xenithfest.in/site/intro/?p=niyati-rastogi) |
-| 13 | Ashish Soren | Volunteer | [https://results.xenithfest.in/site/intro/?p=ashish](https://results.xenithfest.in/site/intro/?p=ashish) |
+| 10 | Jovian Carvalho | Volunteer | [https://results.xenithfest.in/site/intro/?p=jovian](https://results.xenithfest.in/site/intro/?p=jovian) |
+| 11 | Ashish Soren | Volunteer | [https://results.xenithfest.in/site/intro/?p=ashish](https://results.xenithfest.in/site/intro/?p=ashish) |
 
 ---
 
