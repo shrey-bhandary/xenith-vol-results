@@ -86,7 +86,8 @@
   };
 
   const ADMIN_CREW = new Set([
-    "siya-kapoor", "siya", "vasu", "sharen", "trinity", "mark", "marc", "aditri", "tejas"
+    "aaditya", "ricco", "tejas", "siya-kapoor", "siya", "siyak",
+    "vasu", "sharen", "trinity", "mark", "marc", "aditri"
   ]);
 
   function getWhatsAppLinks(person, slug) {
