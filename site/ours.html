@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+<script>
+(function(){ try { if (new URLSearchParams(location.search).get("engine") === "1") document.documentElement.classList.add("engine-pending"); } catch(e){} })();
+</script>
+<meta charset="utf-8">
+<link rel="icon" href="../assets/brand/xenith-x.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="../assets/brand/app-icon-180.png">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Xenith</title>
+<meta name="description" content="a small private page for the xenith team at st xavier's college mumbai.">
+<meta name="theme-color" content="#05040c">
+<meta name="robots" content="noindex,nofollow,noarchive">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Xenith">
+<meta property="og:description" content="a small private page for the xenith team at st xavier's college mumbai.">
+<meta property="og:image" content="../assets/brand/app-icon-512.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="ours.css?v=1">
+</head>
+<body class="locked">
+<noscript><style>#gate{display:none}.actions{display:none}#content,#rusty{opacity:1!important;visibility:visible!important}body.locked #content{opacity:1;visibility:visible}</style></noscript>
+<div id="stage">
+  <canvas id="sky" aria-hidden="true"></canvas>
+  <div id="photo" aria-hidden="true"></div>
+  <canvas id="scene" aria-hidden="true"></canvas>
+  <canvas id="rain" aria-hidden="true"></canvas>
+  <canvas id="monument" aria-hidden="true"></canvas>
+  <canvas id="confetti" aria-hidden="true"></canvas>
+  <div id="scrim"></div>
+  <div id="vignette"></div>
+  <div id="scanlines"></div>
+
+  <header class="hud">
+    <span class="brand"><img class="brand-x" src="../assets/brand/xenith-x.svg" alt="X" width="11" height="11"><span>enith</span></span>
+    <span>2026</span>
+  </header>
+
+  <main id="content">
+    <h1 id="name" tabindex="-1">xenith</h1>
+    <p id="role">talks and panel discussions</p>
+    <p id="line">this page needs javascript to open. try a browser setting or a different browser.</p>
+    <div class="actions">
+      <button id="save" class="save" type="button">save card</button>
+      <button id="copy" class="save" type="button">copy link</button>
+    </div>
+    <div class="join" id="join" hidden>
+      <a class="save join-link" id="joinGroup" href="https://chat.whatsapp.com/ImUkwP8xh10K4q9OoxcpPn" target="_blank" rel="noopener noreferrer">join your group</a>
+      <a class="save join-link" id="joinCommunity" href="https://chat.whatsapp.com/Ldux3gTtSLl4EuERClN7GN" target="_blank" rel="noopener noreferrer">join the community</a>
+    </div>
+    <div class="stamp-wrap">
+      <canvas id="selectStamp" width="329" height="49" aria-hidden="true"></canvas>
+      <span class="sr-only">selected</span>
+      <span class="stamp-note" aria-hidden="true">xenith / 2026</span>
+    </div>
+      </main>
+
+  <canvas id="rusty" aria-hidden="true"></canvas>
+  <p id="live" class="sr-only" aria-live="polite"></p>
+
+  <div id="gate">
+    <canvas id="xpad" aria-label="Draw an X to enter"></canvas>
+    <div class="prompt" id="prompt">
+      <span class="p1">draw x</span>
+      <span class="p2">to enter</span>
+    </div>
+    <button id="skip" type="button">skip</button>
+  </div>
+</div>
+
+<script>
+(function(){
+  var u = new URL(location.href);
+  if (u.searchParams.get("entered") || u.searchParams.get("gate")) return;
+  location.replace("intro/" + location.search);
+})();
+</script>
+<script src="data.js?v=10"></script>
+<script src="ours-card.js?v=1"></script>
+<script src="ours-swarm.js?v=1"></script>
+<link rel="stylesheet" href="vendor/glass-reveal.css">
+<script src="vendor/glass-renderer.js"></script>
+<script src="vendor/glass-reveal.js"></script>
+<script src="ours-xenith.js?v=1"></script>
+
+<script>
+(function(){
+  var ADMIN = "https://chat.whatsapp.com/ImUkwP8xh10K4q9OoxcpPn";
+  var EVENTS = "https://chat.whatsapp.com/BrtqrsZfFQEG5BezyKL62s";
+  var ADMIN_SET = "aaditya,ricco,siya-kapoor,vasu,sharen,trinity,mark,aditri".split(",");
+  var EVENTS_SET = "amy,alastair,royden,adelaide,naisha,bhavna,madhura,sanskrati,vaibhav,manan,satwik,dhriti,khushi,manthan,liyaan".split(",");
+  var p = (new URLSearchParams(location.search).get("p") || "").toLowerCase();
+  var href = "", label = "";
+  if (ADMIN_SET.indexOf(p) >= 0) { href = ADMIN; label = "join the admin group"; }
+  else if (EVENTS_SET.indexOf(p) >= 0) { href = EVENTS; label = "join the events group"; }
+  if (href) {
+    var box = document.getElementById("join");
+    var a = document.getElementById("joinGroup");
+    if (box && a) { a.href = href; a.textContent = label; box.hidden = false; }
+  }
+})();
+</script>
+</body>
+</html>
