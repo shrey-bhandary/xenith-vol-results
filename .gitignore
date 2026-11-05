@@ -8,6 +8,7 @@ node_modules/
 # must never be committed here.
 people.csv
 Xenith Workforce*.csv
+Xenith Department Application Form*.csv
 
 # local tooling, secrets and caches
 .vercel/

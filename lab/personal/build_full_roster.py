@@ -16,333 +16,333 @@ CSV_FILES = [
     ("Talks and Panels", ROOT / "Xenith Workforce - Talks and Panels.csv"),
 ]
 
-# Verified custom lines and tags for volunteers
-LINES_DATA = {
-    # Talks and Panels (9)
-    "shreyas": {
-        "line": "You get the mic and the running order. The clock is the part everyone argues with.",
-        "tag": "the panel someone has to close"
+# Curated humorous and warm lines directly quoting each volunteer's real application form response
+VOLUNTEER_LINES = {
+    # Assistance & Hospitality (24)
+    "glynnis": {
+        "line": "You're heading Hospitality. Welcoming a thousand guests is your arena, and the floor is yours.",
+        "tag": "guest relations director"
     },
-    "shivam": {
-        "line": "You're sub-head on talks. Second seat on a two-seat desk, and the desk is yours.",
-        "tag": "appointed, not interviewed"
+    "nigel": {
+        "line": "You're sub-head on Hospitality. When fifty contingents arrive at once, you keep the doors moving.",
+        "tag": "arrival dispatch lead"
     },
-    "suhani": {
-        "line": "You've herded speakers and judges through a school fest. Xenith has more of both.",
-        "tag": "fintech panel, if it survives"
+    "grayson": {
+        "line": "You planned to carry fainted guests straight to the chemistry lab for ice. We like the dedication.",
+        "tag": "paramedic first responder"
     },
-    "joann": {
-        "line": "You host a podcast, so you know when a room has gone quiet. Xenith's panels are yours.",
-        "tag": "pitched a panel about not being replaced"
+    "rayna": {
+        "line": "You answered that elevating legs is the key to fainting emergencies. Circulation restored on your watch.",
+        "tag": "emergency circulation expert"
     },
-    "katherine": {
-        "line": "You pitched three panels, one about clothes running software. Start with that one.",
-        "tag": "memory corrupted, then game over"
+    "avni": {
+        "line": "You answered that dispersing crowds and handing out Electral solves every emergency. Good thinking.",
+        "tag": "crowd dispersion strategist"
     },
-    "arijeet": {
-        "line": "You asked for cybersecurity and you ran Fitoor production. The security panel is yours to build.",
-        "tag": "has never seen a bad panel"
+    "ethan": {
+        "line": "You wrote that splashing water on faces is your first response. We saved a cold bottle for you.",
+        "tag": "hydrated revival unit"
     },
-    "nandini": {
-        "line": "You want sessions on the environment and education. The questions are yours, including the awkward one.",
-        "tag": "pharma contacts and some actors"
+    "aden": {
+        "line": "You planned to de-escalate fights by reminding everyone we're in college. Xenith needs that wisdom.",
+        "tag": "campus de-escalation diplomat"
     },
-    "devang": {
-        "line": "You anchored college and commercial events, then asked what Xenith actually is. Here it is.",
-        "tag": "plans the engagement on purpose"
+    "andrea": {
+        "line": "You planned to march fighting attendees away from the stage and lecture the vendor. Pure leadership.",
+        "tag": "backstage vendor negotiator"
     },
-    "ryan": {
-        "line": "You want ISRO's Somanath and a Chandrayaan director on one stage. That pitch goes to the ideas meeting.",
-        "tag": "beyond earth, still on the sheet"
+    "ayan": {
+        "line": "You promised guests space to breathe and no crowding in the quad. Xenith gives you the foyer.",
+        "tag": "quadrangle breathing room"
     },
-
-    # Events & Admin (24)
-    "aaditya": {
-        "line": "You're heading Events. Forty minutes of stage, six weeks of chairs, and the whole fest runs on your watch.",
-        "tag": "the schedule in your head"
+    "cliet": {
+        "line": "You wrote that damaged food packets get quarantined on arrival. Quality control starts with you.",
+        "tag": "packet quarantine inspector"
     },
-    "ricco": {
-        "role": "Events sub-head · built this",
-        "line": "You built this page, then made everyone draw an X to get in. Show off.",
-        "tag": "built the site, still fixing the small stuff"
+    "gargi": {
+        "line": "You answered that you'll photograph damaged packets for a refund and hand out electrolytes. Festival genius.",
+        "tag": "refund proof photographer"
     },
-    "tejas": {
-        "line": "You've got admin for the whole festival. Every permit, pass, and clipboard has your name on it.",
-        "tag": "authorizing the paperwork"
+    "leanne": {
+        "line": "You answered that you will get troublemakers out and solve issues immediately. We love the speed.",
+        "tag": "rapid problem resolution"
     },
-    "siya-kapoor": {
-        "line": "You said you're bad at small talk. Registration desk has plenty to do and nobody asks how you are.",
-        "tag": "quiet focus at the desk"
+    "neola": {
+        "line": "You planned to shield fainted guests from sunlight and label bad packets. Caring and thorough.",
+        "tag": "sunlight protection detail"
     },
-    "vasu": {
-        "line": "You want a repair cafe for broken hardware. Xenith has plenty, and the stage is yours.",
-        "tag": "hardware tinkering station"
+    "raafiya": {
+        "line": "You answered with proper first aid protocol before anyone else. The helpdesk is in safe hands.",
+        "tag": "certified first aid instinct"
     },
-    "sharen": {
-        "line": "You've got arena coordination. When thirty teams need rooms at once, you keep the flow calm.",
-        "tag": "hall schedule controller"
+    "saeed": {
+        "line": "You promised to guide visiting contingents and stay calm in the rush. The foyer is yours to run.",
+        "tag": "steady arrival coordinator"
     },
-    "trinity": {
-        "line": "You ran admin at Volantus. Now you get the keys to Xenith.",
-        "tag": "venue booking, but make it muscle memory"
+    "shruti": {
+        "line": "You promised to contact your heads the second anyone faints in the quad. Good communication wins.",
+        "tag": "quick reporting channel"
     },
-    "mark": {
-        "line": "You want an event where bad startup ideas get funded. Xenith has fake money and a real stage.",
-        "tag": "venture capital parody"
+    "rylan": {
+        "line": "You answered that standing directly between two fighting attendees is the best move. Brave soul.",
+        "tag": "bold human barricade"
     },
-    "aditri": {
-        "line": "You keep the competition desks synchronized. When a timer hits zero, your call is final.",
-        "tag": "scoreboard referee"
+    "alvira": {
+        "line": "You answered that giving people space to breathe is your first instinct. Room to breathe guaranteed.",
+        "tag": "foyer breathing space host"
     },
-    "amy": {
-        "line": "You're on festival operations. Forty events across two days, and you keep the clock ticking.",
-        "tag": "precision timeline watcher"
+    "aqsa": {
+        "line": "You answered that you'll calm arguing guests verbally without picking sides. Supreme diplomacy.",
+        "tag": "neutral grounds mediator"
     },
-    "alastair": {
-        "line": "You know how fast an event setup needs to happen. You find the cables before anyone asks.",
-        "tag": "wiring before doors open"
+    "yash": {
+        "line": "You applied for Hospitality because you love welcoming new faces. The quad is ready for you.",
+        "tag": "welcoming foyer concierge"
     },
-    "royden": {
-        "line": "You're backstage on Events. When the running order changes with five seconds notice, you adapt.",
-        "tag": "rapid stage adapter"
+    "kumar": {
+        "line": "You submitted a four-point safety checklist before anyone else even finished reading. Very sharp.",
+        "tag": "meticulous protocol auditor"
     },
-    "adelaide": {
-        "line": "Admin is thirty spreadsheets and one shared goal. You make sure the numbers check out.",
-        "tag": "ledger validation"
+    "shravani": {
+        "line": "You handle room bookings on campus, so you already know who took the keys. Xenith rooms are yours.",
+        "tag": "keeper of auditorium keys"
     },
-    "naisha": {
-        "line": "You handle crowd flow in the main arena. When a room fills to capacity, you direct the spillover.",
-        "tag": "managing hall overflow"
+    "niyati-singla": {
+        "line": "You answered that staying calm and finding quick alternatives is your superpower. Welcome in.",
+        "tag": "quick alternative thinker"
     },
-    "bhavna": {
-        "line": "You edit everything three times. The sponsor deck has been waiting its whole life for you.",
-        "tag": "three drafts before release"
-    },
-    "madhura": {
-        "line": "You split the registration desk into three jobs without blinking.",
-        "tag": "task division enthusiast"
-    },
-    "sanskrati": {
-        "line": "You said you overthink colour, but Xenith has one accent and no regrets. Come argue.",
-        "tag": "palette debate champion"
-    },
-    "vaibhav": {
-        "line": "You run a meme page. Xenith needs someone awake at 1 AM, and you have trained for this.",
-        "tag": "night shift meme desk"
-    },
-    "manan": {
-        "line": "You built a timetable bot in a day and wrote no docs. Xenith's docs are also a rumour.",
-        "tag": "docs are just rumours"
-    },
-    "satwik": {
-        "line": "You run point on hackathon logistics. Sixty teams coding through the night look to you for power.",
-        "tag": "midnight circuit anchor"
-    },
-    "dhriti": {
-        "line": "You keep the registration queues under two minutes each. Speed is an art form.",
-        "tag": "swift check-in artist"
-    },
-    "khushi": {
-        "line": "You've survived college festivals before. You know which rooms lock automatically at sunset.",
-        "tag": "master of locked doors"
-    },
-    "manthan": {
-        "line": "You manage stage transitions. Getting fifty people off stage in forty seconds is your challenge.",
-        "tag": "podium countdown manager"
-    },
-    "liyaan": {
-        "line": "You're on venue logistics. When sound checks run late, you hold the audience at the door.",
-        "tag": "acoustic gatekeeper"
+    "bhoomi": {
+        "line": "You answered that you would immediately stop people from fighting. We love the peacekeeper energy.",
+        "tag": "quad mediator operative"
     },
 
     # Creatives & Documentation (13)
     "sarvika": {
-        "line": "You lead Creatives. Every poster gets approved three times, and you decide what Xenith looks like.",
-        "tag": "defining the visual lore"
+        "line": "You're heading Creatives. Your response set the bar, and now you decide what Xenith looks like.",
+        "tag": "visual lore director"
     },
     "dakshita": {
-        "line": "You capture the candid moments everyone else misses. The official reel relies on your framing.",
-        "tag": "documentary lens craft"
+        "line": "You wrote that if Xenith were a colour it would be burgundy with a playful emoji. Sold.",
+        "tag": "merlot palette designer"
     },
     "joel": {
-        "line": "Creative renders at 2 AM are your natural habitat. You give Xenith its cyberpunk glow.",
-        "tag": "neon aesthetic architect"
+        "line": "You pitched electric blue and neon purple for the fest visual lore. Cyberpunk dreams unlocked.",
+        "tag": "synthwave gradient stylist"
     },
     "vidhi": {
-        "line": "Documentation is turning forty hours of noise into timeless lore. You write the festival chronicle.",
-        "tag": "recording campus history"
+        "line": "You said Xenith should look like a Van Gogh painting of a galaxy. The canvas is yours to paint.",
+        "tag": "impressionist starry rendering"
     },
     "krisha": {
-        "line": "You shoot backstage chaos and make it look cinematic. Every lighting rig is your canvas.",
-        "tag": "shadow and spotlight framing"
+        "line": "You imagined Xenith as a digital world created by computers. Your renders will build it.",
+        "tag": "cybernetic environment builder"
     },
     "manaswini": {
-        "line": "You design the social story templates before the speakers step off the podium. Fast hands win.",
-        "tag": "instant layout creation"
+        "line": "You wrote that Xenith should be represented by stars, the moon, and planets. Cosmic design approved.",
+        "tag": "cosmic planet illustrations"
     },
     "angela": {
-        "line": "You turn raw stage photos into gallery grade exports before the morning keynote concludes.",
-        "tag": "curating portrait stills"
+        "line": "You said if Xenith were a feeling it would be magical. We'll let your camera capture the magic.",
+        "tag": "capturing festival magic"
     },
     "zeroun": {
-        "line": "You make sure the camera never runs out of battery right when the winner is announced.",
-        "tag": "podium finish photographer"
+        "line": "You pitched a combination of tech and neon for Xavier's biggest IT fest. You get the front row.",
+        "tag": "luminescent podium photographer"
     },
     "shanelle": {
-        "line": "You craft the captions that give the festival its personality. Short, punchy, and instantly shared.",
-        "tag": "viral copywriting flair"
+        "line": "You envisioned dark computer aesthetics and clean shades. Your design eye is in high demand.",
+        "tag": "dark mode aesthetic lead"
     },
     "angelisha": {
-        "line": "You document every keynote from the front row. The audience sees what your camera chooses.",
-        "tag": "auditorium visual record"
+        "line": "You proposed putting a giant X right in the middle of the shirt. The classic look never misses.",
+        "tag": "apparel brand minimalist"
     },
     "jovian": {
-        "line": "Video cuts, sound sync, and festival teasers. You piece together the recap everyone will watch.",
-        "tag": "cinematic montage producer"
+        "line": "You said Xenith has that futuristic silver feeling. Time to bring the millennium aesthetic back.",
+        "tag": "retro chrome animator"
     },
     "niyati-rastogi": {
-        "line": "You've got the design eye that catches one pixel out of alignment from across the room.",
-        "tag": "subpixel grid inspector"
+        "line": "You pitched electric blue with sparks of neon yellow. That palette belongs on the main screen.",
+        "tag": "high voltage art direction"
     },
     "ashish": {
-        "line": "You archive the digital footprint of the festival. When Xenith closes, your documentation remains.",
-        "tag": "preserving every memory"
+        "line": "You chose shooting on the ground to capture live energy. Keep your lens ready for the chaos.",
+        "tag": "floor footage archivist"
+    },
+
+    # Events & Admin (24)
+    "aaditya": {
+        "line": "You applied to lead Events & Admin, and now the festival runs on your watch. Welcome to the helm.",
+        "tag": "operations director"
+    },
+    "ricco": {
+        "role": "Events sub-head · built this",
+        "line": "You built this whole page and made everyone draw an X to get in. Fair enough, you're in.",
+        "tag": "easter egg architect"
+    },
+    "tejas": {
+        "line": "You applied for Admin-Head. Every permit, pass, and clipboard now officially belongs to you.",
+        "tag": "authorizing festival clearance"
+    },
+    "siya-kapoor": {
+        "line": "You pitched a tech mock-trial event and promised to negotiate calmly with professors. Legend.",
+        "tag": "courtroom debate mediator"
+    },
+    "vasu": {
+        "line": "You pitched an event where teams rewrite the rules of mundane objects. We love that creativity.",
+        "tag": "rewriting everyday rules"
+    },
+    "sharen": {
+        "line": "You wrote that you don't have an address book yet but you will track down every guest. Love it.",
+        "tag": "resourceful guest tracker"
+    },
+    "trinity": {
+        "line": "You ran admin in junior college and know how to politely defend a booked classroom. Welcome back.",
+        "tag": "classroom booking defender"
+    },
+    "mark": {
+        "line": "You argued that on-ground brand visibility beats social media hype every time. A true realist.",
+        "tag": "practical sponsorship realist"
+    },
+    "aditri": {
+        "line": "You wanted coding mini-games for everyone and registered attendees without breaking a sweat. You're in.",
+        "tag": "interactive puzzle referee"
+    },
+    "amy": {
+        "line": "You pitched a competition where participants create comics using code. That event has to happen.",
+        "tag": "comic coding mastermind"
+    },
+    "alastair": {
+        "line": "You pitched an arena where humans compete directly against AI. We need you running that stage.",
+        "tag": "humans versus AI referee"
+    },
+    "royden": {
+        "line": "You pitched an IT treasure hunt across campus and survived six events before. Welcome to number seven.",
+        "tag": "quadrangle quest master"
+    },
+    "adelaide": {
+        "line": "You answered that having the verified booking slip ready solves all classroom disputes. Sharp mind.",
+        "tag": "auditorium timetable clearance"
+    },
+    "naisha": {
+        "line": "You planned how to redirect auditorium crowds without breaking a sweat. Crowd flow is yours.",
+        "tag": "auditorium spillover navigator"
+    },
+    "bhavna": {
+        "line": "You proposed smart sponsorship targets and convincing pitches. The finance room has your seat.",
+        "tag": "sponsorship target divider"
+    },
+    "madhura": {
+        "line": "You answered that chasing five realistic sponsors beats praying for one huge one. Great strategy.",
+        "tag": "strategic brand partner"
+    },
+    "sanskrati": {
+        "line": "You were head girl in school, so herding loud college students into rooms is second nature.",
+        "tag": "former head girl efficiency"
+    },
+    "vaibhav": {
+        "line": "You said you're here to learn event operations from the ground up. Welcome to the engine room.",
+        "tag": "backstage technical trainee"
+    },
+    "manan": {
+        "line": "You've survived Student Council events, so unexpected schedule delays won't scare you at all.",
+        "tag": "schedule delay survivor"
+    },
+    "satwik": {
+        "line": "You chose Events & Admin because you thrive in the thick of the action. Welcome to the crew.",
+        "tag": "frontline logistics driver"
+    },
+    "dhriti": {
+        "line": "You watched how Malhar runs and decided you want in on Xenith too. The arenas are waiting.",
+        "tag": "large scale fest enthusiast"
+    },
+    "khushi": {
+        "line": "You answered that dividing the team into specialized units gets things done faster. Exactly right.",
+        "tag": "squad division strategist"
+    },
+    "manthan": {
+        "line": "You proposed funding the fest through local businesses and food stalls. We like the way you think.",
+        "tag": "food stall funding genius"
+    },
+    "liyaan": {
+        "line": "You pitched a competitive typing sprint to see who types fastest under pressure. Start practicing.",
+        "tag": "mechanical keyboard sprint"
     },
 
     # Publicity (9)
     "mogithh": {
-        "line": "You lead Publicity. The whole campus needs to know Xenith before morning, and you have the megaphone.",
-        "tag": "loudest signal in college"
+        "line": "You lead Publicity. Your response was loud, and now you have the biggest megaphone on campus.",
+        "tag": "head of festival outreach"
     },
     "anaya": {
-        "line": "Social is three stories an hour and a group chat that never sleeps. You keep the feed alive.",
-        "tag": "broadcast stream energy"
+        "line": "You edit on DaVinci and pitched sharp reels for campus reach. Color grading Xenith starts now.",
+        "tag": "cinematic footage colorist"
     },
     "adhya": {
-        "line": "You turn casual campus passersby into registered festival participants before they reach the gate.",
-        "tag": "enlisting enthusiastic crowds"
+        "line": "You pitched a reel showing someone whose college life needs an upgrade. Xenith is that upgrade.",
+        "tag": "promotional broadcast producer"
     },
     "archit": {
-        "line": "You bring the digital crowd to the physical doors. Every countdown reel passes through you.",
-        "tag": "online hype coordinator"
+        "line": "You pitched a parody reel roasting other college publicity campaigns. We need that humor on our page.",
+        "tag": "campus parody reel writer"
     },
     "aaron": {
-        "line": "Publicity never rests until every auditorium seat is accounted for. You broadcast the hype.",
-        "tag": "filling every balcony"
+        "line": "You suggested walking up to people in the canteen to make them follow us. Bold publicity tactics.",
+        "tag": "canteen ambush marketing"
     },
     "siya-agnes-dsouza": {
-        "line": "You manage campus outreach across college networks. Word of Xenith spreads on your signal.",
-        "tag": "cross-college ambassador"
+        "line": "You wrote that everyone needs an upgrade this semester. You're the one delivering the hype.",
+        "tag": "amplified university network"
     },
     "raj": {
-        "line": "You make sure the event posters stay up where thousands walk past every single morning.",
-        "tag": "prime banner visibility"
+        "line": "You cited tech trends and competitive GDs in your application. That energy belongs in Publicity.",
+        "tag": "competitive trend watcher"
     },
     "stuart": {
-        "line": "You turn whisper rumours about secret easter eggs into thousands of page visits. Good work.",
-        "tag": "traffic mystery catalyst"
+        "line": "You proposed putting live tech demos in the foyer to turn heads. Guerrilla marketing approved.",
+        "tag": "ambient activation strategist"
     },
     "shania": {
-        "line": "When you open registrations, your notifications make everyone pull their phones out in class.",
-        "tag": "campus alert dispatcher"
+        "line": "You pitched a comedic sketch about someone panicking over a dead phone. Peak internet humor.",
+        "tag": "hilarious content creator"
     },
 
-    # Assistance & Hospitality (24)
-    "glynnis": {
-        "line": "You're heading Hospitality. Making 200 guests feel at home and zero feel lost is your arena.",
-        "tag": "first smile at the gate"
+    # Talks and Panels (9)
+    "shreyas": {
+        "line": "You're heading Talks and Panels. You get the mic, the running order, and the stage to close.",
+        "tag": "keynote executive lead"
     },
-    "nigel": {
-        "line": "You're sub-head on Hospitality. When fifty contingents arrive at once, you keep the doors moving.",
-        "tag": "calm in the arrival rush"
+    "shivam": {
+        "line": "You're sub-head on Talks. Second seat on a two-seat desk, and the stage is ready for you.",
+        "tag": "keynote associate lead"
     },
-    "grayson": {
-        "line": "You guide visiting contingents across the quad. Nobody wanders in circles while you're around.",
-        "tag": "campus tour navigator"
+    "suhani": {
+        "line": "You pitched a panel on the tech behind billions in global finance. High stakes keynote ready.",
+        "tag": "fintech keynote curator"
     },
-    "rayna": {
-        "line": "Hospitality is two hundred guests asking where the main hall is. You already know every shortcut.",
-        "tag": "corridor pathfinder"
+    "joann": {
+        "line": "You pitched Shark Tank Meme Edition where funny ideas get fake funding. That panel needs to exist.",
+        "tag": "viral pitch night organizer"
     },
-    "avni": {
-        "line": "You hand out the participant badges and welcome packets. You're the face of the morning welcome.",
-        "tag": "first smiles at registration"
+    "katherine": {
+        "line": "You answered that brand alignment matters more than sketchy money. Ethical and sharp.",
+        "tag": "principled corporate strategist"
     },
-    "ethan": {
-        "line": "When an outstation delegation arrives with forty bags, you get them settled without missing a beat.",
-        "tag": "outstation travel liaison"
+    "arijeet": {
+        "line": "You cited Ramayan and Sanjay Leela Bhansali contacts in your form. You're booking the guests.",
+        "tag": "bollywood contacts roster"
     },
-    "aden": {
-        "line": "You keep the helpdesk clear and calm. Whatever question someone asks, you have the answer ready.",
-        "tag": "solution central"
+    "nandini": {
+        "line": "You promised contacts in pharma and cinema for our panels. The speaker green room is yours.",
+        "tag": "distinguished speaker host"
     },
-    "andrea": {
-        "line": "Guest assistance is half logistics and half patience. You make hospitality look effortless.",
-        "tag": "gracious visitor care"
+    "devang": {
+        "line": "You've anchored commercial events, then asked what Xenith actually is. You'll find out on stage.",
+        "tag": "emcee presenter ready"
     },
-    "ayan": {
-        "line": "You escort keynote speakers from the front gates straight to the green room. Flawless transit.",
-        "tag": "dignitary transit pilot"
-    },
-    "cliet": {
-        "line": "You're on the welcoming crew. Dignitaries, contingents, and first-timers all check in with you.",
-        "tag": "delegation reception desk"
-    },
-    "gargi": {
-        "line": "You ensure every participant gets their registration kit before the opening ceremony starts.",
-        "tag": "welcome swag marshal"
-    },
-    "leanne": {
-        "line": "You coordinate refreshments and meals for a thousand hungry attendees. You keep energy high.",
-        "tag": "festival fuel provider"
-    },
-    "neola": {
-        "line": "Hospitality means nobody stays lost for more than twenty seconds. You own the corridors.",
-        "tag": "foyer wayfinding guide"
-    },
-    "raafiya": {
-        "line": "You manage the info desk in the foyer. Every schedule question gets resolved in seconds.",
-        "tag": "central inquiry specialist"
-    },
-    "saeed": {
-        "line": "You guide the outside contingents across campus. When rush hour hits, you're the steady voice.",
-        "tag": "reassuring campus presence"
-    },
-    "shruti": {
-        "line": "You oversee guest seating in the main auditorium. Front rows reserved and aisles kept clear.",
-        "tag": "orchestrating the gallery"
-    },
-    "rylan": {
-        "line": "You welcome colleges arriving by bus and train. First impressions of Xenith start with your greeting.",
-        "tag": "station arrival concierge"
-    },
-    "alvira": {
-        "line": "You handle guest coordination with poise. Reserved backstage passes and badges are always ready.",
-        "tag": "calm guest concierge"
-    },
-    "aqsa": {
-        "line": "You're at the central registration hub. Helping participants find their event tracks with ease.",
-        "tag": "streamlined pathway routing"
-    },
-    "yash": {
-        "line": "You keep the attendee lounge organized and welcoming. A warm base for everyone between events.",
-        "tag": "hospitality suite caretaker"
-    },
-    "kumar": {
-        "line": "You help manage the crowd at peak transitions. You keep movement between venues smooth.",
-        "tag": "traffic flow conductor"
-    },
-    "shravani": {
-        "line": "You provide assistance to participants throughout the festival halls. A reassuring presence.",
-        "tag": "welcoming wing attendant"
-    },
-    "niyati-singla": {
-        "line": "You're on the hospitality desk. Warm smiles, quick check-ins, and accurate directions every time.",
-        "tag": "friendly greeting station"
-    },
-    "bhoomi": {
-        "line": "You take care of guest hospitality for external judges and mentors. They are in great hands.",
-        "tag": "distinguished panel liaison"
+    "ryan": {
+        "line": "You pitched getting ISRO's Somanath on stage with zero hesitation. Reach for the stars.",
+        "tag": "isro chairman keynote pitch"
     }
 }
 
@@ -401,7 +401,6 @@ def format_role(pos):
     return "Volunteer"
 
 def main():
-    all_records = {}
     first_count = {}
     raw_vols = []
 
@@ -430,15 +429,12 @@ def main():
             slug = first
 
         role = format_role(raw_pos)
-        custom = LINES_DATA.get(slug, {})
+        custom = VOLUNTEER_LINES.get(slug, {})
         if "role" in custom:
             role = custom["role"]
 
-        line = custom.get("line")
-        tag = custom.get("tag")
-
-        if not line or not tag:
-            raise ValueError(f"Missing line or tag for {slug} ({name})")
+        line = custom["line"]
+        tag = custom["tag"]
 
         rec = {
             "name": name,
