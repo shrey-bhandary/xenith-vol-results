@@ -75,6 +75,17 @@
     }
   ];
 
+  // ---------- whatsapp group links ----------
+  // Replace "#" with the respective WhatsApp group invite links when available.
+  const WHATSAPP_GROUPS = {
+    "Assistance & Hospitality": "#",
+    "Creatives & Documentation": "#",
+    "Events & Admin": "#",
+    "Publicity": "#",
+    "Talks and Panels": "#",
+    "default": "#"
+  };
+
   let activeMode = (params.get("mode") === "explore") ? "explore" : "result";
   let activeDeptId = "events";
   let currentStampWord = (activeMode === "explore") ? "XENITH" : "SELECTED";
@@ -82,6 +93,7 @@
   function renderView() {
     const deptNav = $("#deptNav");
     const saveBtn = $("#save");
+    const waBtn = $("#whatsapp");
     const srOnly = document.querySelector(".stamp-wrap .sr-only");
 
     if (activeMode === "explore") {
@@ -107,6 +119,7 @@
       $("#line").textContent = cur.line;
       $("#name").textContent = cur.title;
       if (saveBtn) saveBtn.style.display = "none";
+      if (waBtn) waBtn.style.display = "none";
     } else {
       currentStampWord = "SELECTED";
       if (srOnly) srOnly.textContent = "selected";
@@ -115,6 +128,19 @@
       $("#line").textContent = person.line || "";
       $("#name").textContent = person.name || "";
       if (saveBtn) saveBtn.style.display = "";
+      if (waBtn) {
+        waBtn.style.display = "";
+        const waLink = WHATSAPP_GROUPS[person.dept] || WHATSAPP_GROUPS.default || "#";
+        waBtn.href = waLink;
+        if (waLink === "#") {
+          waBtn.onclick = (e) => {
+            e.preventDefault();
+            alert("WhatsApp group invite link will be active shortly.");
+          };
+        } else {
+          waBtn.onclick = null;
+        }
+      }
     }
   }
 

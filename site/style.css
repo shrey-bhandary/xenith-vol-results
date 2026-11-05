@@ -172,6 +172,18 @@ body.entered #content{
 }
 .save:focus-visible{outline:2px solid #fed235;outline-offset:3px}
 .save[disabled]{opacity:.4;cursor:wait}
+.whatsapp-btn{
+  background:linear-gradient(180deg, rgba(16,68,44,.9) 0%, rgba(8,36,22,.96) 100%);
+  border-color:rgba(37,211,102,.55);
+  color:#9ef0c0;
+  text-decoration:none;
+}
+.whatsapp-btn:hover{
+  background:linear-gradient(180deg, rgba(24,96,62,.98) 0%, rgba(12,50,32,1) 100%);
+  border-color:#25d366;
+  color:#ffffff;
+  box-shadow:0 6px 20px rgba(0,0,0,.7), 0 0 22px rgba(37,211,102,.5), inset 0 0 10px rgba(37,211,102,.2);
+}
 #line{
   margin:0 0 clamp(24px, 3.4vh, 32px) 0;
   max-width:44ch;
