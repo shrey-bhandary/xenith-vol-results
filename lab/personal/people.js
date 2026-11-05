@@ -494,7 +494,7 @@ window.XENITH_PEOPLE = {
     name: "Suhani Minocha",
     dept: "Talks and Panels",
     role: "Volunteer",
-    line: "Soch Jara jaane jaa tujhko ham kitna chahte hai... Rote hai ham bhi agar tere papa nahi aate hai.. Fintech ki Reponsibility aapki :)",
+    line: "Soch Jara jaane jaa tujhko ham kitna chahte hai... Rote hai ham bhi agar aapke papa nahi aate hai.. Fintech ki Reponsibility aapki :)",
     tag: "fintech keynote curator"
   },
   "joann": {
