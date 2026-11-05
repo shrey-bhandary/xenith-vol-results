@@ -18,154 +18,154 @@ window.XENITH_PEOPLE = {
     name: "Grayson Glen Rodrigues",
     dept: "Assistance & Hospitality",
     role: "Volunteer",
-    line: "You planned to carry fainted guests straight to the chemistry lab for ice. We like the dedication.",
+    line: "Congratulations on getting selected to Assistance and Hospitality. Welcome, we are glad to have you on the crew.",
     tag: "paramedic first responder"
   },
   "rayna": {
     name: "Rayna D'Souza",
     dept: "Assistance & Hospitality",
     role: "Volunteer",
-    line: "You answered that elevating legs is the key to fainting emergencies. Circulation restored on your watch.",
+    line: "Congratulations on getting selected to Assistance and Hospitality. Welcome, we are glad to have you on the crew.",
     tag: "emergency circulation expert"
   },
   "avni": {
     name: "Avni Paka",
     dept: "Assistance & Hospitality",
     role: "Volunteer",
-    line: "You answered that dispersing crowds and handing out Electral solves every emergency. Good thinking.",
+    line: "Congratulations on getting selected to Assistance and Hospitality. Welcome, we are glad to have you on the crew.",
     tag: "crowd dispersion strategist"
   },
   "ethan": {
     name: "Ethan Saldanha",
     dept: "Assistance & Hospitality",
     role: "Volunteer",
-    line: "You wrote that splashing water on faces is your first response. We saved a cold bottle for you.",
+    line: "Congratulations on getting selected to Assistance and Hospitality. Welcome, we are glad to have you on the crew.",
     tag: "hydrated revival unit"
   },
   "aden": {
     name: "Aden Sena",
     dept: "Assistance & Hospitality",
     role: "Volunteer",
-    line: "You planned to de-escalate fights by reminding everyone we're in college. Xenith needs that wisdom.",
+    line: "Congratulations on getting selected to Assistance and Hospitality. Welcome, we are glad to have you on the crew.",
     tag: "campus de-escalation diplomat"
   },
   "andrea": {
     name: "Andrea Dmello",
     dept: "Assistance & Hospitality",
     role: "Volunteer",
-    line: "You planned to march fighting attendees away from the stage and lecture the vendor. Pure leadership.",
+    line: "Congratulations on getting selected to Assistance and Hospitality. Welcome, we are glad to have you on the crew.",
     tag: "backstage vendor negotiator"
   },
   "ayan": {
     name: "Ayan Mariya Shaju",
     dept: "Assistance & Hospitality",
     role: "Volunteer",
-    line: "You promised guests space to breathe and no crowding in the quad. Xenith gives you the foyer.",
+    line: "Congratulations on getting selected to Assistance and Hospitality. Welcome, we are glad to have you on the crew.",
     tag: "quadrangle breathing room"
   },
   "cliet": {
     name: "Cliet Gonsalves",
     dept: "Assistance & Hospitality",
     role: "Volunteer",
-    line: "You wrote that damaged food packets get quarantined on arrival. Quality control starts with you.",
+    line: "Congratulations on getting selected to Assistance and Hospitality. Welcome, we are glad to have you on the crew.",
     tag: "packet quarantine inspector"
   },
   "gargi": {
     name: "Gargi Samse",
     dept: "Assistance & Hospitality",
     role: "Volunteer",
-    line: "You answered that you'll photograph damaged packets for a refund and hand out electrolytes. Festival genius.",
+    line: "Congratulations on getting selected to Assistance and Hospitality. Welcome, we are glad to have you on the crew.",
     tag: "refund proof photographer"
   },
   "leanne": {
     name: "Leanne Dias",
     dept: "Assistance & Hospitality",
     role: "Volunteer",
-    line: "You answered that you will get troublemakers out and solve issues immediately. We love the speed.",
+    line: "Congratulations on getting selected to Assistance and Hospitality. Welcome, we are glad to have you on the crew.",
     tag: "rapid problem resolution"
   },
   "neola": {
     name: "Neola Prisca Pereira",
     dept: "Assistance & Hospitality",
     role: "Volunteer",
-    line: "You planned to shield fainted guests from sunlight and label bad packets. Caring and thorough.",
+    line: "Congratulations on getting selected to Assistance and Hospitality. Welcome, we are glad to have you on the crew.",
     tag: "sunlight protection detail"
   },
   "raafiya": {
     name: "Raafiya Shaikh",
     dept: "Assistance & Hospitality",
     role: "Volunteer",
-    line: "You answered with proper first aid protocol before anyone else. The helpdesk is in safe hands.",
+    line: "Congratulations on getting selected to Assistance and Hospitality. Welcome, we are glad to have you on the crew.",
     tag: "certified first aid instinct"
   },
   "saeed": {
     name: "Saeed Chougule",
     dept: "Assistance & Hospitality",
     role: "Volunteer",
-    line: "You promised to guide visiting contingents and stay calm in the rush. The foyer is yours to run.",
+    line: "Congratulations on getting selected to Assistance and Hospitality. Welcome, we are glad to have you on the crew.",
     tag: "steady arrival coordinator"
   },
   "shruti": {
     name: "Shruti Kadam",
     dept: "Assistance & Hospitality",
     role: "Volunteer",
-    line: "You promised to contact your heads the second anyone faints in the quad. Good communication wins.",
+    line: "Congratulations on getting selected to Assistance and Hospitality. Welcome, we are glad to have you on the crew.",
     tag: "quick reporting channel"
   },
   "rylan": {
     name: "Rylan Dsouza",
     dept: "Assistance & Hospitality",
     role: "Volunteer",
-    line: "You answered that standing directly between two fighting attendees is the best move. Brave soul.",
+    line: "Congratulations on getting selected to Assistance and Hospitality. Welcome, we are glad to have you on the crew.",
     tag: "bold human barricade"
   },
   "alvira": {
     name: "Alvira Menezes",
     dept: "Assistance & Hospitality",
     role: "Volunteer",
-    line: "You answered that giving people space to breathe is your first instinct. Room to breathe guaranteed.",
+    line: "Congratulations on getting selected to Assistance and Hospitality. Welcome, we are glad to have you on the crew.",
     tag: "foyer breathing space host"
   },
   "aqsa": {
     name: "Aqsa Siddique",
     dept: "Assistance & Hospitality",
     role: "Volunteer",
-    line: "You answered that you'll calm arguing guests verbally without picking sides. Supreme diplomacy.",
+    line: "Congratulations on getting selected to Assistance and Hospitality. Welcome, we are glad to have you on the crew.",
     tag: "neutral grounds mediator"
   },
   "yash": {
     name: "Yash Kamble",
     dept: "Assistance & Hospitality",
     role: "Volunteer",
-    line: "You applied for Hospitality because you love welcoming new faces. The quad is ready for you.",
+    line: "Congratulations on getting selected to Assistance and Hospitality. Welcome, we are glad to have you on the crew.",
     tag: "welcoming foyer concierge"
   },
   "kumar": {
     name: "Kumar Shantanu",
     dept: "Assistance & Hospitality",
     role: "Volunteer",
-    line: "You submitted a four-point safety checklist before anyone else even finished reading. Very sharp.",
+    line: "Congratulations on getting selected to Assistance and Hospitality. Welcome, we are glad to have you on the crew.",
     tag: "meticulous protocol auditor"
   },
   "shravani": {
     name: "Shravani Palkar",
     dept: "Assistance & Hospitality",
     role: "Volunteer",
-    line: "You handle room bookings on campus, so you already know who took the keys. Xenith rooms are yours.",
+    line: "Congratulations on getting selected to Assistance and Hospitality. Welcome, we are glad to have you on the crew.",
     tag: "keeper of auditorium keys"
   },
   "niyati-singla": {
     name: "Niyati Singla",
     dept: "Assistance & Hospitality",
     role: "Volunteer",
-    line: "You answered that staying calm and finding quick alternatives is your superpower. Welcome in.",
+    line: "Congratulations on getting selected to Assistance and Hospitality. Welcome, we are glad to have you on the crew.",
     tag: "quick alternative thinker"
   },
   "bhoomi": {
     name: "Bhoomi Nalawade",
     dept: "Assistance & Hospitality",
     role: "Volunteer",
-    line: "You answered that you would immediately stop people from fighting. We love the peacekeeper energy.",
+    line: "Congratulations on getting selected to Assistance and Hospitality. Welcome, we are glad to have you on the crew.",
     tag: "quad mediator operative"
   },
   "sarvika": {
@@ -179,84 +179,84 @@ window.XENITH_PEOPLE = {
     name: "Dakshita Jadyar",
     dept: "Creatives & Documentation",
     role: "Volunteer",
-    line: "You wrote that if Xenith were a colour it would be burgundy with a playful emoji. Sold.",
+    line: "Congratulations on getting selected to Creatives and Documentation. Welcome, we are glad to have you on the crew.",
     tag: "merlot palette designer"
   },
   "joel": {
     name: "Joel Chettiar",
     dept: "Creatives & Documentation",
     role: "Volunteer",
-    line: "You pitched electric blue and neon purple for the fest visual lore. Cyberpunk dreams unlocked.",
+    line: "Congratulations on getting selected to Creatives and Documentation. Welcome, we are glad to have you on the crew.",
     tag: "synthwave gradient stylist"
   },
   "vidhi": {
     name: "Vidhi Bane",
     dept: "Creatives & Documentation",
     role: "Volunteer",
-    line: "You said Xenith should look like a Van Gogh painting of a galaxy. The canvas is yours to paint.",
+    line: "Congratulations on getting selected to Creatives and Documentation. Welcome, we are glad to have you on the crew.",
     tag: "impressionist starry rendering"
   },
   "krisha": {
     name: "Krisha Mohile",
     dept: "Creatives & Documentation",
     role: "Volunteer",
-    line: "You imagined Xenith as a digital world created by computers. Your renders will build it.",
+    line: "Congratulations on getting selected to Creatives and Documentation. Welcome, we are glad to have you on the crew.",
     tag: "cybernetic environment builder"
   },
   "manaswini": {
     name: "Manaswini R",
     dept: "Creatives & Documentation",
     role: "Volunteer",
-    line: "You wrote that Xenith should be represented by stars, the moon, and planets. Cosmic design approved.",
+    line: "Congratulations on getting selected to Creatives and Documentation. Welcome, we are glad to have you on the crew.",
     tag: "cosmic planet illustrations"
   },
   "angela": {
     name: "Angela M Baite",
     dept: "Creatives & Documentation",
     role: "Volunteer",
-    line: "You said if Xenith were a feeling it would be magical. We'll let your camera capture the magic.",
+    line: "Congratulations on getting selected to Creatives and Documentation. Welcome, we are glad to have you on the crew.",
     tag: "capturing festival magic"
   },
   "zeroun": {
     name: "Zeroun Creado",
     dept: "Creatives & Documentation",
     role: "Volunteer",
-    line: "You pitched a combination of tech and neon for Xavier's biggest IT fest. You get the front row.",
+    line: "Congratulations on getting selected to Creatives and Documentation. Welcome, we are glad to have you on the crew.",
     tag: "luminescent podium photographer"
   },
   "shanelle": {
     name: "Shanelle Barretto",
     dept: "Creatives & Documentation",
     role: "Volunteer",
-    line: "You envisioned dark computer aesthetics and clean shades. Your design eye is in high demand.",
+    line: "Congratulations on getting selected to Creatives and Documentation. Welcome, we are glad to have you on the crew.",
     tag: "dark mode aesthetic lead"
   },
   "angelisha": {
     name: "Angelisha Bhardwaj",
     dept: "Creatives & Documentation",
     role: "Volunteer",
-    line: "You proposed putting a giant X right in the middle of the shirt. The classic look never misses.",
+    line: "Congratulations on getting selected to Creatives and Documentation. Welcome, we are glad to have you on the crew.",
     tag: "apparel brand minimalist"
   },
   "jovian": {
     name: "Jovian Carvalho",
     dept: "Creatives & Documentation",
     role: "Volunteer",
-    line: "You said Xenith has that futuristic silver feeling. Time to bring the millennium aesthetic back.",
+    line: "Congratulations on getting selected to Creatives and Documentation. Welcome, we are glad to have you on the crew.",
     tag: "retro chrome animator"
   },
   "niyati-rastogi": {
     name: "Niyati Rastogi",
     dept: "Creatives & Documentation",
     role: "Volunteer",
-    line: "You pitched electric blue with sparks of neon yellow. That palette belongs on the main screen.",
+    line: "Congratulations on getting selected to Creatives and Documentation. Welcome, we are glad to have you on the crew.",
     tag: "high voltage art direction"
   },
   "ashish": {
     name: "Ashish Soren",
     dept: "Creatives & Documentation",
     role: "Volunteer",
-    line: "You chose shooting on the ground to capture live energy. Keep your lens ready for the chaos.",
+    line: "Congratulations on getting selected to Creatives and Documentation. Welcome, we are glad to have you on the crew.",
     tag: "floor footage archivist"
   },
   "aaditya": {
@@ -438,56 +438,56 @@ window.XENITH_PEOPLE = {
     name: "Anaya Do Rosario Mukerjie",
     dept: "Publicity",
     role: "Volunteer",
-    line: "You edit on DaVinci and pitched sharp reels for campus reach. Color grading Xenith starts now.",
+    line: "Congratulations on getting selected to Publicity. Welcome, we are glad to have you on the crew.",
     tag: "cinematic footage colorist"
   },
   "adhya": {
     name: "Adhya Agarwal",
     dept: "Publicity",
     role: "Volunteer",
-    line: "You pitched a reel showing someone whose college life needs an upgrade. Xenith is that upgrade.",
+    line: "Congratulations on getting selected to Publicity. Welcome, we are glad to have you on the crew.",
     tag: "promotional broadcast producer"
   },
   "archit": {
     name: "Archit Soni",
     dept: "Publicity",
     role: "Volunteer",
-    line: "You pitched a parody reel roasting other college publicity campaigns. We need that humor on our page.",
+    line: "Congratulations on getting selected to Publicity. Welcome, we are glad to have you on the crew.",
     tag: "campus parody reel writer"
   },
   "aaron": {
     name: "Aaron Shibu John",
     dept: "Publicity",
     role: "Volunteer",
-    line: "You suggested walking up to people in the canteen to make them follow us. Bold publicity tactics.",
+    line: "Congratulations on getting selected to Publicity. Welcome, we are glad to have you on the crew.",
     tag: "canteen ambush marketing"
   },
   "siya-agnes-dsouza": {
     name: "Siya Agnes Dsouza",
     dept: "Publicity",
     role: "Volunteer",
-    line: "You wrote that everyone needs an upgrade this semester. You're the one delivering the hype.",
+    line: "Congratulations on getting selected to Publicity. Welcome, we are glad to have you on the crew.",
     tag: "amplified university network"
   },
   "raj": {
     name: "Raj Bhatia",
     dept: "Publicity",
     role: "Volunteer",
-    line: "You cited tech trends and competitive GDs in your application. That energy belongs in Publicity.",
+    line: "Congratulations on getting selected to Publicity. Welcome, we are glad to have you on the crew.",
     tag: "competitive trend watcher"
   },
   "stuart": {
     name: "Stuart Cerejo",
     dept: "Publicity",
     role: "Volunteer",
-    line: "You proposed putting live tech demos in the foyer to turn heads. Guerrilla marketing approved.",
+    line: "Congratulations on getting selected to Publicity. Welcome, we are glad to have you on the crew.",
     tag: "ambient activation strategist"
   },
   "shania": {
     name: "Shania Dsilva",
     dept: "Publicity",
     role: "Volunteer",
-    line: "You pitched a comedic sketch about someone panicking over a dead phone. Peak internet humor.",
+    line: "Congratulations on getting selected to Publicity. Welcome, we are glad to have you on the crew.",
     tag: "hilarious content creator"
   },
   "shreyas": {
@@ -557,21 +557,21 @@ window.XENITH_PEOPLE = {
     name: "Niyati Singla",
     dept: "Assistance & Hospitality",
     role: "Volunteer",
-    line: "You answered that staying calm and finding quick alternatives is your superpower. Welcome in.",
+    line: "Congratulations on getting selected to Assistance and Hospitality. Welcome, we are glad to have you on the crew.",
     tag: "quick alternative thinker"
   },
   "niyatis": {
     name: "Niyati Singla",
     dept: "Assistance & Hospitality",
     role: "Volunteer",
-    line: "You answered that staying calm and finding quick alternatives is your superpower. Welcome in.",
+    line: "Congratulations on getting selected to Assistance and Hospitality. Welcome, we are glad to have you on the crew.",
     tag: "quick alternative thinker"
   },
   "niyatir": {
     name: "Niyati Rastogi",
     dept: "Creatives & Documentation",
     role: "Volunteer",
-    line: "You pitched electric blue with sparks of neon yellow. That palette belongs on the main screen.",
+    line: "Congratulations on getting selected to Creatives and Documentation. Welcome, we are glad to have you on the crew.",
     tag: "high voltage art direction"
   },
   "siya": {
@@ -592,14 +592,14 @@ window.XENITH_PEOPLE = {
     name: "Siya Agnes Dsouza",
     dept: "Publicity",
     role: "Volunteer",
-    line: "You wrote that everyone needs an upgrade this semester. You're the one delivering the hype.",
+    line: "Congratulations on getting selected to Publicity. Welcome, we are glad to have you on the crew.",
     tag: "amplified university network"
   },
   "siya-agnes": {
     name: "Siya Agnes Dsouza",
     dept: "Publicity",
     role: "Volunteer",
-    line: "You wrote that everyone needs an upgrade this semester. You're the one delivering the hype.",
+    line: "Congratulations on getting selected to Publicity. Welcome, we are glad to have you on the crew.",
     tag: "amplified university network"
   },
   "marc": {
@@ -613,7 +613,7 @@ window.XENITH_PEOPLE = {
     name: "Kumar Shantanu",
     dept: "Assistance & Hospitality",
     role: "Volunteer",
-    line: "You submitted a four-point safety checklist before anyone else even finished reading. Very sharp.",
+    line: "Congratulations on getting selected to Assistance and Hospitality. Welcome, we are glad to have you on the crew.",
     tag: "meticulous protocol auditor"
   },
   "adwitiya": {

@@ -436,6 +436,15 @@ def main():
         line = custom["line"]
         tag = custom["tag"]
 
+        # Simple congratulatory welcome line for all volunteers outside Events & Admin and Talks & Panels
+        if dept not in ("Events & Admin", "Talks and Panels") and role == "Volunteer":
+            if dept == "Creatives & Documentation":
+                line = "Congratulations on getting selected to Creatives and Documentation. Welcome, we are glad to have you on the crew."
+            elif dept == "Publicity":
+                line = "Congratulations on getting selected to Publicity. Welcome, we are glad to have you on the crew."
+            elif dept == "Assistance & Hospitality":
+                line = "Congratulations on getting selected to Assistance and Hospitality. Welcome, we are glad to have you on the crew."
+
         rec = {
             "name": name,
             "dept": dept,
