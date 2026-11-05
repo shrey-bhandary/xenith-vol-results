@@ -76,15 +76,42 @@
   ];
 
   // ---------- whatsapp group links ----------
-  // Replace "#" with the respective WhatsApp group invite links when available.
-  const WHATSAPP_GROUPS = {
-    "Assistance & Hospitality": "#",
-    "Creatives & Documentation": "#",
-    "Events & Admin": "#",
-    "Publicity": "#",
-    "Talks and Panels": "#",
-    "default": "#"
+  const WHATSAPP_LINKS = {
+    talks: "https://chat.whatsapp.com/LGsNfqXoneTGq5q3vFc17P",
+    eventsVol: "https://chat.whatsapp.com/FFcVvmsXHGe3QUVvRKWZ2h",
+    adminVol: "https://chat.whatsapp.com/KUgCYDp8hOA9XMHK2F7E4N",
+    eventsXAdmin: "https://chat.whatsapp.com/CH1UQTadXuD48IPbaMlhxx"
   };
+
+  const ADMIN_CREW = new Set([
+    "siya-kapoor", "siya", "vasu", "sharen", "trinity", "mark", "marc", "aditri", "tejas"
+  ]);
+
+  function getWhatsAppLinks(person, slug) {
+    const d = (person.dept || "").toLowerCase();
+    if (d.includes("talks")) {
+      return [
+        { label: "join talks group", url: WHATSAPP_LINKS.talks }
+      ];
+    }
+    if (d.includes("events")) {
+      const isAdmin = ADMIN_CREW.has(slug);
+      if (isAdmin) {
+        return [
+          { label: "join admin group", url: WHATSAPP_LINKS.adminVol },
+          { label: "join events x admin", url: WHATSAPP_LINKS.eventsXAdmin }
+        ];
+      } else {
+        return [
+          { label: "join events group", url: WHATSAPP_LINKS.eventsVol },
+          { label: "join events x admin", url: WHATSAPP_LINKS.eventsXAdmin }
+        ];
+      }
+    }
+    return [
+      { label: "join whatsapp group", url: "#" }
+    ];
+  }
 
   let activeMode = (params.get("mode") === "explore") ? "explore" : "result";
   let activeDeptId = "events";
@@ -93,7 +120,7 @@
   function renderView() {
     const deptNav = $("#deptNav");
     const saveBtn = $("#save");
-    const waBtn = $("#whatsapp");
+    const waLinksEl = $("#waLinks");
     const srOnly = document.querySelector(".stamp-wrap .sr-only");
 
     if (activeMode === "explore") {
@@ -119,7 +146,7 @@
       $("#line").textContent = cur.line;
       $("#name").textContent = cur.title;
       if (saveBtn) saveBtn.style.display = "none";
-      if (waBtn) waBtn.style.display = "none";
+      if (waLinksEl) waLinksEl.innerHTML = "";
     } else {
       currentStampWord = "SELECTED";
       if (srOnly) srOnly.textContent = "selected";
@@ -128,18 +155,29 @@
       $("#line").textContent = person.line || "";
       $("#name").textContent = person.name || "";
       if (saveBtn) saveBtn.style.display = "";
-      if (waBtn) {
-        waBtn.style.display = "";
-        const waLink = WHATSAPP_GROUPS[person.dept] || WHATSAPP_GROUPS.default || "#";
-        waBtn.href = waLink;
-        if (waLink === "#") {
-          waBtn.onclick = (e) => {
-            e.preventDefault();
-            alert("WhatsApp group invite link will be active shortly.");
-          };
-        } else {
-          waBtn.onclick = null;
-        }
+      if (waLinksEl) {
+        waLinksEl.innerHTML = "";
+        const waItems = getWhatsAppLinks(person, key);
+        waItems.forEach((item) => {
+          const a = document.createElement("a");
+          a.className = "save whatsapp-btn";
+          a.href = item.url;
+          a.target = "_blank";
+          a.rel = "noopener noreferrer";
+          a.innerHTML = `
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.816 9.816 0 0 0 12.04 2m.01 1.67c2.2 0 4.26.86 5.82 2.41a8.225 8.225 0 0 1 2.41 5.83c0 4.54-3.7 8.24-8.24 8.24-1.48 0-2.93-.4-4.2-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.196 8.196 0 0 1-1.26-4.38c0-4.54 3.7-8.24 8.24-8.24m-3.53 4.25c-.19 0-.42.07-.64.31-.22.25-.85.83-.85 2.03 0 1.2.88 2.36 1 2.53.13.16 1.71 2.68 4.2 3.65 1.63.63 2.27.69 3.09.57.5-.07 1.54-.63 1.76-1.24.22-.61.22-1.13.15-1.24-.07-.11-.26-.18-.55-.32-.29-.15-1.74-.86-2.01-.96-.27-.1-.47-.15-.67.15-.2.3-.77.96-.94 1.16-.17.19-.34.22-.64.07-.29-.15-1.24-.46-2.37-1.46-.88-.78-1.47-1.75-1.64-2.04-.17-.3-.02-.46.13-.6.13-.13.3-.34.45-.51.15-.17.2-.29.3-.48.1-.2.05-.37-.02-.52-.08-.15-.67-1.62-.92-2.22-.24-.58-.49-.5-.67-.51"/>
+            </svg>
+            ${item.label}
+          `;
+          if (item.url === "#") {
+            a.onclick = (e) => {
+              e.preventDefault();
+              alert("WhatsApp group invite link for this department will be active shortly.");
+            };
+          }
+          waLinksEl.appendChild(a);
+        });
       }
     }
   }

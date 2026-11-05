@@ -145,6 +145,7 @@ body.entered #content{
   margin-right:calc(0px + env(safe-area-inset-right, 0px));
   margin-bottom:calc(0px + env(safe-area-inset-bottom, 0px));
 }
+#waLinks{display:contents}
 .save{
   margin:0;
   background:linear-gradient(180deg, rgba(46,18,78,.85) 0%, rgba(20,8,42,.95) 100%);
