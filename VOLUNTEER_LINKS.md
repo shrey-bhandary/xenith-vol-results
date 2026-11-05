@@ -68,6 +68,8 @@ Direct links to each volunteer's personalized easter-egg card and gate reveal on
 
 ## Creatives & Documentation
 
+> **Creatives & Documentation WhatsApp Group**: https://chat.whatsapp.com/IwZmGoRIsV5KWKUkyLuWEu?s=sw&p=a&iam=2
+
 | # | Name | Role | Personal Result Link |
 |---|---|---|---|
 | 1 | Sarvika Rajula | Head | [https://results.xenithfest.in/site/intro/?p=sarvika](https://results.xenithfest.in/site/intro/?p=sarvika) |

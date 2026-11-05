@@ -82,7 +82,8 @@
     adminVol: "https://chat.whatsapp.com/ImUkwP8xh10K4q9OoxcpPn",
     eventsXAdmin: "https://chat.whatsapp.com/Ldux3gTtSLl4EuERClN7GN",
     publicity: "https://chat.whatsapp.com/Jy0y5CM4RdkACepCPt4oKi?s=cl&p=a&iam=2",
-    hospitality: "https://chat.whatsapp.com/B6if8jpEmSbDJizxJ4A9Fb?s=cl&p=a&iam=2"
+    hospitality: "https://chat.whatsapp.com/B6if8jpEmSbDJizxJ4A9Fb?s=cl&p=a&iam=2",
+    creatives: "https://chat.whatsapp.com/IwZmGoRIsV5KWKUkyLuWEu?s=sw&p=a&iam=2"
   };
 
   const ADMIN_CREW = new Set([
@@ -105,6 +106,11 @@
     if (d.includes("hospitality") || d.includes("assistance")) {
       return [
         { label: "join hospitality group", url: WHATSAPP_LINKS.hospitality }
+      ];
+    }
+    if (d.includes("creatives") || d.includes("doc")) {
+      return [
+        { label: "join creatives group", url: WHATSAPP_LINKS.creatives }
       ];
     }
     if (d.includes("events")) {
