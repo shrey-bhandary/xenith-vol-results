@@ -86,20 +86,32 @@
 <script src="ours-xenith.js?v=1"></script>
 
 <script>
-(function(){
-  var ADMIN = "https://chat.whatsapp.com/ImUkwP8xh10K4q9OoxcpPn";
-  var EVENTS = "https://chat.whatsapp.com/BrtqrsZfFQEG5BezyKL62s";
-  var ADMIN_SET = "aaditya,ricco,siya-kapoor,vasu,sharen,trinity,mark,aditri".split(",");
-  var EVENTS_SET = "amy,alastair,royden,adelaide,naisha,bhavna,madhura,sanskrati,vaibhav,manan,satwik,dhriti,khushi,manthan,liyaan".split(",");
+(function () {
+  // The group links for Events & Admin. Admin crew get the admin group, every
+  // other Events & Admin volunteer gets the events group, and everyone gets the
+  // community.
+  var COMMUNITY = "https://chat.whatsapp.com/Ldux3gTtSLl4EuERClN7GN";
+  var ADMIN     = "https://chat.whatsapp.com/ImUkwP8xh10K4q9OoxcpPn";
+  var EVENTS    = "https://chat.whatsapp.com/BrtqrsZfFQEG5BezyKL62s";
+  var ADMIN_CREW = ["siya-kapoor", "siya", "vasu", "sharen", "trinity", "mark", "marc", "aditri", "tejas"];
+
   var p = (new URLSearchParams(location.search).get("p") || "").toLowerCase();
-  var href = "", label = "";
-  if (ADMIN_SET.indexOf(p) >= 0) { href = ADMIN; label = "join the admin group"; }
-  else if (EVENTS_SET.indexOf(p) >= 0) { href = EVENTS; label = "join the events group"; }
-  if (href) {
-    var box = document.getElementById("join");
-    var a = document.getElementById("joinGroup");
-    if (box && a) { a.href = href; a.textContent = label; box.hidden = false; }
-  }
+  var people = window.XENITH_PEOPLE || {};
+  var rec = people[p];
+  var dept = rec ? String(rec.dept || "").toLowerCase() : "";
+
+  if (!rec || dept.indexOf("events") < 0) return;
+
+  var isAdmin = ADMIN_CREW.indexOf(p) >= 0;
+  var box = document.getElementById("join");
+  var group = document.getElementById("joinGroup");
+  var comm = document.getElementById("joinCommunity");
+  if (!box || !group || !comm) return;
+
+  group.href = isAdmin ? ADMIN : EVENTS;
+  group.textContent = isAdmin ? "join the admin group" : "join the events group";
+  comm.href = COMMUNITY;
+  box.hidden = false;
 })();
 </script>
 </body>

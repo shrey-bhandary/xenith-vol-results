@@ -7,7 +7,7 @@
 (function(){
   try {
     var p = (new URLSearchParams(location.search).get("p") || "").toLowerCase();
-    var OURS = "aaditya,ricco,siya-kapoor,vasu,sharen,trinity,mark,aditri,amy,alastair,royden,adelaide,naisha,bhavna,madhura,sanskrati,vaibhav,manan,satwik,dhriti,khushi,manthan,liyaan".split(",");
+    var OURS = "aaditya,ricco,tejas,siya-kapoor,vasu,sharen,trinity,mark,aditri,amy,alastair,royden,adelaide,naisha,bhavna,madhura,sanskrati,vaibhav,manan,satwik,dhriti,khushi,manthan,liyaan,siya,siyak,marc,adwitiya".split(",");
     if (OURS.indexOf(p) >= 0 && location.pathname.indexOf("ours.html") < 0) {
       location.replace("ours.html" + location.search + location.hash);
     }

@@ -78,9 +78,9 @@
   // ---------- whatsapp group links ----------
   const WHATSAPP_LINKS = {
     talks: "https://chat.whatsapp.com/LGsNfqXoneTGq5q3vFc17P",
-    eventsVol: "https://chat.whatsapp.com/FFcVvmsXHGe3QUVvRKWZ2h",
-    adminVol: "https://chat.whatsapp.com/KUgCYDp8hOA9XMHK2F7E4N",
-    eventsXAdmin: "https://chat.whatsapp.com/CH1UQTadXuD48IPbaMlhxx",
+    eventsVol: "https://chat.whatsapp.com/BrtqrsZfFQEG5BezyKL62s",
+    adminVol: "https://chat.whatsapp.com/ImUkwP8xh10K4q9OoxcpPn",
+    eventsXAdmin: "https://chat.whatsapp.com/Ldux3gTtSLl4EuERClN7GN",
     publicity: "https://chat.whatsapp.com/Jy0y5CM4RdkACepCPt4oKi?s=cl&p=a&iam=2",
     hospitality: "https://chat.whatsapp.com/B6if8jpEmSbDJizxJ4A9Fb?s=cl&p=a&iam=2"
   };
