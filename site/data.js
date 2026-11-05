@@ -501,42 +501,42 @@ window.XENITH_PEOPLE = {
     name: "Joann Sarah Matthew",
     dept: "Talks and Panels",
     role: "Volunteer",
-    line: "You pitched Shark Tank Meme Edition where funny ideas get fake funding. That panel needs to exist.",
+    line: "Bonjour Joann, Welcome to the teammmm.. Your response to the form has been the most amazing one we have ever seen",
     tag: "viral pitch night organizer"
   },
   "katherine": {
     name: "Katherine Augustine",
     dept: "Talks and Panels",
     role: "Volunteer",
-    line: "You answered that brand alignment matters more than sketchy money. Ethical and sharp.",
+    line: "Congratulationsssss Katherine, You are selected for the Talks and Panels Team! You have to get some MITs Professors now :)",
     tag: "principled corporate strategist"
   },
   "arijeet": {
     name: "Arijeet Ray",
     dept: "Talks and Panels",
     role: "Volunteer",
-    line: "You cited Ramayan and Sanjay Leela Bhansali contacts in your form. You're booking the guests.",
+    line: "Lala Ranbir kapoor ko bulana padega terkooooo, esha patt jaayegi phir :)",
     tag: "bollywood contacts roster"
   },
   "nandini": {
     name: "Nandini Thakur",
     dept: "Talks and Panels",
     role: "Volunteer",
-    line: "You promised contacts in pharma and cinema for our panels. The speaker green room is yours.",
+    line: "Congratulations Nandini! You are selected for the Talks and Panels Team! You have to get some Pharma and Bollywood contacts now :)",
     tag: "distinguished speaker host"
   },
   "devang": {
     name: "Devang Singh",
     dept: "Talks and Panels",
     role: "Volunteer",
-    line: "You've anchored commercial events, then asked what Xenith actually is. You'll find out on stage.",
+    line: "Congratulations Devang! You are selected for the Talks and Panels Team! You have great outreach abilities, just get the sand out of your camera :)",
     tag: "emcee presenter ready"
   },
   "ryan": {
     name: "Ryan Joseph Johnson",
     dept: "Talks and Panels",
     role: "Volunteer",
-    line: "You pitched getting ISRO's Somanath on stage with zero hesitation. Reach for the stars.",
+    line: "Congratulations Ryan! You are selected for the Talks and Panels Team! Now you have to get Shashi Tharoor to the Xenith's Stage, Also Enjoy your Vacation in Keralam :) ",
     tag: "isro chairman keynote pitch"
   },
   "niyati": {
