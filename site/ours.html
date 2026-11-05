@@ -93,7 +93,10 @@
   var COMMUNITY = "https://chat.whatsapp.com/Ldux3gTtSLl4EuERClN7GN";
   var ADMIN     = "https://chat.whatsapp.com/ImUkwP8xh10K4q9OoxcpPn";
   var EVENTS    = "https://chat.whatsapp.com/BrtqrsZfFQEG5BezyKL62s";
-  var ADMIN_CREW = ["aaditya", "ricco", "tejas", "siya-kapoor", "siya", "siyak", "vasu", "sharen", "trinity", "mark", "marc", "aditri"];
+  var ADMIN_CREW = ["siya-kapoor", "siya", "siyak", "vasu", "sharen", "trinity", "mark", "marc", "aditri"];
+  // CORE is already in both groups and in the community, so they get the page
+  // without any join buttons.
+  var CORE = ["aaditya", "ricco", "tejas"];
 
   var p = (new URLSearchParams(location.search).get("p") || "").toLowerCase();
   var people = window.XENITH_PEOPLE || {};
@@ -101,6 +104,7 @@
   var dept = rec ? String(rec.dept || "").toLowerCase() : "";
 
   if (!rec || dept.indexOf("events") < 0) return;
+  if (CORE.indexOf(p) >= 0) return;
 
   var isAdmin = ADMIN_CREW.indexOf(p) >= 0;
   var box = document.getElementById("join");
